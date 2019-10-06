@@ -15,10 +15,11 @@ namespace DataService.Models
         {
         }
 
-        public virtual DbSet<Checks> Checks { get; set; }
+        public virtual DbSet<AnaCMoney> AnaCMoney { get; set; }
+        public virtual DbSet<AnaFutureEngine> AnaFutureEngine { get; set; }
+        public virtual DbSet<AnaStatementDogs> AnaStatementDogs { get; set; }
         public virtual DbSet<Infomations> Infomations { get; set; }
         public virtual DbSet<Prices> Prices { get; set; }
-        public virtual DbSet<Remarks> Remarks { get; set; }
         public virtual DbSet<Seasons> Seasons { get; set; }
         public virtual DbSet<Stocks> Stocks { get; set; }
 
@@ -33,7 +34,51 @@ namespace DataService.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Checks>(entity =>
+            modelBuilder.Entity<AnaCMoney>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.CreatedOn).HasColumnType("datetime");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Remark)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.StockId)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<AnaFutureEngine>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.CreatedOn).HasColumnType("datetime");
+
+                entity.Property(e => e.Description)
+                    .IsRequired()
+                    .HasMaxLength(512);
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.StockId)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Type)
+                    .IsRequired()
+                    .HasMaxLength(512);
+            });
+
+            modelBuilder.Entity<AnaStatementDogs>(entity =>
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
@@ -109,26 +154,6 @@ namespace DataService.Models
                 entity.Property(e => e.外資持股比例).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.融資使用率).HasColumnType("numeric(18, 2)");
-            });
-
-            modelBuilder.Entity<Remarks>(entity =>
-            {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
-                entity.Property(e => e.CreatedOn).HasColumnType("datetime");
-
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasMaxLength(50);
-
-                entity.Property(e => e.Remark)
-                    .IsRequired()
-                    .HasMaxLength(50);
-
-                entity.Property(e => e.StockId)
-                    .IsRequired()
-                    .HasMaxLength(8)
-                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<Seasons>(entity =>

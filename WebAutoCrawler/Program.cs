@@ -19,9 +19,8 @@ namespace WebCrawler
             var s = Stopwatch.StartNew();
             s.Start();
 
-            var h = new Assess(); 
-            await h.Execute();
-            h.Complete();
+            var h = new FutuneEngineCrawler(); 
+            await h.ExecuteAsync();
 
             s.Stop();
             Console.WriteLine(s.Elapsed.TotalMinutes);
