@@ -7,6 +7,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebCrawler", "WebCrawler\We
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAutoCrawler", "WebAutoCrawler\WebAutoCrawler.csproj", "{69BB6712-1321-4001-83CD-AE4D3AFA4C21}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataService", "DataService\DataService.csproj", "{591E9BB3-E35F-4356-802E-0A48FFAD14A6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messages", "Messages\Messages.csproj", "{890D94B3-4863-4C12-9CBF-643E82933B11}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E482A863-F0F3-4552-BE86-2810D46DDCEB}"
+	ProjectSection(SolutionItems) = preProject
+		Readme.md = Readme.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +30,14 @@ Global
 		{69BB6712-1321-4001-83CD-AE4D3AFA4C21}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69BB6712-1321-4001-83CD-AE4D3AFA4C21}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69BB6712-1321-4001-83CD-AE4D3AFA4C21}.Release|Any CPU.Build.0 = Release|Any CPU
+		{591E9BB3-E35F-4356-802E-0A48FFAD14A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{591E9BB3-E35F-4356-802E-0A48FFAD14A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{591E9BB3-E35F-4356-802E-0A48FFAD14A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{591E9BB3-E35F-4356-802E-0A48FFAD14A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{890D94B3-4863-4C12-9CBF-643E82933B11}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{890D94B3-4863-4C12-9CBF-643E82933B11}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{890D94B3-4863-4C12-9CBF-643E82933B11}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{890D94B3-4863-4C12-9CBF-643E82933B11}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

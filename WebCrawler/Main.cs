@@ -1,5 +1,4 @@
-﻿using ConsoleApp.Models;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,36 +6,20 @@ using System.Threading.Tasks;
 
 namespace ConsoleApp
 {
-    class Program
+    class CheckModel
     {
         static async Task Main(string[] args)
         {
-            //Update Model
-            //Scaffold-DbContext "Server=localhost;Database=StockDb;User ID=sa;Password=sa;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Force -UseDatabaseNames
+            //string url = "http://5850web.moneydj.com/z/zc/zcx/zcxNew_2498.djhtm";
+            //string stockDepositUrl = "https://statementdog.com/analysis/tpe/6153";
 
-            //var context = new StockDbContext();
-
-            //var stock = new Stocks()
-            //{
-            //};
-
-
-
-            string url = "http://5850web.moneydj.com/z/zc/zcx/zcxNew_2498.djhtm";
-            string stockDepositUrl = "https://statementdog.com/analysis/tpe/6153";
-
-            string stockHealthCheckUrl = "https://statementdog.com/analysis/tpe/6153/stock-health-check";
+            string stockHealthCheckUrl = "https://www.cmoney.tw/finance/f00025.aspx?s=2330";
 
             var rootNode = GetRootNoteByUrl(stockHealthCheckUrl);
 
-            var ss = rootNode.SelectSingleNode(@"/html/body");
-
-            var ss1 = rootNode.SelectNodes(@"//div[contains(@class, 'stock-health-check-module-score-description')]");
-
-            for (int i = 0; i < ss1.Count; i++)
-            {
-                var s = ss1[i].InnerHtml;
-            }
+            var ss = rootNode.SelectSingleNode(@"/html/body/div[1]/div[2]/div[4]/div[2]/ul[1]/li[2]/div/div[1]/div[1]/div[3]");
+            //"/html/body/div[1]/div[2]/div[4]/article/div[2]/ul[1]/li[2]/article/div/div[1]/div[1]/div[3]"
+            var s = ss.InnerText;
 
             ////*[@id="stock-health-result"]/div[2]
             /////html/body/div[2]/div[3]/div/div[2]/div[2]

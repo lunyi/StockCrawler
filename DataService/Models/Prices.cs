@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ConsoleApp.Models
+namespace DataService.Models
 {
     public partial class Prices
     {

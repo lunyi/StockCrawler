@@ -9,6 +9,12 @@
 
   <ItemGroup>
     <PackageReference Include="Selenium.WebDriver" Version="4.0.0-alpha03" />
+    <PackageReference Include="System.Collections" Version="4.3.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DataService\DataService.csproj" />
+    <ProjectReference Include="..\Messages\Messages.csproj" />
   </ItemGroup>
 
 </Project>

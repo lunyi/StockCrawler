@@ -1,0 +1,1 @@
+Scaffold-DbContext "Server=localhost;Database=StockDb;User ID=sa;Password=sa;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Force -UseDatabaseNames
