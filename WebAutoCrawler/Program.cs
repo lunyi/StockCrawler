@@ -1,14 +1,4 @@
-﻿using DataService.Models;
-using Messages;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using WebAutoCrawler;
+﻿using WebAutoCrawler;
 
 namespace WebCrawler
 {
@@ -19,8 +9,9 @@ namespace WebCrawler
             var s = Stopwatch.StartNew();
             s.Start();
 
-            var h = new FutuneEngineCrawler(); 
+            var h = new FutuneEngineCrawler();
             await h.ExecuteAsync();
+            ~h;
 
             s.Stop();
             Console.WriteLine(s.Elapsed.TotalMinutes);

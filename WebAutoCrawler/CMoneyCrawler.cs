@@ -1,12 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using DataService.Models;
-using Microsoft.EntityFrameworkCore;
-using OpenQA.Selenium;
-
-namespace WebAutoCrawler
+﻿namespace WebAutoCrawler
 {
     public class CMoneyCrawler : BaseCrawler
     {

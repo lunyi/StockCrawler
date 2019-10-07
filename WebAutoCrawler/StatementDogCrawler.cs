@@ -1,14 +1,4 @@
-﻿using DataService.Models;
-using Messages;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Chrome;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace WebAutoCrawler
+﻿namespace WebAutoCrawler
 {
     public class StatementDogCrawler : BaseCrawler
     {

@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using DataService.Models;
-using Microsoft.EntityFrameworkCore;
-using OpenQA.Selenium;
-
-namespace WebAutoCrawler
+﻿namespace WebAutoCrawler
 {
     public class FutuneEngineCrawler : BaseCrawler
     {
@@ -33,11 +24,11 @@ namespace WebAutoCrawler
                 var desc = _driver.FindElement(By.Id("tbIndcat"));
                 var ths = desc.FindElements(By.ClassName("th"));
                 var fas = desc.FindElements(By.ClassName("fas"));
-              
-                for (int j  = 0; j < ths.Count; j++)
+
+                for (int j = 0; j < ths.Count; j++)
                 {
                     var foo = fas[j].GetAttribute("class");
-                    var ana = new AnaFutureEngine 
+                    var ana = new AnaFutureEngine
                     {
                         Id = Guid.NewGuid(),
                         StockId = stockId,
@@ -47,7 +38,7 @@ namespace WebAutoCrawler
                         Type = title1.Text,
                         CreatedOn = DateTime.Now,
                     };
- 
+
                     list.Add(ana);
                 }
             }
