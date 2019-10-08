@@ -147,4 +147,7 @@ app {
         /* Never collapse the sidebar for wide screens */
         display: block;
     }
+    .todo .done {
+        text-decoration:line-through;
+    }
 }

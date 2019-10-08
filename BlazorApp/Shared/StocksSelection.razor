@@ -1,0 +1,18 @@
+﻿
+
+@using DataService.Models
+
+<select onchange="">
+
+    @foreach (var stock in stocks)
+    {
+    <option id="@stock.StockId">@stock.StockId - @stock.Name</option>
+    }
+
+</select>
+
+@code {
+    [Parameter]
+    public IList<Stocks> stocks { get; set; }
+}
+

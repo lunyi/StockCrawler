@@ -1,5 +1,31 @@
 ﻿@page "/"
 
+@*<div class="todo">
+    <input type="checkbox" checked=@done>
+    @text
+</div>
+
+@code{
+    string text = "Watch videos about Blazor";
+    bool done = true;
+}*@
+
+
+@*<TodoItem  Text= "Watch videos about blazors" />
+
+<TodoItem Text="Check videos about blazors" />*@
+
+<TodoList Todos="@todos" />
+
+@code {
+
+    IList<Todo> todos = new List<Todo> {
+        new Todo { Text = "Watch video about blazors"},
+        new Todo { Text = "Create own blazor app"}
+    };
+}
+
+
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
