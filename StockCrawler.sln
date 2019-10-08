@@ -16,6 +16,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Readme.md = Readme.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockWeb", "StockWeb\StockWeb.csproj", "{31978D52-9D0A-4F75-9D14-4293EB1FF990}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockMvc", "StockMvc\StockMvc.csproj", "{54BE0C05-E4C6-475B-A517-1810D5E63ABE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +42,14 @@ Global
 		{890D94B3-4863-4C12-9CBF-643E82933B11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{890D94B3-4863-4C12-9CBF-643E82933B11}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{890D94B3-4863-4C12-9CBF-643E82933B11}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31978D52-9D0A-4F75-9D14-4293EB1FF990}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31978D52-9D0A-4F75-9D14-4293EB1FF990}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31978D52-9D0A-4F75-9D14-4293EB1FF990}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31978D52-9D0A-4F75-9D14-4293EB1FF990}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54BE0C05-E4C6-475B-A517-1810D5E63ABE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54BE0C05-E4C6-475B-A517-1810D5E63ABE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54BE0C05-E4C6-475B-A517-1810D5E63ABE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54BE0C05-E4C6-475B-A517-1810D5E63ABE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
