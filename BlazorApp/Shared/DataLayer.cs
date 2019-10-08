@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DataService.Models;
 
-namespace BlazorApp.Data
+namespace BlazorApp.Shared
 {
     public interface IDataLayer
     {
@@ -15,7 +15,7 @@ namespace BlazorApp.Data
         Stocks[] IDataLayer.GetStocks()
         {
             var context = new StockDbContext();
-            return context.Stocks.ToArray();
+            return context.Stocks.OrderBy(p=>p.StockId).ToArray();
         }
     }
 }
