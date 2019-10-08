@@ -1,4 +1,7 @@
-﻿using WebAutoCrawler;
+﻿using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using WebAutoCrawler;
 
 namespace WebCrawler
 {
@@ -11,7 +14,7 @@ namespace WebCrawler
 
             var h = new FutuneEngineCrawler();
             await h.ExecuteAsync();
-            ~h;
+            //~h;
 
             s.Stop();
             Console.WriteLine(s.Elapsed.TotalMinutes);

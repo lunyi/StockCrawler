@@ -1,4 +1,12 @@
-﻿namespace WebAutoCrawler
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using DataService.Models;
+using OpenQA.Selenium;
+
+namespace WebAutoCrawler
 {
     public class FutuneEngineCrawler : BaseCrawler
     {
