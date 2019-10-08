@@ -1,24 +1,22 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29324.140
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.705
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebCrawler", "WebCrawler\WebCrawler.csproj", "{DC4A7997-0FEB-468A-A822-44277BA640B3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAutoCrawler", "WebAutoCrawler\WebAutoCrawler.csproj", "{69BB6712-1321-4001-83CD-AE4D3AFA4C21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataService", "DataService\DataService.csproj", "{591E9BB3-E35F-4356-802E-0A48FFAD14A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataService", "DataService\DataService.csproj", "{591E9BB3-E35F-4356-802E-0A48FFAD14A6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Messages", "Messages\Messages.csproj", "{890D94B3-4863-4C12-9CBF-643E82933B11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Messages", "Messages\Messages.csproj", "{890D94B3-4863-4C12-9CBF-643E82933B11}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E482A863-F0F3-4552-BE86-2810D46DDCEB}"
 	ProjectSection(SolutionItems) = preProject
 		Readme.md = Readme.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockWeb", "StockWeb\StockWeb.csproj", "{31978D52-9D0A-4F75-9D14-4293EB1FF990}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockMvc", "StockMvc\StockMvc.csproj", "{54BE0C05-E4C6-475B-A517-1810D5E63ABE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorApp", "BlazorApp\BlazorApp.csproj", "{9A9036FD-03B7-4792-864B-344E1D20D53A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,14 +40,10 @@ Global
 		{890D94B3-4863-4C12-9CBF-643E82933B11}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{890D94B3-4863-4C12-9CBF-643E82933B11}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{890D94B3-4863-4C12-9CBF-643E82933B11}.Release|Any CPU.Build.0 = Release|Any CPU
-		{31978D52-9D0A-4F75-9D14-4293EB1FF990}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{31978D52-9D0A-4F75-9D14-4293EB1FF990}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{31978D52-9D0A-4F75-9D14-4293EB1FF990}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{31978D52-9D0A-4F75-9D14-4293EB1FF990}.Release|Any CPU.Build.0 = Release|Any CPU
-		{54BE0C05-E4C6-475B-A517-1810D5E63ABE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{54BE0C05-E4C6-475B-A517-1810D5E63ABE}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{54BE0C05-E4C6-475B-A517-1810D5E63ABE}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{54BE0C05-E4C6-475B-A517-1810D5E63ABE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A9036FD-03B7-4792-864B-344E1D20D53A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A9036FD-03B7-4792-864B-344E1D20D53A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A9036FD-03B7-4792-864B-344E1D20D53A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A9036FD-03B7-4792-864B-344E1D20D53A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

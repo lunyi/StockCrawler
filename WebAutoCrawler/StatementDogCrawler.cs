@@ -1,4 +1,9 @@
-﻿namespace WebAutoCrawler
+﻿using System;
+using System.Collections.Generic;
+using DataService.Models;
+using Messages;
+
+namespace WebAutoCrawler
 {
     public class StatementDogCrawler : BaseCrawler
     {
