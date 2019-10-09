@@ -21,6 +21,10 @@
 
     <script>
         window.setStockPage = (url) => document.getElementById("StockPage").src = url;
+        window.goToUrl = (url) => {
+            var win = window.open(url, '_blank');
+            win.focus();
+        };
     </script>
 </body>
 </html>

@@ -15,36 +15,36 @@ else
 
                 @foreach (var stock in stocks)
                 {
-                    <option id="@stock.StockId">@stock.StockId - @stock.Name (@stock.Industry)</option>
+                    <option value="@stock.StockId">@stock.StockId - @stock.Name (@stock.Industry)</option>
                 }
 
             </select>
 
         </div>
         <div class="column" style="width:60%">
-            <iframe id="StockPage" scrolling="auto" width="1000" height="1000" frameborder="0" src="https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco_3211.djhtm" />
+            <iframe id="StockPage" scrolling="auto" width="1000" height="1000" frameborder="0" />
         </div>
         <div class="column" style="width:15%;position:relative;left:30px">
             <input type="button" value="CMoney" @onclick="@(async () => await OnUrlChangeAsync(1))" /><br />
-            <input type="button" value="財報狗" @onclick="@(async () => await OnUrlChangeAsync(2))" /><br />
+
             @*<input type="button" value="網龍大富翁" @onclick="@(async () => await OnUrlChangeAsync(3))"/><br />*@
-            <input type="button" value="富邦資料" @onclick="@(async () => await OnUrlChangeAsync(3))"/><br />
+            <input type="button" value="富邦資料" @onclick="@(async () => await OnUrlChangeAsync(2))" /><br />
+            <input type="button" value="財報狗" @onclick="@(async () => await OnUrlChangeAsync(3))" /><br />
         </div>
     </div>
 
 }
 
 @code{
-
+    int currentUrlIndex = 1;
     string currentStockId = "2330";
+   
     string currentUrl = "https://www.cmoney.tw/follow/channel/stock-{0}?chart=d";
     Stocks[] stocks;
     protected override async Task OnInitializedAsync()
     {
         stocks = await DataLayer.GetStocksAsync();
     }
-
-
 }
 
 @functions{
@@ -52,19 +52,21 @@ else
     Dictionary<int, string> urls = new Dictionary<int, string>
     {
         {1, "https://www.cmoney.tw/follow/channel/stock-{0}?chart=d"},
-        {2, "https://statementdog.com/analysis/tpe/{0}"},
-        {3, "https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco_{0}.djhtm"},
+        {2, "https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco_{0}.djhtm"},
+        {3, "https://statementdog.com/analysis/tpe/{0}"},
     };
 
     async Task OnStockChangeAsync(ChangeEventArgs e)
     {
+        currentUrlIndex = 1;
         currentStockId = (string)e.Value;
         await OnSetUrlAsync();
     }
 
     async Task OnUrlChangeAsync(int index)
     {
-        currentUrl = urls[index];
+        currentUrlIndex = index;
+        currentUrl = urls[currentUrlIndex];
 
         await OnSetUrlAsync();
     }
@@ -72,6 +74,7 @@ else
     async Task OnSetUrlAsync()
     {
         string url = string.Format(currentUrl, currentStockId);
-        await Js.InvokeAsync<object>("setStockPage", url);
+        string methodName = currentUrlIndex <= 2 ? "setStockPage" : "goToUrl";
+        await Js.InvokeAsync<object>(methodName, url);
     }
 }
