@@ -12,12 +12,10 @@ else
     <div class="row">
         <div class="column" style="width:20%; float: left">
             <select multiple size="50" @onchange="@(async (arg) => await OnStockChangeAsync(arg))">
-
                 @foreach (var stock in stocks)
                 {
                     <option value="@stock.StockId">@stock.StockId - @stock.Name (@stock.Industry)</option>
                 }
-
             </select>
 
         </div>
@@ -26,10 +24,9 @@ else
         </div>
         <div class="column" style="width:15%;position:relative;left:30px">
             <input type="button" value="CMoney" @onclick="@(async () => await OnUrlChangeAsync(1))" /><br />
-
-            @*<input type="button" value="網龍大富翁" @onclick="@(async () => await OnUrlChangeAsync(3))"/><br />*@
             <input type="button" value="富邦資料" @onclick="@(async () => await OnUrlChangeAsync(2))" /><br />
-            <input type="button" value="財報狗" @onclick="@(async () => await OnUrlChangeAsync(3))" /><br />
+            <input type="button" value="融資融券" @onclick="@(async () => await OnUrlChangeAsync(3))" /><br />
+            <input type="button" value="財報狗" @onclick="@(async () => await OnUrlChangeAsync(4))" /><br />
         </div>
     </div>
 
@@ -41,20 +38,21 @@ else
    
     string currentUrl = "https://www.cmoney.tw/follow/channel/stock-{0}?chart=d";
     Stocks[] stocks;
-    protected override async Task OnInitializedAsync()
-    {
-        stocks = await DataLayer.GetStocksAsync();
-    }
-}
-
-@functions{
 
     Dictionary<int, string> urls = new Dictionary<int, string>
     {
         {1, "https://www.cmoney.tw/follow/channel/stock-{0}?chart=d"},
         {2, "https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco_{0}.djhtm"},
-        {3, "https://statementdog.com/analysis/tpe/{0}"},
+        {3, "https://www.cnyes.com/twstock/Margin/{0}.htm"},
+        {4, "https://statementdog.com/analysis/tpe/{0}"},
     };
+}
+
+@functions{
+    protected override async Task OnInitializedAsync()
+    {
+        stocks = await DataLayer.GetStocksAsync();
+    }
 
     async Task OnStockChangeAsync(ChangeEventArgs e)
     {
@@ -74,7 +72,7 @@ else
     async Task OnSetUrlAsync()
     {
         string url = string.Format(currentUrl, currentStockId);
-        string methodName = currentUrlIndex <= 2 ? "setStockPage" : "goToUrl";
+        string methodName = currentUrlIndex <= 3 ? "setStockPage" : "goToUrl";
         await Js.InvokeAsync<object>(methodName, url);
     }
 }

@@ -128,15 +128,31 @@ namespace DataService.Models
 
             modelBuilder.Entity<Prices>(entity =>
             {
-                entity.HasNoKey();
+                entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.Close).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.CreatedOn).HasColumnType("datetime");
 
+                entity.Property(e => e.Datetime).HasColumnType("datetime");
+
                 entity.Property(e => e.High).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.Low).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.MA10).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.MA120).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.MA160).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.MA20).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.MA3).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.MA5).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.MA60).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -149,9 +165,27 @@ namespace DataService.Models
                     .HasMaxLength(8)
                     .IsUnicode(false);
 
-                entity.Property(e => e.UpdatedOn).HasColumnType("datetime");
+                entity.Property(e => e.VMA10).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.VMA120).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.VMA160).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.VMA20).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.VMA3).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.VMA5).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.VMA60).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.外資持股比例).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.本益比).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.漲跌).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.漲跌百分比).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.融資使用率).HasColumnType("numeric(18, 2)");
             });
