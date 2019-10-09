@@ -1,6 +1,7 @@
 ﻿@page "/stocks"
 @using DataService.Models
 @inject IDataLayer  DataLayer
+@inject IJSRuntime Js
 
 @if (stocks == null)
 {
@@ -10,12 +11,12 @@ else
 {
     <div class="row">
         <div class="column" style="width:20%; float: left">
-            <select>
+            <select multiple size="50" @onchange="@(async (arg) => await OnStockChangeAsync(arg))">
 
                 @foreach (var stock in stocks)
-                            {
-                <option id="@stock.StockId">@stock.StockId - @stock.Name (@stock.Industry)</option>
-                            }
+                {
+                    <option id="@stock.StockId">@stock.StockId - @stock.Name (@stock.Industry)</option>
+                }
 
             </select>
 
@@ -23,24 +24,24 @@ else
         <div class="column" style="width:60%">
             <iframe id="StockPage" scrolling="auto" width="1000" height="1000" frameborder="0" src="https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco_3211.djhtm" />
         </div>
-        <div class="column"  style="width:15%; float: left">
-            <button> CMoney </button><br />
-            <button> 財報狗 </button><br />
-            <button> 網龍大富翁 </button><br />
-            <button> 富邦資料 </button><br />
+        <div class="column" style="width:15%;position:relative;left:30px">
+            <input type="button" value="CMoney" @onclick="@(async () => await OnUrlChangeAsync(1))" /><br />
+            <input type="button" value="財報狗" @onclick="@(async () => await OnUrlChangeAsync(2))" /><br />
+            @*<input type="button" value="網龍大富翁" @onclick="@(async () => await OnUrlChangeAsync(3))"/><br />*@
+            <input type="button" value="富邦資料" @onclick="@(async () => await OnUrlChangeAsync(3))"/><br />
         </div>
     </div>
 
 }
 
-
 @code{
 
-
+    string currentStockId = "2330";
+    string currentUrl = "https://www.cmoney.tw/follow/channel/stock-{0}?chart=d";
     Stocks[] stocks;
     protected override async Task OnInitializedAsync()
     {
-        stocks = DataLayer.GetStocks();
+        stocks = await DataLayer.GetStocksAsync();
     }
 
 
@@ -48,9 +49,29 @@ else
 
 @functions{
 
-    string stockId;
-    void OnStockChange(ChangeEventArgs e)
+    Dictionary<int, string> urls = new Dictionary<int, string>
     {
-        stockId = (string)e.Value;
+        {1, "https://www.cmoney.tw/follow/channel/stock-{0}?chart=d"},
+        {2, "https://statementdog.com/analysis/tpe/{0}"},
+        {3, "https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco_{0}.djhtm"},
+    };
+
+    async Task OnStockChangeAsync(ChangeEventArgs e)
+    {
+        currentStockId = (string)e.Value;
+        await OnSetUrlAsync();
+    }
+
+    async Task OnUrlChangeAsync(int index)
+    {
+        currentUrl = urls[index];
+
+        await OnSetUrlAsync();
+    }
+
+    async Task OnSetUrlAsync()
+    {
+        string url = string.Format(currentUrl, currentStockId);
+        await Js.InvokeAsync<object>("setStockPage", url);
     }
 }

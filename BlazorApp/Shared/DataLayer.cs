@@ -1,21 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using DataService.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BlazorApp.Shared
 {
     public interface IDataLayer
     {
-        Stocks[] GetStocks();
+        Task<Stocks[]> GetStocksAsync();
     }
     public class DataLayer : IDataLayer
     {
-        Stocks[] IDataLayer.GetStocks()
+        Task<Stocks[]> IDataLayer.GetStocksAsync()
         {
             var context = new StockDbContext();
-            return context.Stocks.OrderBy(p=>p.StockId).ToArray();
+            return context.Stocks.OrderBy(p=>p.StockId).ToArrayAsync();
         }
     }
 }
