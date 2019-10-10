@@ -128,6 +128,9 @@ namespace DataService.Models
 
             modelBuilder.Entity<Prices>(entity =>
             {
+                entity.HasIndex(e => e.StockId)
+                    .HasName("IX_Prices");
+
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.Close).HasColumnType("numeric(18, 2)");

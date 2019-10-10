@@ -2,6 +2,7 @@
 using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -34,21 +35,53 @@ namespace ConsoleApp
                 .OrderBy(p => p.StockId)
                 .ToArray();
 
+            var s = Stopwatch.StartNew();
+            s.Start();
+
             var parser = new CnyParser();
 
             foreach (var item in stocks)
             {
-                var prices = await Task.Run(() => parser.ParserHistory(item.StockId, item.Name));
-                context.Prices.AddRange(prices);
-                await context.SaveChangesAsync();
+                await ExecuteLastAsync(parser, context, item.StockId, item.Name);
             }
+
+            s.Stop();
+            Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
 
             foreach (var item in parser.ErrorStocks)
             {
-                Console.WriteLine($"{item.Key} {item.Value}");
+                Console.WriteLine($"Error: {item.Key} {item.Value}");
             }
 
             Console.ReadLine();
+        }
+
+        private static async Task ExecuteHistoryAsync(CnyParser parser, StockDbContext context, string stockId, string name)
+        {
+            var prices = parser.ParserHistory(stockId, name);
+
+            foreach (var price in prices)
+            {
+                var p = context.Prices.FirstOrDefault(p => p.Datetime == price.Datetime && p.StockId == stockId);
+                if (p == null)
+                {
+                    context.Prices.Add(price);
+                }        
+            }
+            Console.WriteLine($"Finished: {stockId} {name}");
+          
+            await context.SaveChangesAsync();
+        }
+
+        private static async Task ExecuteLastAsync(CnyParser parser, StockDbContext context, string stockId, string name)
+        {
+            var price = parser.ParserLastDay(stockId, name);
+            var p = context.Prices.FirstOrDefault(p => p.Datetime == price.Datetime && p.StockId == stockId);
+            if (p == null)
+            {
+                context.Prices.AddRange(price);
+            }
+            await context.SaveChangesAsync();
         }
     }
 }
