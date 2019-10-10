@@ -28,6 +28,30 @@
             var win = window.open(url, '_blank');
             win.focus();
         };
+        var autoStatus = false;
+        var currentIndex = 0;
+        var timeoutId = null;
+        window.autoStockStart = function () {
+            autoStatus = !autoStatus;
+            var btnAutoPlay = document.getElementById("autoPlay");
+            if (autoStatus) {
+                btnAutoPlay.value = "停止瀏覽股票";
+                timeoutId = window.setInterval((() => setUrl()), 4000);     
+            } else {
+                btnAutoPlay.value = "自動瀏覽股票";
+                clearInterval(timeoutId);
+            }
+        }
+
+        function setUrl() {
+            var list = document.getElementById("stockList");
+            var url =  "http://5850web.moneydj.com/z/zc/zcx/zcxNew_" + list.options[currentIndex].value + ".djhtm"
+            //var url = "https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_" + list.options[currentIndex].value + ".djhtm";
+            document.getElementById("StockPage").src = url;
+            list.value = list.options[currentIndex].value;
+            currentIndex++;
+        }
+
     </script>
 </body>
 </html>
