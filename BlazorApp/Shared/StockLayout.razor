@@ -1,0 +1,83 @@
+﻿@inherits LayoutComponentBase
+
+@using DataService.Models
+@inject IDataLayer  DataLayer
+@inject IJSRuntime Js
+
+@if (stocks == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="column" style="width:20%;position:relative;left:30px;">
+            <select size="30" @onchange="@(async (arg) => await OnStockChangeAsync(arg))">
+                @foreach (var stock in stocks)
+                {
+                    <option value="@stock.StockId">@stock.StockId - @stock.Name (@stock.Industry)</option>
+                }
+            </select>
+            <div class="column">
+                <input type="button" value="個股速覽" @onclick="@(async () => await OnUrlChangeAsync(1))" /><br />
+                <input type="button" value="主力進出明細" @onclick="@(async () => await OnUrlChangeAsync(2))" /><br />
+                <input type="button" value="融資融券" @onclick="@(async () => await OnUrlChangeAsync(3))" /><br />
+                <input type="button" value="CMoney" @onclick="@(async () => await OnUrlChangeAsync(4))" /><br />
+                <input type="button" value="Fugle" @onclick="@(async () => await OnUrlChangeAsync(5))" /><br />
+                <input type="button" value="財報狗" @onclick="@(async () => await OnUrlChangeAsync(6))" /><br />
+            </div>
+        </div>
+        <div class="column" style="width:80%">
+            <iframe id="StockPage" scrolling="auto" width="1500" height="1000" frameborder="0" />
+        </div>
+    </div>
+
+}
+
+@code{
+    int currentUrlIndex = 1;
+    string currentStockId = "1101";
+
+    string currentUrl = "https://www.cmoney.tw/follow/channel/stock-{0}?chart=d";
+    Stocks[] stocks;
+
+    Dictionary<int, string> urls = new Dictionary<int, string>
+{
+        {1, "https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm" },
+        {2, "https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco_{0}.djhtm"},
+        {3, "https://www.cnyes.com/twstock/Margin/{0}.htm"},
+        {4, "https://www.cmoney.tw/follow/channel/stock-{0}?chart=d"},
+        {5, "https://www.fugle.tw/ai/{0}?p=2460385721&perfect=true"}
+        {6, "https://statementdog.com/analysis/tpe/{0}/stock-health-check"},
+     
+    };
+}
+
+@functions{
+    protected override async Task OnInitializedAsync()
+    {
+        stocks = await DataLayer.GetStocksAsync();
+    }
+
+    async Task OnStockChangeAsync(ChangeEventArgs e)
+    {
+        currentUrlIndex = 1;
+        currentStockId = (string)e.Value;
+        await OnSetUrlAsync();
+    }
+
+    async Task OnUrlChangeAsync(int index)
+    {
+        currentUrlIndex = index;
+        currentUrl = urls[currentUrlIndex];
+
+        await OnSetUrlAsync();
+    }
+
+    async Task OnSetUrlAsync()
+    {
+        string url = string.Format(currentUrl, currentStockId);
+        string methodName = currentUrlIndex <= 4 ? "setStockPage" : "goToUrl";
+        await Js.InvokeAsync<object>(methodName, url);
+    }
+}

@@ -7,7 +7,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>BlazorApp</title>
+    <title>個股速覽</title>
     <base href="~/" />
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link href="css/site.css" rel="stylesheet" />
@@ -20,7 +20,10 @@
     <script src="_framework/blazor.server.js"></script>
 
     <script>
-        window.setStockPage = (url) => document.getElementById("StockPage").src = url;
+        window.setStockPage = (url) => {
+            document.getElementById("StockPage").src = url
+        };
+
         window.goToUrl = (url) => {
             var win = window.open(url, '_blank');
             win.focus();
