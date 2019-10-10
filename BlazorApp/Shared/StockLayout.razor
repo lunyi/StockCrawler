@@ -12,7 +12,11 @@ else
 {
     <div class="row">
         <div class="column" style="width:20%;position:relative;left:30px;">
-            <select id="stockList" size="30" @onchange="@(async (arg) => await OnStockChangeAsync(arg))" >
+            <select id="stockList" size="30" @onchange="@(async (arg) => await OnStockChangeAsync(arg))">
+                <option value="1">漲幅排行</option>
+            </select>
+
+            <select id="stockList" size="30" @onchange="@(async (arg) => await OnStockChangeAsync(arg))">
                 @foreach (var stock in stocks)
                 {
                     <option value="@stock.StockId">@stock.StockId - @stock.Name (@stock.Industry)</option>
@@ -25,7 +29,7 @@ else
                 <input type="button" value="CMoney" @onclick="@(async () => await OnUrlChangeAsync(4))" /><br />
                 <input type="button" value="Fugle" @onclick="@(async () => await OnUrlChangeAsync(5))" /><br />
                 <input type="button" value="財報狗" @onclick="@(async () => await OnUrlChangeAsync(6))" /><br />
-                <input id ="autoPlay" type="button" value="自動瀏覽股票" onclick="window.autoStockStart()" /><br />
+                <input id="autoPlay" type="button" value="自動瀏覽股票" onclick="window.autoStockStart()" /><br />
             </div>
         </div>
         <div class="column" style="width:80%">

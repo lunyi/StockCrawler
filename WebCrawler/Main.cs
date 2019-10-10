@@ -1,5 +1,6 @@
 ﻿using DataService.Models;
 using HtmlAgilityPack;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -30,10 +31,17 @@ namespace ConsoleApp
         static async Task Main(string[] args)
         {
             var context = new StockDbContext();
-            var stocks = context.Stocks
+
+            var s1 = context.Stocks.FromSqlRaw(GetSql()).ToList();
+            var stocks = s1
                 .Where(p => !NotContainStocks.Contains(p.StockId))
                 .OrderBy(p => p.StockId)
-                .ToArray();
+                .ToList();
+
+            //var stocks = context.Stocks
+            //    .Where(p => !NotContainStocks.Contains(p.StockId))
+            //    .OrderBy(p => p.StockId)
+            //    .ToArray();
 
             var s = Stopwatch.StartNew();
             s.Start();
@@ -76,12 +84,29 @@ namespace ConsoleApp
         private static async Task ExecuteLastAsync(CnyParser parser, StockDbContext context, string stockId, string name)
         {
             var price = parser.ParserLastDay(stockId, name);
+
+            if (price == null)
+            {
+                return;
+            }
             var p = context.Prices.FirstOrDefault(p => p.Datetime == price.Datetime && p.StockId == stockId);
             if (p == null)
             {
                 context.Prices.Add(price);
             }
+
             await context.SaveChangesAsync();
+        }
+
+        private static string GetSql()
+        {
+            return @"
+select * from [Stocks]
+where StockId not in (
+SELECT StockId
+  FROM [StockDb].[dbo].[Prices]
+  where [Datetime] = '2019-10-09 00:00:00.000')
+  order by StockId";
         }
     }
 }
