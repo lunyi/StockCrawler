@@ -45,7 +45,7 @@ namespace WebCrawler
                 ParseSingleNode(5, $"https://www.cnyes.com/twstock/QFII/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[3]/table", price, (htmlNode, p) => SetForeign(htmlNode, p));
                 ParseSingleNode(3, $"https://www.cnyes.com/twstock/itrust/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[4]/table", price, (htmlNode, p) => SetItrust(htmlNode, p));
                 ParseSingleNode(3, $"https://www.cnyes.com/twstock/dealer/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[4]/table", price, (htmlNode, p) => SetDealer(htmlNode, p));
-
+                ParseTech(stockId, price);
                 return price;
             }
             catch (Exception ex)
@@ -133,6 +133,30 @@ namespace WebCrawler
                 prices.Add(SetPrice(node.ChildNodes[i], stockId, name));
             }
             return prices.ToArray();
+        }
+
+        private void ParseTech(string stockId, Prices price)
+        {
+            var rootNode = GetRootNoteByUrl($"https://www.cnyes.com/twstock/Technical/{stockId}.htm");
+            var node = rootNode.SelectSingleNode("/html/body/div[5]/div[1]/form/div[3]/div[5]/div[3]/table[1]");
+
+            price.MA3 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[2].InnerText);
+            price.MA5 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[3].InnerText);
+            price.MA10 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[4].InnerText);
+            price.MA20 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[5].InnerText);
+            price.MA60 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[6].InnerText);
+            price.MA120 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[7].InnerText);
+            price.MA240 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[8].InnerText);
+
+            node = rootNode.SelectSingleNode("/html/body/div[5]/div[1]/form/div[3]/div[5]/div[3]/table[2]");
+
+            price.VMA3 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[2].InnerText);
+            price.VMA5 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[3].InnerText);
+            price.VMA10 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[4].InnerText);
+            price.VMA20 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[5].InnerText);
+            price.VMA60 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[6].InnerText);
+            price.VMA120 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[7].InnerText);
+            price.VMA240 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[8].InnerText);
         }
 
         public void ParseNode(int startIndex, string url, string xPzth, Prices[] prices, Action<HtmlNode, Prices> action)

@@ -50,13 +50,13 @@ namespace DataService.Models
         public decimal? MA20 { get; set; }
         public decimal? MA60 { get; set; }
         public decimal? MA120 { get; set; }
-        public decimal? MA160 { get; set; }
+        public decimal? MA240 { get; set; }
         public decimal? VMA3 { get; set; }
         public decimal? VMA5 { get; set; }
         public decimal? VMA10 { get; set; }
         public decimal? VMA20 { get; set; }
         public decimal? VMA60 { get; set; }
         public decimal? VMA120 { get; set; }
-        public decimal? VMA160 { get; set; }
+        public decimal? VMA240 { get; set; }
     }
 }

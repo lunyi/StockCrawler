@@ -147,9 +147,9 @@ namespace DataService.Models
 
                 entity.Property(e => e.MA120).HasColumnType("numeric(18, 2)");
 
-                entity.Property(e => e.MA160).HasColumnType("numeric(18, 2)");
-
                 entity.Property(e => e.MA20).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.MA240).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.MA3).HasColumnType("numeric(18, 2)");
 
@@ -172,9 +172,9 @@ namespace DataService.Models
 
                 entity.Property(e => e.VMA120).HasColumnType("numeric(18, 2)");
 
-                entity.Property(e => e.VMA160).HasColumnType("numeric(18, 2)");
-
                 entity.Property(e => e.VMA20).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.VMA240).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.VMA3).HasColumnType("numeric(18, 2)");
 

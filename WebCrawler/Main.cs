@@ -79,7 +79,7 @@ namespace ConsoleApp
             var p = context.Prices.FirstOrDefault(p => p.Datetime == price.Datetime && p.StockId == stockId);
             if (p == null)
             {
-                context.Prices.AddRange(price);
+                context.Prices.Add(price);
             }
             await context.SaveChangesAsync();
         }
