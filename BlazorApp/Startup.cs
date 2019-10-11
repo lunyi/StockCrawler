@@ -28,7 +28,10 @@ namespace BlazorApp
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
-            services.AddServerSideBlazor();
+            services.AddServerSideBlazor().AddCircuitOptions(o =>
+            {
+                o.DetailedErrors = true;
+            });
             services.AddSingleton<WeatherForecastService>();
             services.AddSingleton<IDataLayer, DataLayer>();
         }

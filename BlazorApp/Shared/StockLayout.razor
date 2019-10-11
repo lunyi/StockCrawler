@@ -1,7 +1,7 @@
 ﻿@inherits LayoutComponentBase
 
 @using DataService.Models
-@inject IDataLayer  DataLayer
+@inject IDataLayer DataLayer
 @inject IJSRuntime Js
 
 @if (stocks == null)
@@ -12,24 +12,57 @@ else
 {
     <div class="row">
         <div class="column" style="width:20%;position:relative;left:30px;">
-            <select id="stockList" size="30" @onchange="@(async (arg) => await OnStockChangeAsync(arg))">
-                <option value="1">漲幅排行</option>
+            <select id="selectStockList" style="width:250px" @onchange="@(async (arg) => await OnSelectStockChangeAsync(arg))">
+                <option value="0">----全部----</option>
+                <option value="1">財報選股</option>
+                <option value="2">型態選股</option>
+                <option value="3">頁面選股</option>
+                <option value="4">CMoney選股</option>
+                <option value="5">財報狗選股</option>
+                <option value="6">網龍大富翁分析</option>
             </select>
 
-            <select id="stockList" size="30" @onchange="@(async (arg) => await OnStockChangeAsync(arg))">
+            <select id="stockList" size="30" onchange="onStockChangeAsync(this)">
                 @foreach (var stock in stocks)
                 {
                     <option value="@stock.StockId">@stock.StockId - @stock.Name (@stock.Industry)</option>
                 }
             </select>
             <div class="column">
-                <input type="button" value="個股速覽" @onclick="@(async () => await OnUrlChangeAsync(1))" /><br />
-                <input type="button" value="主力進出明細" @onclick="@(async () => await OnUrlChangeAsync(2))" /><br />
-                <input type="button" value="融資融券" @onclick="@(async () => await OnUrlChangeAsync(3))" /><br />
-                <input type="button" value="CMoney" @onclick="@(async () => await OnUrlChangeAsync(4))" /><br />
-                <input type="button" value="Fugle" @onclick="@(async () => await OnUrlChangeAsync(5))" /><br />
-                <input type="button" value="財報狗" @onclick="@(async () => await OnUrlChangeAsync(6))" /><br />
-                <input id="autoPlay" type="button" value="自動瀏覽股票" onclick="window.autoStockStart()" /><br />
+                <div>
+                    <div>
+                        <input type="button" value="個股速覽" onclick="onUrlChangeAsync(1)" /><br />
+                    </div>
+                    <div>
+                        <input type="button" value="主力進出明細" onclick="onUrlChangeAsync(2)" /><br />
+                    </div>
+                    <div>
+                        <input type="button" value="融資融券" onclick="onUrlChangeAsync(3)" /><br />
+                    </div>
+                    <div>
+                        <input type="button" value="CMoney" onclick="onUrlChangeAsync(4)" /><br />
+                    </div>
+                    <div>
+                        <input type="button" value="Fugle" onclick="onUrlChangeAsync(5)" /><br />
+                    </div>
+                    <div>
+                        <input type="button" value="財報狗" onclick="onUrlChangeAsync(6)" /><br />
+                    </div>
+                    <div>
+                        <input type="button" value="104" onclick="goTo104Page()" /><br />
+                    </div>
+                </div>
+                <div style="position:relative;left:5px;">
+                    <div>
+                        <input id="number" type="number" min="1" max="10" size="1" value="4">秒<br />
+                        <input id="autoPlay" type="button" value="自動瀏覽股票" onclick="window.autoStockStart()" /><br />
+                    </div>
+                    <br />
+                    <div>
+                        <input id="stockFinder" type="search" onkeydown="onFindStockId(this)" placeholder="輸入stockId找股票" />
+                        <input id="btnSelectStock" type="button" value="選股" onclick="selectStock()" /><br />
+                    </div>
+                </div>
             </div>
         </div>
         <div class="column" style="width:80%">
@@ -37,55 +70,20 @@ else
         </div>
     </div>
 }
-
 @code{
-    int currentUrlIndex = 1;
-    string currentStockId = "1101";
-
-    string currentUrl = "https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm";
     Stocks[] stocks;
-
-    Dictionary<int, string> urls = new Dictionary<int, string>
-{
-        {1, "https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm" },
-        {2, "https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco_{0}.djhtm"},
-        {3, "https://www.cnyes.com/twstock/Margin/{0}.htm"},
-        {4, "https://www.cmoney.tw/follow/channel/stock-{0}?chart=d"},
-        {5, "https://www.fugle.tw/ai/{0}?p=2460385721&perfect=true"},
-        {6, "https://statementdog.com/analysis/tpe/{0}/stock-health-check"},     
-    };
 }
-
 @functions{
+
     protected override async Task OnInitializedAsync()
     {
-        stocks = await DataLayer.GetStocksAsync();
+        stocks = await DataLayer.GetBestStocksAsync(0);
     }
 
-    async Task OnStockChangeAsync(ChangeEventArgs e)
+    async Task OnSelectStockChangeAsync(ChangeEventArgs arg)
     {
-        if (currentUrlIndex > 4)
-        {
-            currentUrlIndex = 1;
-        }
-
-        currentUrl = urls[currentUrlIndex];
-        currentStockId = (string)e.Value;
-        await OnSetUrlAsync();
-    }
-
-    async Task OnUrlChangeAsync(int index)
-    {
-        currentUrlIndex = index;
-        currentUrl = urls[currentUrlIndex];
-
-        await OnSetUrlAsync();
-    }
-
-    async Task OnSetUrlAsync()
-    {
-        string url = string.Format(currentUrl, currentStockId);
-        string methodName = currentUrlIndex <= 4 ? "setStockPage" : "goToUrl";
-        await Js.InvokeAsync<object>(methodName, url);
+        var index = Convert.ToInt32(arg.Value);
+        stocks = await DataLayer.GetBestStocksAsync(index);
+        await Js.InvokeAsync<object>("onSetCurrentIndex");
     }
 }

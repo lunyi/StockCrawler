@@ -13,5 +13,6 @@ namespace DataService.Models
         public DateTimeOffset ListingOn { get; set; }
         public DateTimeOffset CreatedOn { get; set; }
         public DateTimeOffset UpdatedOn { get; set; }
+        public int Status { get; set; }
     }
 }

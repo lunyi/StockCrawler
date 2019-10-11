@@ -18,6 +18,7 @@ namespace DataService.Models
         public virtual DbSet<AnaCMoney> AnaCMoney { get; set; }
         public virtual DbSet<AnaFutureEngine> AnaFutureEngine { get; set; }
         public virtual DbSet<AnaStatementDogs> AnaStatementDogs { get; set; }
+        public virtual DbSet<BestStocks> BestStocks { get; set; }
         public virtual DbSet<Infomations> Infomations { get; set; }
         public virtual DbSet<Prices> Prices { get; set; }
         public virtual DbSet<Seasons> Seasons { get; set; }
@@ -100,6 +101,28 @@ namespace DataService.Models
                 entity.Property(e => e.Type)
                     .IsRequired()
                     .HasMaxLength(512);
+            });
+
+            modelBuilder.Entity<BestStocks>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.CreatedOn).HasColumnType("datetime");
+
+                entity.Property(e => e.Description).HasMaxLength(50);
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.StockId)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsFixedLength();
+
+                entity.Property(e => e.Type)
+                    .IsRequired()
+                    .HasMaxLength(50);
             });
 
             modelBuilder.Entity<Infomations>(entity =>

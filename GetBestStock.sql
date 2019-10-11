@@ -70,3 +70,33 @@ a.StockId,
 a.Name
 having count(Pass) = 4
 order by count(Pass) desc, a.StockId
+
+
+
+ insert [dbo].[BestStocks] 
+	  ([Id]
+      ,[StockId]
+      ,[Name]
+      ,[Type]
+      ,[Description]
+      ,[CreatedOn])
+   select 
+		newid(),
+		StockId,
+		[Name],
+		'型態選股',
+		'型態選股',
+		GETDATE()
+   from [Stocks] 
+   where StockId in (
+   '2477',
+   '6531',
+   '3530',
+   '6153',
+   '6155',
+   '5469',
+   '3305',
+   '3031',
+   '2505',
+   '8478'
+   )
