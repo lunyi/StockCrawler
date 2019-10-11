@@ -12,7 +12,7 @@ else
 {
     <div class="row">
         <div class="column" style="width:20%;position:relative;left:30px;">
-            <select id="selectStockList" style="width:250px" @onchange="@(async (arg) => await OnSelectStockChangeAsync(arg))">
+            <select id="selectStockList" style="width:250px;text-align-last:center" @onchange="@(async (arg) => await OnSelectStockChangeAsync(arg))">
                 <option value="0">----全部----</option>
                 <option value="1">財報選股</option>
                 <option value="2">型態選股</option>
@@ -22,7 +22,7 @@ else
                 <option value="6">網龍大富翁分析</option>
             </select>
 
-            <select id="stockList" size="30" onchange="onStockChangeAsync(this)">
+            <select id="stockList" size="30" style="width:250px" onchange="onStockChangeAsync(this)">
                 @foreach (var stock in stocks)
                 {
                     <option value="@stock.StockId">@stock.StockId - @stock.Name (@stock.Industry)</option>
