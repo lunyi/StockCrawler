@@ -78,7 +78,8 @@
             3: 'https://www.cnyes.com/twstock/Margin/{0}.htm',
             4: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=d',
             5: 'https://www.fugle.tw/ai/{0}?p=2460385721&perfect=true',
-            6: 'https://statementdog.com/analysis/tpe/{0}/stock-health-check'
+            6: 'https://statementdog.com/analysis/tpe/{0}/stock-health-check',
+            7: 'http://www.fortunengine.com.tw/evaluator.aspx?menu=on&scode={0}'
         };
 
         var currentUrlIndex = 1
@@ -140,6 +141,13 @@
 
         function onSetCurrentIndex() {
             currentUrlIndex = 1;
+        }
+
+        function goToStockMaster() {
+            var list = document.getElementById("chooseStockList");
+            if (list.selectedIndex > 0) {
+                 window.open(list.value, '_blank').focus();
+            }
         }
     </script>
 </body>

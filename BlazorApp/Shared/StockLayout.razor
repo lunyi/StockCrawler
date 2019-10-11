@@ -11,7 +11,7 @@
 else
 {
     <div class="row">
-        <div class="column" style="width:20%;position:relative;left:30px;">
+        <div class="column" style="width:250px;position:relative;left:30px;">
             <select id="selectStockList" style="width:250px;text-align-last:center" @onchange="@(async (arg) => await OnSelectStockChangeAsync(arg))">
                 <option value="0">----全部----</option>
                 <option value="1">財報選股</option>
@@ -31,41 +31,46 @@ else
             <div class="column">
                 <div>
                     <div>
-                        <input type="button" value="個股速覽" onclick="onUrlChangeAsync(1)" /><br />
+                        <input type="button" value="個股速覽" onclick="onUrlChangeAsync(1)" />
+                        <input type="button" value="主力進出明細" onclick="onUrlChangeAsync(2)" />
                     </div>
                     <div>
-                        <input type="button" value="主力進出明細" onclick="onUrlChangeAsync(2)" /><br />
+                        <input type="button" value="融資融券" onclick="onUrlChangeAsync(3)" />
+                        <input type="button" value="CMoney" onclick="onUrlChangeAsync(4)" />
                     </div>
                     <div>
-                        <input type="button" value="融資融券" onclick="onUrlChangeAsync(3)" /><br />
+                        <input type="button" value="Fugle" onclick="onUrlChangeAsync(5)" />
+                        <input type="button" value="財報狗" onclick="onUrlChangeAsync(6)" />
                     </div>
                     <div>
-                        <input type="button" value="CMoney" onclick="onUrlChangeAsync(4)" /><br />
-                    </div>
-                    <div>
-                        <input type="button" value="Fugle" onclick="onUrlChangeAsync(5)" /><br />
-                    </div>
-                    <div>
-                        <input type="button" value="財報狗" onclick="onUrlChangeAsync(6)" /><br />
-                    </div>
-                    <div>
-                        <input type="button" value="104" onclick="goTo104Page()" /><br />
+                        <input type="button" value="個股健檢" onclick="onUrlChangeAsync(7)" />
+                        <input type="button" value="104" onclick="goTo104Page()" />
                     </div>
                 </div>
+                <br />
                 <div style="position:relative;left:5px;">
                     <div>
-                        <input id="number" type="number" min="1" max="10" size="1" value="4">秒<br />
-                        <input id="autoPlay" type="button" value="自動瀏覽股票" onclick="window.autoStockStart()" /><br />
+                        <input id="number" type="number" min="1" max="10" size="1" value="4">秒
+                        <input id="autoPlay" type="button" value="自動瀏覽股票" onclick="window.autoStockStart()" />
                     </div>
                     <br />
                     <div>
                         <input id="stockFinder" type="search" onkeydown="onFindStockId(this)" placeholder="輸入stockId找股票" />
-                        <input id="btnSelectStock" type="button" value="選股" onclick="selectStock()" /><br />
+                        <input id="btnSelectStock" type="button" value="選股" onclick="selectStock()" /><br /><br />
+                        <select id="chooseStockList" style="width:250px;text-align-last:center" onchange="goToStockMaster()">
+                            <option value="0">----選股網站----</option>
+                            <option value="http://jsjustweb.jihsun.com.tw/Z/ZG/ZGK_DD.djhtm">投信選股</option>
+                            <option value="https://fubon-ebrokerdj.fbs.com.tw/z/zg/zg_A_0_20.djhtm">漲幅選股</option>
+                            <option value="https://concords.moneydj.com/z/zk/zk0/zkmain_2_3.djhtm">基本面選股</option>
+                            <option value="http://justdata.yuanta.com.tw/z/zk/zkf/zkExpert_F.asp">選股專家</option>
+                            <option value="http://jsjustweb.jihsun.com.tw/z/zk/zkMap.htm">選股網路地圖</option>
+                            <option value="https://www.cmoney.tw/screeners/">選股網</option>
+                        </select>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="column" style="width:80%">
+        <div class="column" style="position:relative;left:30px;">
             <iframe id="StockPage" scrolling="auto" width="1500" height="1000" frameborder="0" />
         </div>
     </div>
