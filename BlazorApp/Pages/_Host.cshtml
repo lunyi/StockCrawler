@@ -62,13 +62,22 @@
         }
 
         function goTo104Page() {
+            var url = "https://www.104.com.tw/jobs/search/?keyword=" + getName();
+             window.open(url, '_blank').focus();
+        }
+
+        function goToWikiPedia() {
+            var url = "https://www.moneydj.com/KMDJ/search/list.aspx?_QueryType_=WK&_Query_=" + getName();
+            document.getElementById("StockPage").src = url;
+        }
+
+        function getName() {
             var list = document.getElementById("stockList");
             var s = list.options[list.selectedIndex];
             var startIndex = s.innerText.indexOf('-') + 2;
             var endIndex = s.innerText.indexOf('(') - 1;
             var name = s.innerText.substring(startIndex, endIndex)
-            var url = "https://www.104.com.tw/jobs/search/?keyword=" + name;
-             window.open(url, '_blank').focus();
+            return name;
         }
         //End Auto Browser Stocks
 
