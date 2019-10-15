@@ -21,11 +21,31 @@ else
                 <option value="5">財報狗選股</option>
                 <option value="6">網龍大富翁分析</option>
             </select>
+            <select id="selectDateList" style="width:250px;text-align-last:center" onchange="onGetStocksByDate()">
+                @foreach (var date in dateList)
+                {
+                    <option value="@date">@date</option>
+                }
+            </select>
+
+            <select id="selectDateType" style="width:250px;text-align-last:center" onchange="onGetStocksByDate()">
+                <option value="0">----無----</option>
+                <option value="1">外資買超排行</option>
+                <option value="2">投信買超排行</option>
+                <option value="3">自營商買超排行</option>
+                <option value="4">融資買超排行</option>
+                <option value="5">融券賣超排行</option>
+                <option value="6">外資賣超排行</option>
+                <option value="7">投信賣超排行</option>
+                <option value="8">自營商賣超排行</option>
+                <option value="9">融資賣超排行</option>
+                <option value="10">融券買超排行</option>
+            </select>
 
             <select id="stockList" size="30" style="width:250px" onchange="onStockChangeAsync(this)">
                 @foreach (var stock in stocks)
                 {
-                    <option value="@stock.StockId">@stock.StockId - @stock.Name (@stock.Industry)</option>
+                <option value="@stock.StockId">@stock.StockId - @stock.Name (@stock.Industry)</option>
                 }
             </select>
             <div class="column">
@@ -77,13 +97,15 @@ else
     </div>
 }
 @code{
-    Stocks[] stocks;
+    static Stocks[] stocks;
+    static string[] dateList;
 }
 @functions{
 
     protected override async Task OnInitializedAsync()
     {
         stocks = await DataLayer.GetBestStocksAsync(0);
+        dateList = await DataLayer.GetDaysAsync();
     }
 
     async Task OnSelectStockChangeAsync(ChangeEventArgs arg)
@@ -91,5 +113,13 @@ else
         var index = Convert.ToInt32(arg.Value);
         stocks = await DataLayer.GetBestStocksAsync(index);
         await Js.InvokeAsync<object>("onSetCurrentIndex");
+    }
+
+    [JSInvokable]
+    public static async Task<Stocks[]> GetStocksDateAsync(string datetime, int type)
+    {
+        IDataLayer dataLayer = new DataLayer();
+        stocks = await dataLayer.GetStocksByDateAsync(datetime, type);
+        return stocks;
     }
 }

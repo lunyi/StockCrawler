@@ -20,10 +20,7 @@ namespace WebAutoCrawler
         {
             var context = new StockDbContext();
             //var s = context.Stocks.FromSqlRaw(GetSql()).ToList();
-            var stocks = context.Stocks.FromSqlRaw(GetSql())
-                .Where(p => !NotContainStocks.Contains(p.StockId))
-                .OrderBy(p => p.StockId)
-                .ToList();
+            var stocks = context.Stocks.FromSqlRaw(GetSql()).ToList();
 
             foreach (var stock in stocks)
             {
@@ -31,7 +28,7 @@ namespace WebAutoCrawler
                 {
                     _driver.Navigate().GoToUrl(string.Format(HealthCheckUrl, stock.StockId));
 
-                    Thread.Sleep(200);
+                    Thread.Sleep(400);
                     var checks = _driver.FindElement(By.ClassName("remark"));
                     var barnums = _driver.FindElements(By.ClassName("bar-num2"));
 
@@ -62,10 +59,16 @@ namespace WebAutoCrawler
         string GetSql()
         {
             return @"
-            SELECT a.*
-  FROM [StockDb].[dbo].[Stocks] a 
-  left join [dbo].[Remarks] b on a.StockID = b.StockId
-  where b.StockId is null
+
+              SELECT a.*
+  FROM [dbo].[Stocks] a 
+  left join (
+  SELECT *
+  FROM [StockDb].[dbo].[AnaCMoney]
+  where CreatedOn > '2019-10-07'
+  ) b on a.StockID = b.StockId
+  where b.StockId is null and a.Status = 1
+  order by StockId
             ";
         }
     }

@@ -32,11 +32,12 @@ namespace ConsoleApp
         {
             var context = new StockDbContext();
 
-            var s1 = context.Stocks.FromSqlRaw(GetSql()).ToList();
-            var stocks = s1
-                .Where(p => !NotContainStocks.Contains(p.StockId))
-                .OrderBy(p => p.StockId)
-                .ToList();
+            var sql = GetSql();
+            var stocks = context.Stocks.FromSqlRaw(sql).ToList();
+            //var stocks = context.Stocks
+            //    .Where(p => p.Status == 1)
+            //    .OrderBy(p => p.StockId)
+            //    .ToList();
 
             //var stocks = context.Stocks
             //    .Where(p => !NotContainStocks.Contains(p.StockId))
@@ -59,6 +60,8 @@ namespace ConsoleApp
             foreach (var item in parser.ErrorStocks)
             {
                 Console.WriteLine($"Error: {item.Key} {item.Value}");
+                await ExecuteLastAsync(parser, context, item.Key, item.Value);
+
             }
 
             Console.ReadLine();
@@ -100,12 +103,13 @@ namespace ConsoleApp
 
         private static string GetSql()
         {
-            return @"
+            return @$"
 select * from [Stocks]
 where StockId not in (
 SELECT StockId
-  FROM [StockDb].[dbo].[Prices]
-  where [Datetime] = '2019-10-09 00:00:00.000')
+  FROM [dbo].[Prices]
+  where [Datetime] = '{DateTime.Today.ToString("yyyy/MM/dd")}')
+ and [Status] = 1
   order by StockId";
         }
     }

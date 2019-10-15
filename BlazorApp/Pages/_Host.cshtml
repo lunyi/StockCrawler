@@ -158,6 +158,29 @@
                  window.open(list.value, '_blank').focus();
             }
         }
+
+        function onGetStocksByDate() {
+            var date = document.getElementById("selectDateList");
+            var type = document.getElementById("selectDateType");
+
+            if (type.selectedIndex > 0) {
+                DotNet.invokeMethodAsync('BlazorApp', 'GetStocksDateAsync', date.value, type.selectedIndex)
+                    .then(data => {
+                        var select = document.getElementById("stockList");
+                        for (i = select.options.length -1; i>=0; i--) {
+                            select.remove(i);
+                        }
+
+                        for (var i = 0; i < data.length; i++) {
+                            var option = document.createElement("option");
+                            option.value = data[i].stockId;
+                            option.text = data[i].stockId + " - " + data[i].name + " (" + data[i].industry + ")";
+                            select.add(option);
+                        }
+                      console.log(data);
+                  });
+            }
+        }
     </script>
 </body>
 </html>
