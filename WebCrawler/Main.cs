@@ -32,12 +32,11 @@ namespace ConsoleApp
         {
             var context = new StockDbContext();
 
-            var sql = GetSql();
-            var stocks = context.Stocks.FromSqlRaw(sql).ToList();
-            //var stocks = context.Stocks
-            //    .Where(p => p.Status == 1)
-            //    .OrderBy(p => p.StockId)
-            //    .ToList();
+
+            var stocks = context.Stocks
+                .Where(p => p.Status == 1)
+                .OrderBy(p => p.StockId)
+                .ToList();
 
             //var stocks = context.Stocks
             //    .Where(p => !NotContainStocks.Contains(p.StockId))
@@ -57,10 +56,13 @@ namespace ConsoleApp
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
 
-            foreach (var item in parser.ErrorStocks)
+            var sql = GetSql();
+            stocks = context.Stocks.FromSqlRaw(sql).ToList();
+
+            foreach (var item in stocks)
             {
-                Console.WriteLine($"Error: {item.Key} {item.Value}");
-                await ExecuteLastAsync(parser, context, item.Key, item.Value);
+                Console.WriteLine($"Error: {item.StockId} {item.Name}");
+                await ExecuteLastAsync(parser, context, item.StockId, item.Name);
 
             }
 

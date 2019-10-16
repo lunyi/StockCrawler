@@ -1,1 +1,1 @@
-Scaffold-DbContext "Server=220.133.185.1;Database=StockDb;User ID=sa;Password=sa;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Force -UseDatabaseNames
+Scaffold-DbContext "Server=220.133.185.1;Database=StockDb;User ID=stock;Password=stock;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models -Force -UseDatabaseNames
