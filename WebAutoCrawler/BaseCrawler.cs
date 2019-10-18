@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 
@@ -6,21 +7,7 @@ namespace WebAutoCrawler
 {
     public abstract class BaseCrawler
     {
-        protected IWebDriver _driver;
-        protected string[] NotContainStocks = new string[] { 
-                "0050",
-                "0051",
-                "0052",
-                "0053",
-                "0054",
-                "0055",
-                "0056",
-                "0057",
-                "0058",
-                "0059",
-                "0060",
-                "0061"
-            };
+        private IWebDriver _driver;
         public BaseCrawler()
         {
             ChromeOptions chromeBrowserOptions = new ChromeOptions();
@@ -34,6 +21,20 @@ namespace WebAutoCrawler
         }
 
         public abstract Task ExecuteAsync();
+
+        protected void GoToUrl(string url)
+        {
+            _driver.Navigate().GoToUrl(url);
+        }
+
+        protected IWebElement FindElement(By by)
+        {
+            return _driver.FindElement(by);
+        }
+        protected ReadOnlyCollection<IWebElement> FindElements(By by)
+        {
+            return _driver.FindElements(by);
+        }
 
         ~BaseCrawler()
         {

@@ -12,7 +12,7 @@ namespace WebCrawler
             var s = Stopwatch.StartNew();
             s.Start();
 
-            var h = new CMoneyCrawler();
+            var h = new FutuneEngineCrawler();
             await h.ExecuteAsync();
 
             s.Stop();

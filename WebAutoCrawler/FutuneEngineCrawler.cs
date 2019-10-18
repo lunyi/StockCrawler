@@ -18,20 +18,20 @@ namespace WebAutoCrawler
 
         public AnaFutureEngine[] GetAnaFutureEngines(string stockId, string stockName)
         {
-            _driver.Navigate().GoToUrl(string.Format(HealthCheckUrl, stockId));
+            GoToUrl(string.Format(HealthCheckUrl, stockId));
 
             Thread.Sleep(200);
 
             var list = new List<AnaFutureEngine>();
             for (int i = 1; i <= 5; i++)
             {
-                var title1 = _driver.FindElement(By.Id($"tab_{i}"));
+                var title1 = FindElement(By.Id($"tab_{i}"));
                 title1.Click();
                 Thread.Sleep(200);
 
-                var desc = _driver.FindElement(By.Id("tbIndcat"));
-                var ths = desc.FindElements(By.ClassName("th"));
-                var fas = desc.FindElements(By.ClassName("fas"));
+                var desc = FindElement(By.Id("tbIndcat"));
+                var ths = FindElements(By.ClassName("th"));
+                var fas = FindElements(By.ClassName("fas"));
 
                 for (int j = 0; j < ths.Count; j++)
                 {
@@ -58,7 +58,7 @@ namespace WebAutoCrawler
             var context = new StockDbContext();
             //var s = context.Stocks.FromSqlRaw(GetSql()).ToList();
             var stocks = context.Stocks
-                .Where(p => !NotContainStocks.Contains(p.StockId))
+                .Where(p => p.Status == 1)
                 .OrderBy(p => p.StockId)
                 .ToList();
             var failCount = 1;
@@ -66,7 +66,7 @@ namespace WebAutoCrawler
             {
                 try
                 {
-                    _driver.Navigate().GoToUrl(string.Format(HealthCheckUrl, stock.StockId));
+                    GoToUrl(string.Format(HealthCheckUrl, stock.StockId));
 
                     var list = GetAnaFutureEngines(stock.StockId, stock.Name);
                     Thread.Sleep(200);
@@ -86,7 +86,7 @@ namespace WebAutoCrawler
         {
             return @"
             SELECT a.*
-  FROM [StockDb].[dbo].[Stocks] a 
+  FROM [dbo].[Stocks] a 
   left join [dbo].[Remarks] b on a.StockID = b.StockId
   where b.StockId is null
             ";
