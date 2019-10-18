@@ -45,34 +45,12 @@ else
                 <option value="13">融資賣超排行</option>
                 <option value="14">融券買超排行</option>
             </select>
-            <select id="stockList" size="30" style="width:250px" onchange="onStockChangeAsync(this)">
+            <select id="stockList" size="40" style="width:250px" onchange="onStockChangeAsync(this)">
                 @foreach (var stock in stocks)
                 {
                 <option value="@stock.StockId">@stock.StockId - @stock.Name (@stock.Industry)</option>
                 }
             </select>
-            <div class="column">
-                <div style="position:relative;left:5px;">
-                    <div>
-                        <input id="number" type="number" min="1" max="10" size="1" value="4">秒
-                        <input id="autoPlay" type="button" value="自動瀏覽股票" onclick="window.autoStockStart()" />
-                    </div>
-                    <br />
-                    <div>
-                        <input id="stockFinder" type="search" onkeydown="onFindStockId(this)" placeholder="輸入stockId找股票" />
-                        <input id="btnSelectStock" type="button" value="選股" onclick="selectStock()" /><br /><br />
-                        <select id="chooseStockList" style="width:250px;text-align-last:center" onchange="goToStockMaster()">
-                            <option value="0">----選股網站----</option>
-                            <option value="http://jsjustweb.jihsun.com.tw/Z/ZG/ZGK_DD.djhtm">投信選股</option>
-                            <option value="https://fubon-ebrokerdj.fbs.com.tw/z/zg/zg_A_0_20.djhtm">漲幅選股</option>
-                            <option value="https://concords.moneydj.com/z/zk/zk0/zkmain_2_3.djhtm">基本面選股</option>
-                            <option value="http://justdata.yuanta.com.tw/z/zk/zkf/zkExpert_F.asp">選股專家</option>
-                            <option value="http://jsjustweb.jihsun.com.tw/z/zk/zkMap.htm">選股網路地圖</option>
-                            <option value="https://www.cmoney.tw/screeners/">選股網</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
         </div>
         <div class="column" style="position:relative;left:30px;">
             <iframe id="StockPage" scrolling="auto" width="1500" height="1000" frameborder="0" />
@@ -89,10 +67,30 @@ else
                     <input type="button" value="CMoney法人" onclick="onUrlChangeAsync(6)" />
                     <input type="button" value="CMoney主力" onclick="onUrlChangeAsync(7)" />
                     <input type="button" value="籌碼K線" onclick="onUrlChangeAsync(8)" />
-                    <input type="button" value="Fugle" onclick="onUrlChangeAsync(9)" />
-                    <input type="button" value="個股健檢" onclick="onUrlChangeAsync(10)" />
+                    <input type="button" value="融資融券" onclick="onUrlChangeAsync(9)" />
+                    <input type="button" value="財報狗" onclick="onUrlChangeAsync(10)" />
+                    <input type="button" value="Fugle" onclick="onUrlChangeAsync(11)" />
+                    <input type="button" value="網龍大富翁" onclick="onUrlChangeAsync(12)" />
                     <input type="button" value="104" onclick="goTo104Page()" />
                     <input type="button" value="財經百科" onclick="goToWikiPedia()" />
+                </div>
+                <div>
+                    <input id="number" type="number" min="1" max="10" size="1" value="4">秒
+                    <input id="autoPlay" type="button" value="自動瀏覽股票" onclick="window.autoStockStart()" />
+                </div>
+                <br />
+                <div>
+                    <input id="stockFinder" type="search" onkeydown="onFindStockId(this)" placeholder="輸入編號" />
+                    <input id="btnSelectStock" type="button" value="選股" onclick="selectStock()" /><br /><br />
+                    <select id="chooseStockList" onchange="goToStockMaster()">
+                        <option value="0">選股網站</option>
+                        <option value="http://jsjustweb.jihsun.com.tw/Z/ZG/ZGK_DD.djhtm">投信選股</option>
+                        <option value="https://fubon-ebrokerdj.fbs.com.tw/z/zg/zg_A_0_20.djhtm">漲幅選股</option>
+                        <option value="https://concords.moneydj.com/z/zk/zk0/zkmain_2_3.djhtm">基本面選股</option>
+                        <option value="http://justdata.yuanta.com.tw/z/zk/zkf/zkExpert_F.asp">選股專家</option>
+                        <option value="http://jsjustweb.jihsun.com.tw/z/zk/zkMap.htm">選股網路地圖</option>
+                        <option value="https://www.cmoney.tw/screeners/">選股網</option>
+                    </select>
                 </div>
             </div>
         </div>

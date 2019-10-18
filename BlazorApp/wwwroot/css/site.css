@@ -151,3 +151,23 @@ app {
         text-decoration:line-through;
     }
 }
+
+
+input[type=button] {
+    background-color: #99ccff;
+    border: none;
+    color: white;
+    text-decoration: none;
+    margin: 4px 2px;
+    cursor: pointer;
+    width: 100px;
+    text-align: left;
+}
+input[type=search] {
+    width: 100px;
+}
+
+#chooseStockList {
+    width: 120px;
+    text-align-last: center
+}
