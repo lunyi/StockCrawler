@@ -27,21 +27,24 @@ else
                     <option value="@date">@date</option>
                 }
             </select>
-
             <select id="selectDateType" style="width:250px;text-align-last:center" onchange="onGetStocksByDate()">
                 <option value="0">----無----</option>
-                <option value="1">外資買超排行</option>
-                <option value="2">投信買超排行</option>
-                <option value="3">自營商買超排行</option>
-                <option value="4">融資買超排行</option>
-                <option value="5">融券賣超排行</option>
-                <option value="6">外資賣超排行</option>
-                <option value="7">投信賣超排行</option>
-                <option value="8">自營商賣超排行</option>
-                <option value="9">融資賣超排行</option>
-                <option value="10">融券買超排行</option>
-            </select>
+                <option value="1">一日漲幅排行</option>
+                <option value="2">外資投信同步買超排行</option>
+                <option value="3">外資買超排行</option>
+                <option value="4">投信買超排行</option>
+                <option value="5">自營商買超排行</option>
+                <option value="6">融資買超排行</option>
+                <option value="7">融券賣超排行</option>
 
+                <option value="8">一日跌幅排行</option>
+                <option value="9">外資投信同步賣超排行</option>
+                <option value="10">外資賣超排行</option>
+                <option value="11">投信賣超排行</option>
+                <option value="12">自營商賣超排行</option>
+                <option value="13">融資賣超排行</option>
+                <option value="14">融券買超排行</option>
+            </select>
             <select id="stockList" size="30" style="width:250px" onchange="onStockChangeAsync(this)">
                 @foreach (var stock in stocks)
                 {
@@ -49,26 +52,6 @@ else
                 }
             </select>
             <div class="column">
-                <div>
-                    <div>
-                        <input type="button" value="個股速覽" onclick="onUrlChangeAsync(1)" />
-                        <input type="button" value="主力進出明細" onclick="onUrlChangeAsync(2)" />
-                    </div>
-                    <div>
-                        <input type="button" value="融資融券" onclick="onUrlChangeAsync(3)" />
-                        <input type="button" value="CMoney" onclick="onUrlChangeAsync(4)" />
-                    </div>
-                    <div>
-                        <input type="button" value="Fugle" onclick="onUrlChangeAsync(5)" />
-                        <input type="button" value="財報狗" onclick="onUrlChangeAsync(6)" />
-                    </div>
-                    <div>
-                        <input type="button" value="個股健檢" onclick="onUrlChangeAsync(7)" />
-                        <input type="button" value="104" onclick="goTo104Page()" />
-                        <input type="button" value="財經百科" onclick="goToWikiPedia()" />
-                    </div>
-                </div>
-                <br />
                 <div style="position:relative;left:5px;">
                     <div>
                         <input id="number" type="number" min="1" max="10" size="1" value="4">秒
@@ -87,14 +70,31 @@ else
                             <option value="http://jsjustweb.jihsun.com.tw/z/zk/zkMap.htm">選股網路地圖</option>
                             <option value="https://www.cmoney.tw/screeners/">選股網</option>
                         </select>
-
-                        <LoginDisplay />
                     </div>
                 </div>
             </div>
         </div>
         <div class="column" style="position:relative;left:30px;">
             <iframe id="StockPage" scrolling="auto" width="1500" height="1000" frameborder="0" />
+        </div>
+        <div class="column" style="width:100px;position:relative;left:30px;">
+            <div>
+                <LoginDisplay />
+                <div>
+                    <input type="button" value="個股速覽" onclick="onUrlChangeAsync(1)" />
+                    <input type="button" value="基本資料" onclick="onUrlChangeAsync(2)" />
+                    <input type="button" value="主力進出" onclick="onUrlChangeAsync(3)" />
+                    <input type="button" value="法人持股" onclick="onUrlChangeAsync(4)" />
+                    <input type="button" value="CMoney" onclick="onUrlChangeAsync(5)" />
+                    <input type="button" value="CMoney法人" onclick="onUrlChangeAsync(6)" />
+                    <input type="button" value="CMoney主力" onclick="onUrlChangeAsync(7)" />
+                    <input type="button" value="籌碼K線" onclick="onUrlChangeAsync(8)" />
+                    <input type="button" value="Fugle" onclick="onUrlChangeAsync(9)" />
+                    <input type="button" value="個股健檢" onclick="onUrlChangeAsync(10)" />
+                    <input type="button" value="104" onclick="goTo104Page()" />
+                    <input type="button" value="財經百科" onclick="goToWikiPedia()" />
+                </div>
+            </div>
         </div>
     </div>
 }

@@ -49,16 +49,22 @@ namespace BlazorApp.Shared
 
         Dictionary<int, Func<string>> DateFunc = new Dictionary<int, Func<string>>
         {
-            { 1 , ()=>外資買超排行榜() },
-            { 2 , ()=>投信買超排行榜() },
-            { 3 , ()=>自營買超排行榜() },
-            { 4 , ()=>融資買超排行榜() },
-            { 5 , ()=>融券賣超排行榜() },
-            { 6 , ()=>外資賣超排行榜() },
-            { 7 , ()=>投信賣超排行榜() },
-            { 8 , ()=>自營賣超排行榜() },
-            { 9 , ()=>融資賣超排行榜() },
-            { 10 , ()=>融券賣超排行榜() }
+            { 1 , ()=>一日漲幅排行榜() },
+            { 2 , ()=>外資投信同步買超排行榜() },
+
+            { 3 , ()=>外資買超排行榜() },
+            { 4 , ()=>投信買超排行榜() },
+            { 5 , ()=>自營買超排行榜() },
+            { 6 , ()=>融資買超排行榜() },
+            { 7 , ()=>融券賣超排行榜() },
+            
+            { 8 , ()=>一日跌幅排行榜() },
+            { 9 , ()=>外資投信同步賣超排行榜() },
+            { 10 , ()=>外資賣超排行榜() },
+            { 11 , ()=>投信賣超排行榜() },
+            { 12 , ()=>自營賣超排行榜() },
+            { 13 , ()=>融資賣超排行榜() },
+            { 14 , ()=>融券賣超排行榜() }
         };
 
         Dictionary<int, Func<string>> MapFunc = new Dictionary<int, Func<string>>
@@ -73,6 +79,39 @@ namespace BlazorApp.Shared
         };
 
         #region 買賣超排行榜
+
+        private static string 一日漲幅排行榜()
+        {
+            return @$"
+  and [漲跌百分比] > 2
+  order by [漲跌百分比] desc
+";
+        }
+
+        private static string 一日跌幅排行榜()
+        {
+            return @$"
+  and [漲跌百分比] < -2
+  order by [漲跌百分比] asc
+";
+        }
+
+
+        private static string 外資投信同步買超排行榜()
+        {
+            return @$"
+  and [外資買賣超] > 0 and [投信買賣超] > 0
+  order by [投信買賣超] desc
+";
+        }
+
+        private static string 外資投信同步賣超排行榜()
+        {
+            return @$"
+  and [外資買賣超] < 0 and [投信買賣超] < 0
+  order by [投信買賣超] asc
+";
+        }
 
         private static string 外資買超排行榜()
         {
