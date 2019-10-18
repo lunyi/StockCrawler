@@ -13,16 +13,39 @@ namespace BlazorApp.Shared
         Task<Stocks[]> GetBestStocksAsync(int key);
         Task<string[]> GetDaysAsync();
         Task<Stocks[]> GetStocksByDateAsync(string datetime, int type);
+        Task SetBestStockAsync(string stockId, string type, string desc);
     }
     public class DataLayer : IDataLayer
     {
+
+        async Task IDataLayer.SetBestStockAsync(string stockId, string type, string desc)
+        {
+            var context = new StockDbContext();
+            var stock = context.Stocks.FirstOrDefault(p => p.StockId == stockId);
+            if (stock != null)
+            {
+                var best = new BestStocks
+                {
+                    Id = Guid.NewGuid(),
+                    StockId = stock.StockId,
+                    Name = stock.Name,
+                    Type = type,
+                    Description = desc,
+                    CreatedOn = DateTime.Now
+                };
+                context.BestStocks.Add(best);
+                await context.SaveChangesAsync();
+            }
+        }
+
+
         Task<string[]> IDataLayer.GetDaysAsync()
         {
             var context = new StockDbContext();
             return  context.Prices
                 .GroupBy(p => p.Datetime)
                 .OrderByDescending(p => p.Key)
-                .Take(20)
+                .Take(40)
                 .Select(p=>p.Key.ToString("yyyy-MM-dd"))
                 .ToArrayAsync();
         }

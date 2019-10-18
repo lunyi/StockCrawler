@@ -1,45 +1,28 @@
-﻿//start to Auto Browser Stocks
+﻿window.onload = function () {
+    new Promise(function (resolve, reject) {
+        setTimeout(function () {
+            getDateList();
+            getStocksByType(0);;
+        }, 100);
+    });
+}
+
+//start to Auto Browser Stocks
 var autoStatus = false;
 var currentIndex = 0;
 var timeoutId = null;
 var second = 4000;
-var currentUrlIndex = 1;
-var currentStockId = "1101";
-var currentUrl = "https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm";
 
-window.onload = function () {
-    (function () {
-        if (window.DotNet) {
-            console.log("window.DotNet is set");
-            if (window.DotNet.invokeMethodAsync) {
-                console.log("window.DotNet.invokeMethodAsync is set");
-                start();
-            }
-        }
-    })();
-};
-
-function start() {
-    Blazor.start({})
-        .then(() => initial());
-}
-
-function initial() {
-    DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByIndexAsync', 0)
-        .then(data => {
-            setStockList(data);
-        });
-}
 function autoStockStart() {
     autoStatus = !autoStatus;
     var btnAutoPlay = document.getElementById("autoPlay");
     if (autoStatus) {
         currentIndex = document.getElementById("stockList").selectedIndex;
         var parsed = parseInt(document.getElementById("number").value);
-        second = parsed * 1000;
+        second = parsed * 1000
 
         btnAutoPlay.value = "停止瀏覽股票";
-        timeoutId = window.setInterval(() => autoSetUrl(), second);
+        timeoutId = window.setInterval((() => autoSetUrl()), second);
     } else {
         btnAutoPlay.value = "自動瀏覽股票";
         clearInterval(timeoutId);
@@ -58,7 +41,7 @@ function autoSetUrl() {
     }
     currentStockId = list.options[currentIndex].value;
     currentUrl = urls[currentUrlIndex];
-    let url = currentUrl.replace('{0}', currentStockId);
+    var url = currentUrl.replace('{0}', currentStockId);
 
     document.getElementById("StockPage").src = url;
     list.value = list.options[currentIndex].value;
@@ -66,46 +49,50 @@ function autoSetUrl() {
 }
 
 function goTo104Page() {
-    let url = "https://www.104.com.tw/jobs/search/?keyword=" + getName();
+    var url = "https://www.104.com.tw/jobs/search/?keyword=" + getName();
     window.open(url, '_blank').focus();
 }
 
 function goToWikiPedia() {
-    let url = "https://www.moneydj.com/KMDJ/search/list.aspx?_QueryType_=WK&_Query_=" + getName();
+    var url = "https://www.moneydj.com/KMDJ/search/list.aspx?_QueryType_=WK&_Query_=" + getName();
     document.getElementById("StockPage").src = url;
 }
 
 function getName() {
-    let list = document.getElementById("stockList");
-    let s = list.options[list.selectedIndex];
-    let startIndex = s.innerText.indexOf('-') + 2;
-    let endIndex = s.innerText.indexOf('(') - 1;
-    let name = s.innerText.substring(startIndex, endIndex);
+    var list = document.getElementById("stockList");
+    var s = list.options[list.selectedIndex];
+    var startIndex = s.innerText.indexOf('-') + 2;
+    var endIndex = s.innerText.indexOf('(') - 1;
+    var name = s.innerText.substring(startIndex, endIndex)
     return name;
 }
 //End Auto Browser Stocks
+//http://5850web.moneydj.com/z/zc/zca/zca_1101.djhtm
+//https://concords.moneydj.com/z/zc/zca/zca_1101.djhtm
+//http://jsjustweb.jihsun.com.tw/z/zc/zcx/zcx_5521.djhtm
+//https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_1101.djhtm
 
 var urls = {
     1: 'https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm',
-    2: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco_{0}.djhtm',
-    3: 'https://www.cnyes.com/twstock/Margin/{0}.htm',
-    4: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=d',
-    5: 'https://www.fugle.tw/ai/{0}?p=2460385721&perfect=true',
-    6: 'https://statementdog.com/analysis/tpe/{0}/stock-health-check',
-    7: 'http://www.fortunengine.com.tw/evaluator.aspx?menu=on&scode={0}'
+    2: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zca_{0}.djhtm',
+    3: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zca/zco_{0}.djhtm',
+    4: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcl/zcl_{0}.djhtm',
+    5: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=d',
+    6: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=l',
+    7: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=mf',
+    8: 'https://www.cmoney.tw/finance/stockmainkline.aspx?s={0}',
+    9: 'https://www.cnyes.com/twstock/Margin/{0}.htm',
+    10: 'https://statementdog.com/analysis/tpe/{0}/stock-health-check',
+    11: 'https://www.fugle.tw/ai/{0}?p=2460385721&perfect=true',
+    12: 'http://www.fortunengine.com.tw/evaluator.aspx?menu=on&scode={0}'
 };
 
+var currentUrlIndex = 1
+var currentStockId = "1101";
+var currentUrl = "https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm";
 
-
-function onBestStocksChange() {
-    var bestStock = document.getElementById("BestStockList");
-    DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByIndexAsync', bestStock.selectedIndex)
-        .then(data => {
-            setStockList(data);
-        });
-}
 function onStockChangeAsync(obj) {
-    currentStockId = obj.value;
+    currentStockId = obj.value
     goToUrl();
 }
 
@@ -118,11 +105,11 @@ function goToUrl() {
     currentUrl = urls[currentUrlIndex];
     var url = currentUrl.replace('{0}', currentStockId);
 
-    if (currentUrlIndex >= 5) {
+    if (currentUrlIndex >= 10) {
         window.open(url, '_blank').focus();
     }
     else {
-        document.getElementById("StockPage").src = url;
+        document.getElementById("StockPage").src = url
     }
 }
 //start to Auto Browser Stocks
@@ -132,7 +119,7 @@ function onFindStockId(event) {
         var stockList = document.getElementById("stockList");
         var find = false;
         for (var i = 0; i < stockList.options.length; i++) {
-            if (stockList.options[i].value === stockId) {
+            if (stockList.options[i].value == stockId) {
                 stockList.value = stockId;
                 currentStockId = stockId;
                 goToUrl();
@@ -140,12 +127,12 @@ function onFindStockId(event) {
             }
         }
 
-        if (find === false) {
-            event.placeholder = stockId + " not found!!";
+        if (find == false) {
+            event.placeholder = stockId + " not found!!"
             event.value = "";
-            window.setTimeout(() => {
-                event.placeholder = "輸入編號找股票";
-            }, 3000);
+            window.setTimeout((() => {
+                event.placeholder = "輸入編號"
+            }), 3000);
         }
     }
 }
@@ -168,22 +155,51 @@ function goToStockMaster() {
     }
 }
 
+function onSelectTypeChangeAsync() {
+    let type = document.getElementById("selectDateType")
+    getStocksByType(type.selectedIndex);
+}
+
+function getDateList() {
+    DotNet.invokeMethodAsync('BlazorApp', 'GetDateListAsync')
+        .then(data => {
+            var select = document.getElementById("selectDateList");
+
+            for (var i = 0; i < data.length; i++) {
+                var option = document.createElement("option");
+                option.value = data[i]
+                option.text = data[i];
+                select.add(option);
+            }
+        });
+}
+
+function getStocksByType(stockType) {
+    DotNet.invokeMethodAsync('BlazorApp', 'GetBestStocksAsync', stockType)
+        .then(data => {
+            setStocks(data);
+        });
+}
+
 function onGetStocksByDate() {
     var date = document.getElementById("selectDateList");
-    var type = document.getElementById("selectDateType");
+    var type = document.getElementById("selectRankType");
 
     if (type.selectedIndex > 0) {
-        DotNet.invokeMethodAsync('BlazorApp', 'GetStocksAndDateAsync', date.value, type.selectedIndex)
+        DotNet.invokeMethodAsync('BlazorApp', 'GetStocksDateAsync', date.value, type.selectedIndex)
             .then(data => {
-                setStockList(data);
+                setStocks(data);
             });
     }
 }
 
-function setStockList(data) {
+function setStocks(data) {
     var select = document.getElementById("stockList");
-    for (i = select.options.length - 1; i >= 0; i--) {
-        select.remove(i);
+
+    if (select.options != null) {
+        for (i = select.options.length - 1; i >= 0; i--) {
+            select.remove(i);
+        }
     }
 
     for (var i = 0; i < data.length; i++) {

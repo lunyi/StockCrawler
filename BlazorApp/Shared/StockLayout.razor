@@ -1,125 +1,77 @@
 ﻿@inherits LayoutComponentBase
 
-@using DataService.Models
-@inject IDataLayer DataLayer
-@inject IJSRuntime Js
+<div class="row">
+    <div class="column" style="width:250px;position:relative;left:30px;">
+        <select id="selectDateType" style="width:250px;text-align-last:center" onchange="onSelectTypeChangeAsync">
+            <option value="0">----全部----</option>
+            <option value="1">財報選股</option>
+            <option value="2">型態選股</option>
+            <option value="3">頁面選股</option>
+            <option value="4">CMoney選股</option>
+            <option value="5">財報狗選股</option>
+            <option value="6">網龍大富翁分析</option>
+        </select>
+        <select id="selectDateList" style="width:250px;text-align-last:center" onchange="onGetStocksByDate()"></select>
+        <select id="selectRankType" style="width:250px;text-align-last:center" onchange="onGetStocksByDate()">
+            <option value="0">----無----</option>
+            <option value="1">一日漲幅排行</option>
+            <option value="2">外資投信同步買超排行</option>
+            <option value="3">外資買超排行</option>
+            <option value="4">投信買超排行</option>
+            <option value="5">自營商買超排行</option>
+            <option value="6">融資買超排行</option>
+            <option value="7">融券賣超排行</option>
 
-@if (stocks == null)
-{
-    <p><em>Loading...</em></p>
-}
-else
-{
-    <div class="row">
-        <div class="column" style="width:250px;position:relative;left:30px;">
-            <select id="selectStockList" style="width:250px;text-align-last:center" @onchange="@(async (arg) => await OnSelectStockChangeAsync(arg))">
-                <option value="0">----全部----</option>
-                <option value="1">財報選股</option>
-                <option value="2">型態選股</option>
-                <option value="3">頁面選股</option>
-                <option value="4">CMoney選股</option>
-                <option value="5">財報狗選股</option>
-                <option value="6">網龍大富翁分析</option>
-            </select>
-            <select id="selectDateList" style="width:250px;text-align-last:center" onchange="onGetStocksByDate()">
-                @foreach (var date in dateList)
-                {
-                    <option value="@date">@date</option>
-                }
-            </select>
-            <select id="selectDateType" style="width:250px;text-align-last:center" onchange="onGetStocksByDate()">
-                <option value="0">----無----</option>
-                <option value="1">一日漲幅排行</option>
-                <option value="2">外資投信同步買超排行</option>
-                <option value="3">外資買超排行</option>
-                <option value="4">投信買超排行</option>
-                <option value="5">自營商買超排行</option>
-                <option value="6">融資買超排行</option>
-                <option value="7">融券賣超排行</option>
-
-                <option value="8">一日跌幅排行</option>
-                <option value="9">外資投信同步賣超排行</option>
-                <option value="10">外資賣超排行</option>
-                <option value="11">投信賣超排行</option>
-                <option value="12">自營商賣超排行</option>
-                <option value="13">融資賣超排行</option>
-                <option value="14">融券買超排行</option>
-            </select>
-            <select id="stockList" size="40" style="width:250px" onchange="onStockChangeAsync(this)">
-                @foreach (var stock in stocks)
-                {
-                <option value="@stock.StockId">@stock.StockId - @stock.Name (@stock.Industry)</option>
-                }
-            </select>
-        </div>
-        <div class="column" style="position:relative;left:30px;">
-            <iframe id="StockPage" scrolling="auto" width="1500" height="1000" frameborder="0" />
-        </div>
-        <div class="column" style="width:100px;position:relative;left:30px;">
+            <option value="8">一日跌幅排行</option>
+            <option value="9">外資投信同步賣超排行</option>
+            <option value="10">外資賣超排行</option>
+            <option value="11">投信賣超排行</option>
+            <option value="12">自營商賣超排行</option>
+            <option value="13">融資賣超排行</option>
+            <option value="14">融券買超排行</option>
+        </select>
+        <select id="stockList" size="40" style="width:250px" onchange="onStockChangeAsync(this)"></select>
+    </div>
+    <div class="column" style="position:relative;left:30px;">
+        <iframe id="StockPage" scrolling="auto" width="1500" height="1000" src="https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_1101.djhtm" frameborder="0" />
+    </div>
+    <div class="column" style="width:100px;position:relative;left:30px;">
+        <div>
+            <LoginDisplay />
             <div>
-                <LoginDisplay />
-                <div>
-                    <input type="button" value="個股速覽" onclick="onUrlChangeAsync(1)" />
-                    <input type="button" value="基本資料" onclick="onUrlChangeAsync(2)" />
-                    <input type="button" value="主力進出" onclick="onUrlChangeAsync(3)" />
-                    <input type="button" value="法人持股" onclick="onUrlChangeAsync(4)" />
-                    <input type="button" value="CMoney" onclick="onUrlChangeAsync(5)" />
-                    <input type="button" value="CMoney法人" onclick="onUrlChangeAsync(6)" />
-                    <input type="button" value="CMoney主力" onclick="onUrlChangeAsync(7)" />
-                    <input type="button" value="籌碼K線" onclick="onUrlChangeAsync(8)" />
-                    <input type="button" value="融資融券" onclick="onUrlChangeAsync(9)" />
-                    <input type="button" value="財報狗" onclick="onUrlChangeAsync(10)" />
-                    <input type="button" value="Fugle" onclick="onUrlChangeAsync(11)" />
-                    <input type="button" value="網龍大富翁" onclick="onUrlChangeAsync(12)" />
-                    <input type="button" value="104" onclick="goTo104Page()" />
-                    <input type="button" value="財經百科" onclick="goToWikiPedia()" />
-                </div>
-                <div>
-                    <input id="number" type="number" min="1" max="10" size="1" value="4">秒
-                    <input id="autoPlay" type="button" value="自動瀏覽股票" onclick="window.autoStockStart()" />
-                </div>
-                <br />
-                <div>
-                    <input id="stockFinder" type="search" onkeydown="onFindStockId(this)" placeholder="輸入編號" />
-                    <input id="btnSelectStock" type="button" value="選股" onclick="selectStock()" /><br /><br />
-                    <select id="chooseStockList" onchange="goToStockMaster()">
-                        <option value="0">選股網站</option>
-                        <option value="http://jsjustweb.jihsun.com.tw/Z/ZG/ZGK_DD.djhtm">投信選股</option>
-                        <option value="https://fubon-ebrokerdj.fbs.com.tw/z/zg/zg_A_0_20.djhtm">漲幅選股</option>
-                        <option value="https://concords.moneydj.com/z/zk/zk0/zkmain_2_3.djhtm">基本面選股</option>
-                        <option value="http://justdata.yuanta.com.tw/z/zk/zkf/zkExpert_F.asp">選股專家</option>
-                        <option value="http://jsjustweb.jihsun.com.tw/z/zk/zkMap.htm">選股網路地圖</option>
-                        <option value="https://www.cmoney.tw/screeners/">選股網</option>
-                    </select>
-                </div>
+                <input type="button" value="個股速覽" onclick="onUrlChangeAsync(1)" />
+                <input type="button" value="基本資料" onclick="onUrlChangeAsync(2)" />
+                <input type="button" value="主力進出" onclick="onUrlChangeAsync(3)" />
+                <input type="button" value="法人持股" onclick="onUrlChangeAsync(4)" />
+                <input type="button" value="CMoney" onclick="onUrlChangeAsync(5)" />
+                <input type="button" value="CMoney法人" onclick="onUrlChangeAsync(6)" />
+                <input type="button" value="CMoney主力" onclick="onUrlChangeAsync(7)" />
+                <input type="button" value="籌碼K線" onclick="onUrlChangeAsync(8)" />
+                <input type="button" value="融資融券" onclick="onUrlChangeAsync(9)" />
+                <input type="button" value="財報狗" onclick="onUrlChangeAsync(10)" />
+                <input type="button" value="Fugle" onclick="onUrlChangeAsync(11)" />
+                <input type="button" value="網龍大富翁" onclick="onUrlChangeAsync(12)" />
+                <input type="button" value="104" onclick="goTo104Page()" />
+                <input type="button" value="財經百科" onclick="goToWikiPedia()" />
+            </div>
+            <div>
+                <input id="number" type="number" min="1" max="10" size="1" value="4">秒
+                <input id="autoPlay" type="button" value="自動瀏覽股票" onclick="window.autoStockStart()" />
+            </div>
+            <br />
+            <div>
+                <input id="stockFinder" type="search" onkeydown="onFindStockId(this)" placeholder="輸入編號" />
+                <input id="btnSelectStock" type="button" value="選股" onclick="selectStock()" /><br /><br />
+                <select id="chooseStockList" onchange="goToStockMaster()">
+                    <option value="0">選股網站</option>
+                    <option value="http://jsjustweb.jihsun.com.tw/Z/ZG/ZGK_DD.djhtm">投信選股</option>
+                    <option value="https://fubon-ebrokerdj.fbs.com.tw/z/zg/zg_A_0_20.djhtm">漲幅選股</option>
+                    <option value="https://concords.moneydj.com/z/zk/zk0/zkmain_2_3.djhtm">基本面選股</option>
+                    <option value="http://justdata.yuanta.com.tw/z/zk/zkf/zkExpert_F.asp">選股專家</option>
+                    <option value="http://jsjustweb.jihsun.com.tw/z/zk/zkMap.htm">選股網路地圖</option>
+                    <option value="https://www.cmoney.tw/screeners/">選股網</option>
+                </select>
             </div>
         </div>
     </div>
-}
-@code{
-    static Stocks[] stocks;
-    static string[] dateList;
-}
-@functions{
-
-    protected override async Task OnInitializedAsync()
-    {
-        stocks = await DataLayer.GetBestStocksAsync(0);
-        dateList = await DataLayer.GetDaysAsync();
-    }
-
-    async Task OnSelectStockChangeAsync(ChangeEventArgs arg)
-    {
-        var index = Convert.ToInt32(arg.Value);
-        stocks = await DataLayer.GetBestStocksAsync(index);
-        await Js.InvokeAsync<object>("onSetCurrentIndex");
-    }
-
-    [JSInvokable]
-    public static async Task<Stocks[]> GetStocksDateAsync(string datetime, int type)
-    {
-        IDataLayer dataLayer = new DataLayer();
-        stocks = await dataLayer.GetStocksByDateAsync(datetime, type);
-        return stocks;
-    }
-}
+</div>
