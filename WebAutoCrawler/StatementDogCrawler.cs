@@ -18,10 +18,10 @@ namespace WebAutoCrawler
 
         public StatementDogCrawler() : base()
         {
-            _driver.Navigate().GoToUrl(LoginUrl);
-            var emailElement = _driver.FindElement(By.Id("user_email"));
-            var passwordElement = _driver.FindElement(By.Id("user_password"));
-            var submitElement = _driver.FindElement(By.ClassName("submit-btn"));
+            GoToUrl(LoginUrl);
+            var emailElement = FindElement(By.Id("user_email"));
+            var passwordElement = FindElement(By.Id("user_password"));
+            var submitElement = FindElement(By.ClassName("submit-btn"));
 
             emailElement.SendKeys(Username);
             passwordElement.SendKeys(Password);
@@ -31,7 +31,7 @@ namespace WebAutoCrawler
         {
             var context = new StockDbContext();
             var stocks = context.Stocks
-                .Where(p => !NotContainStocks.Contains(p.StockId))
+                .Where(p => p.Status == 1)
                 .OrderBy(p => p.StockId)
                 .ToList();
 
@@ -68,9 +68,9 @@ namespace WebAutoCrawler
 
         private Dictionary<string, CheckModel[]> Parser(string url)
         {
-            _driver.Navigate().GoToUrl(url);
+            GoToUrl(url);
 
-            var checks = _driver.FindElements(By.ClassName("stock-health-check-module"));
+            var checks = FindElements(By.ClassName("stock-health-check-module"));
             var list = new Dictionary<string, CheckModel[]>();
 
             for (int i = 0; i < 4; i++)

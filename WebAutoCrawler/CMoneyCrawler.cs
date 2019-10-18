@@ -26,11 +26,11 @@ namespace WebAutoCrawler
             {
                 try
                 {
-                    _driver.Navigate().GoToUrl(string.Format(HealthCheckUrl, stock.StockId));
+                    GoToUrl(string.Format(HealthCheckUrl, stock.StockId));
 
                     Thread.Sleep(400);
-                    var checks = _driver.FindElement(By.ClassName("remark"));
-                    var barnums = _driver.FindElements(By.ClassName("bar-num2"));
+                    var checks = FindElement(By.ClassName("remark"));
+                    var barnums = FindElements(By.ClassName("bar-num2"));
 
                     var item = new AnaCMoney
                     {
