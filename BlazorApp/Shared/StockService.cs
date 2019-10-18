@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DataService.Models;
+using DataService.Services;
 using Microsoft.JSInterop;
 
 namespace BlazorApp.Shared
@@ -12,28 +13,28 @@ namespace BlazorApp.Shared
         [JSInvokable]
         public static async Task SetBestStockAsync(string stockId, string type, string desc)
         {
-            IDataLayer dataLayer = new DataLayer();
+            IStockQueries dataLayer = new StockQueries();
             await dataLayer.SetBestStockAsync(stockId, type, desc);
         }
 
         [JSInvokable]
         public static async Task<Stocks[]> GetBestStocksAsync(int index)
         {
-            IDataLayer dataLayer = new DataLayer();
+            IStockQueries dataLayer = new StockQueries();
             return await dataLayer.GetBestStocksAsync(index);
         }
 
         [JSInvokable]
         public static async Task<Stocks[]> GetStocksDateAsync(string datetime, int type)
         {
-            IDataLayer dataLayer = new DataLayer();
+            IStockQueries dataLayer = new StockQueries();
             return await dataLayer.GetStocksByDateAsync(datetime, type);
         }
 
         [JSInvokable]
         public static async Task<string[]> GetDateListAsync()
         {
-            IDataLayer dataLayer = new DataLayer();
+            IStockQueries dataLayer = new StockQueries();
             return await dataLayer.GetDaysAsync();
         }
     }

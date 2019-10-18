@@ -2,10 +2,10 @@
     new Promise(function (resolve, reject) {
         setTimeout(function () {
             getDateList();
-            getStocksByType(0);;
-        }, 100);
+            getStocksByType(0);
+        }, 75);
     });
-}
+};
 
 //start to Auto Browser Stocks
 var autoStatus = false;
@@ -19,10 +19,10 @@ function autoStockStart() {
     if (autoStatus) {
         currentIndex = document.getElementById("stockList").selectedIndex;
         var parsed = parseInt(document.getElementById("number").value);
-        second = parsed * 1000
+        second = parsed * 1000;
 
         btnAutoPlay.value = "停止瀏覽股票";
-        timeoutId = window.setInterval((() => autoSetUrl()), second);
+        timeoutId = window.setInterval(() => autoSetUrl(), second);
     } else {
         btnAutoPlay.value = "自動瀏覽股票";
         clearInterval(timeoutId);
@@ -63,7 +63,7 @@ function getName() {
     var s = list.options[list.selectedIndex];
     var startIndex = s.innerText.indexOf('-') + 2;
     var endIndex = s.innerText.indexOf('(') - 1;
-    var name = s.innerText.substring(startIndex, endIndex)
+    var name = s.innerText.substring(startIndex, endIndex);
     return name;
 }
 //End Auto Browser Stocks
@@ -73,10 +73,14 @@ function getName() {
 //https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_1101.djhtm
 
 var urls = {
-    1: 'https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm',
-    2: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zca_{0}.djhtm',
-    3: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zca/zco_{0}.djhtm',
-    4: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcl/zcl_{0}.djhtm',
+    //1: 'https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm',
+    //2: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zca_{0}.djhtm',
+    //3: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zca/zco_{0}.djhtm',
+    //4: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcl/zcl_{0}.djhtm',
+    1: 'https://concords.moneydj.com/Z/ZC/ZCX/ZCX_{0}.djhtm',
+    2: 'https://concords.moneydj.com/z/zc/zco/zca_{0}.djhtm',
+    3: 'https://concords.moneydj.com/z/zc/zca/zco_{0}.djhtm',
+    4: 'https://concords.moneydj.com/z/zc/zcl/zcl_{0}.djhtm',
     5: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=d',
     6: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=l',
     7: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=mf',
@@ -87,12 +91,12 @@ var urls = {
     12: 'http://www.fortunengine.com.tw/evaluator.aspx?menu=on&scode={0}'
 };
 
-var currentUrlIndex = 1
+var currentUrlIndex = 1;
 var currentStockId = "1101";
-var currentUrl = "https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm";
+var currentUrl = "https://5850web.moneydj.com/Z/ZC/ZCX/ZCX_{0}.djhtm";
 
 function onStockChangeAsync(obj) {
-    currentStockId = obj.value
+    currentStockId = obj.value;
     goToUrl();
 }
 
@@ -109,7 +113,7 @@ function goToUrl() {
         window.open(url, '_blank').focus();
     }
     else {
-        document.getElementById("StockPage").src = url
+        document.getElementById("StockPage").src = url;
     }
 }
 //start to Auto Browser Stocks
@@ -119,7 +123,7 @@ function onFindStockId(event) {
         var stockList = document.getElementById("stockList");
         var find = false;
         for (var i = 0; i < stockList.options.length; i++) {
-            if (stockList.options[i].value == stockId) {
+            if (stockList.options[i].value === stockId) {
                 stockList.value = stockId;
                 currentStockId = stockId;
                 goToUrl();
@@ -127,12 +131,12 @@ function onFindStockId(event) {
             }
         }
 
-        if (find == false) {
-            event.placeholder = stockId + " not found!!"
+        if (find === false) {
+            event.placeholder = stockId + " not found!!";
             event.value = "";
-            window.setTimeout((() => {
-                event.placeholder = "輸入編號"
-            }), 3000);
+            window.setTimeout(() => {
+                event.placeholder = "輸入編號";
+            }, 3000);
         }
     }
 }
@@ -155,8 +159,9 @@ function goToStockMaster() {
     }
 }
 
-function onSelectTypeChangeAsync() {
-    let type = document.getElementById("selectDateType")
+function onSelectTypeChange() {
+    let type = document.getElementById("selectStockType");
+    console.log("onSelectTypeChange");
     getStocksByType(type.selectedIndex);
 }
 
@@ -167,7 +172,7 @@ function getDateList() {
 
             for (var i = 0; i < data.length; i++) {
                 var option = document.createElement("option");
-                option.value = data[i]
+                option.value = data[i];
                 option.text = data[i];
                 select.add(option);
             }
@@ -196,7 +201,7 @@ function onGetStocksByDate() {
 function setStocks(data) {
     var select = document.getElementById("stockList");
 
-    if (select.options != null) {
+    if (select.options !== null) {
         for (i = select.options.length - 1; i >= 0; i--) {
             select.remove(i);
         }

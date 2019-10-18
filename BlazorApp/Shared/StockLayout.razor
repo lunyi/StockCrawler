@@ -1,8 +1,8 @@
 ﻿@inherits LayoutComponentBase
 
 <div class="row">
-    <div class="column" style="width:250px;position:relative;left:30px;">
-        <select id="selectDateType" style="width:250px;text-align-last:center" onchange="onSelectTypeChangeAsync">
+    <div id="columnLeft" class="column">
+        <select id="selectStockType" onchange="onSelectTypeChange()">
             <option value="0">----全部----</option>
             <option value="1">財報選股</option>
             <option value="2">型態選股</option>
@@ -11,8 +11,8 @@
             <option value="5">財報狗選股</option>
             <option value="6">網龍大富翁分析</option>
         </select>
-        <select id="selectDateList" style="width:250px;text-align-last:center" onchange="onGetStocksByDate()"></select>
-        <select id="selectRankType" style="width:250px;text-align-last:center" onchange="onGetStocksByDate()">
+        <select id="selectDateList" onchange="onGetStocksByDate()"></select>
+        <select id="selectRankType" onchange="onGetStocksByDate()">
             <option value="0">----無----</option>
             <option value="1">一日漲幅排行</option>
             <option value="2">外資投信同步買超排行</option>
@@ -30,12 +30,12 @@
             <option value="13">融資賣超排行</option>
             <option value="14">融券買超排行</option>
         </select>
-        <select id="stockList" size="40" style="width:250px" onchange="onStockChangeAsync(this)"></select>
+        <select id="stockList" size="40" onchange="onStockChangeAsync(this)"></select>
     </div>
-    <div class="column" style="position:relative;left:30px;">
-        <iframe id="StockPage" scrolling="auto" width="1500" height="1000" src="https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_1101.djhtm" frameborder="0" />
+    <div id="columnCenter" class="column">
+        <iframe id="StockPage" scrolling="auto" width="1500" height="1000" src="https://concords.moneydj.com/z/zc/zca/zca_1101.djhtm" frameborder="0" />
     </div>
-    <div class="column" style="width:100px;position:relative;left:30px;">
+    <div id="columnRight" class="column">
         <div>
             <LoginDisplay />
             <div>

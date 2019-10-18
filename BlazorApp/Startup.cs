@@ -16,6 +16,7 @@ using BlazorApp.Data;
 using BlazorApp.Shared;
 using BlazorApp.Areas.Identity;
 using Microsoft.EntityFrameworkCore;
+using DataService.Services;
 
 namespace BlazorApp
 {
@@ -44,7 +45,7 @@ namespace BlazorApp
             });
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
             services.AddSingleton<WeatherForecastService>();
-            services.AddSingleton<IDataLayer, DataLayer>();
+            services.AddSingleton<IStockQueries, StockQueries>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

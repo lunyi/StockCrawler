@@ -171,3 +171,31 @@ input[type=search] {
     width: 120px;
     text-align-last: center
 }
+
+#selectStockType,
+#selectDateList,
+#selectRankType {
+    width: 250px;
+    text-align-last: center
+}
+
+#stockList {
+    width: 250px;
+}
+
+#columnLeft {
+    width: 250px;
+    position: relative;
+    left: 30px;
+}
+
+#columnCenter {
+    position: relative;
+    left: 30px;
+}
+
+#columnRight {
+    width: 100px;
+    position: relative;
+    left: 30px;
+}

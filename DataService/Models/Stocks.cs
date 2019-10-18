@@ -14,5 +14,10 @@ namespace DataService.Models
         public DateTimeOffset CreatedOn { get; set; }
         public DateTimeOffset UpdatedOn { get; set; }
         public int Status { get; set; }
+        public string Address { get; set; }
+        public string Website { get; set; }
+        public string 營收比重 { get; set; }
+        public decimal? 股本 { get; set; }
+        public string Description { get; set; }
     }
 }

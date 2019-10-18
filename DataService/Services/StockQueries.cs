@@ -4,21 +4,44 @@ using System.Linq;
 using System.Threading.Tasks;
 using DataService.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.JSInterop;
 
-namespace BlazorApp.Shared
+namespace DataService.Services
 {
-    public interface IDataLayer
+    public interface IStockQueries
     {
         Task<Stocks[]> GetBestStocksAsync(int key);
         Task<string[]> GetDaysAsync();
         Task<Stocks[]> GetStocksByDateAsync(string datetime, int type);
         Task SetBestStockAsync(string stockId, string type, string desc);
+        Task<Stocks[]> GetActiveStocksAsync();
+        Task<Stocks[]> GetStocksBySqlAsync(string sql);
     }
-    public class DataLayer : IDataLayer
+    public class StockQueries : IStockQueries
     {
+        //private StockDbContext _context;
+        //public StockQueries(StockDbContext context)
+        //{
+        //    _context = context;
+        //}
 
-        async Task IDataLayer.SetBestStockAsync(string stockId, string type, string desc)
+        Task<Stocks[]> IStockQueries.GetActiveStocksAsync()
+        {
+            var context = new StockDbContext();
+            return context.Stocks
+                .Where(p => p.Status == 1)
+                .ToArrayAsync();
+        }
+
+        Task<Stocks[]> IStockQueries.GetStocksBySqlAsync(string sql)
+        {
+            var context = new StockDbContext();
+            return context.Stocks
+                .FromSqlRaw(sql)
+                .ToArrayAsync();
+        }
+
+
+        async Task IStockQueries.SetBestStockAsync(string stockId, string type, string desc)
         {
             var context = new StockDbContext();
             var stock = context.Stocks.FirstOrDefault(p => p.StockId == stockId);
@@ -39,7 +62,7 @@ namespace BlazorApp.Shared
         }
 
 
-        Task<string[]> IDataLayer.GetDaysAsync()
+        Task<string[]> IStockQueries.GetDaysAsync()
         {
             var context = new StockDbContext();
             return  context.Prices
@@ -50,14 +73,14 @@ namespace BlazorApp.Shared
                 .ToArrayAsync();
         }
 
-        Task<Stocks[]> IDataLayer.GetBestStocksAsync(int key)
+        Task<Stocks[]> IStockQueries.GetBestStocksAsync(int key)
         {
             var context = new StockDbContext();
             var stocks = context.Stocks.FromSqlRaw(MapFunc[key]());
             return stocks.ToArrayAsync();
         }
 
-        Task<Stocks[]> IDataLayer.GetStocksByDateAsync(string datetime, int type)
+        Task<Stocks[]> IStockQueries.GetStocksByDateAsync(string datetime, int type)
         {
             var context = new StockDbContext();
             var whereCondition = DateFunc[type]();
@@ -70,7 +93,7 @@ namespace BlazorApp.Shared
             return stocks.ToArrayAsync();
         }
 
-        Dictionary<int, Func<string>> DateFunc = new Dictionary<int, Func<string>>
+        private Dictionary<int, Func<string>> DateFunc = new Dictionary<int, Func<string>>
         {
             { 1 , ()=>一日漲幅排行榜() },
             { 2 , ()=>外資投信同步買超排行榜() },
@@ -90,7 +113,7 @@ namespace BlazorApp.Shared
             { 14 , ()=>融券賣超排行榜() }
         };
 
-        Dictionary<int, Func<string>> MapFunc = new Dictionary<int, Func<string>>
+        private Dictionary<int, Func<string>> MapFunc = new Dictionary<int, Func<string>>
         {
             { 0 , ()=>GetActiveStocksSql() },
             { 1 , ()=>GetSqlByFinance() },
@@ -335,7 +358,6 @@ SELECT
 	having count([Pass]) >=10)
 ";
         }
-
         #endregion
     }
 }

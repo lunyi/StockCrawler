@@ -28,6 +28,7 @@ namespace DataService.Models
         {
             if (!optionsBuilder.IsConfigured)
             {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
                 optionsBuilder.UseSqlServer("Server=220.133.185.1;Database=StockDb;User ID=stock;Password=stock;");
             }
         }
@@ -230,6 +231,10 @@ namespace DataService.Models
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
+                entity.Property(e => e.Address).HasMaxLength(256);
+
+                entity.Property(e => e.Description).HasMaxLength(256);
+
                 entity.Property(e => e.Industry)
                     .IsRequired()
                     .HasMaxLength(50);
@@ -246,6 +251,12 @@ namespace DataService.Models
                     .IsRequired()
                     .HasMaxLength(8)
                     .IsUnicode(false);
+
+                entity.Property(e => e.Website).HasMaxLength(256);
+
+                entity.Property(e => e.營收比重).HasMaxLength(1024);
+
+                entity.Property(e => e.股本).HasColumnType("decimal(18, 2)");
             });
 
             OnModelCreatingPartial(modelBuilder);

@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using DataService.Models;
 using HtmlAgilityPack;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebCrawler
 {
@@ -13,7 +16,89 @@ namespace WebCrawler
     {
         public ConcurrentDictionary<string, string> ErrorStocks { get; set; }
 
-        public Prices[] ParserHistory(string stockId, string name)
+
+        public async Task RunAsync()
+        {
+            var context = new StockDbContext();
+
+
+            var stocks = context.Stocks
+                .Where(p => p.Status == 1)
+                .OrderBy(p => p.StockId)
+                .ToList();
+
+            var s = Stopwatch.StartNew();
+            s.Start();
+
+            var parser = new CnyParser();
+
+            foreach (var item in stocks)
+            {
+                await ExecuteLastAsync(parser, context, item.StockId, item.Name);
+            }
+
+            s.Stop();
+            Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
+
+            var sql = GetSql();
+            stocks = context.Stocks.FromSqlRaw(sql).ToList();
+
+            foreach (var item in stocks)
+            {
+                Console.WriteLine($"Error: {item.StockId} {item.Name}");
+                await ExecuteLastAsync(parser, context, item.StockId, item.Name);
+
+            }
+        }
+
+        private static string GetSql()
+        {
+            return @$"
+select * from [Stocks]
+where StockId not in (
+SELECT StockId
+  FROM [dbo].[Prices]
+  where [Datetime] = '{DateTime.Today.ToString("yyyy/MM/dd")}')
+ and [Status] = 1
+  order by StockId";
+        }
+
+        private async Task ExecuteHistoryAsync(CnyParser parser, StockDbContext context, string stockId, string name)
+        {
+            var prices = parser.ParserHistory(stockId, name);
+
+            foreach (var price in prices)
+            {
+                var p = context.Prices.FirstOrDefault(p => p.Datetime == price.Datetime && p.StockId == stockId);
+                if (p == null)
+                {
+                    context.Prices.Add(price);
+                }
+            }
+            Console.WriteLine($"Finished: {stockId} {name}");
+
+            await context.SaveChangesAsync();
+        }
+
+        private async Task ExecuteLastAsync(CnyParser parser, StockDbContext context, string stockId, string name)
+        {
+            var price = parser.ParserLastDay(stockId, name);
+
+            if (price == null)
+            {
+                return;
+            }
+            var p = context.Prices.FirstOrDefault(p => p.Datetime == price.Datetime && p.StockId == stockId);
+            if (p == null)
+            {
+                context.Prices.Add(price);
+            }
+
+            await context.SaveChangesAsync();
+        }
+
+
+        private Prices[] ParserHistory(string stockId, string name)
         {
             try
             {
@@ -35,7 +120,7 @@ namespace WebCrawler
             }
         }
 
-        public Prices ParserLastDay(string stockId, string name)
+        private Prices ParserLastDay(string stockId, string name)
         {
             try
             {
@@ -162,7 +247,7 @@ namespace WebCrawler
             }
         }
 
-        public void ParseNode(int startIndex, string url, string xPzth, Prices[] prices, Action<HtmlNode, Prices> action)
+        private void ParseNode(int startIndex, string url, string xPzth, Prices[] prices, Action<HtmlNode, Prices> action)
         {
             var rootNode = GetRootNoteByUrl(url);
             var node = rootNode.SelectSingleNode(xPzth);
@@ -185,7 +270,7 @@ namespace WebCrawler
             return SetPrice(node.ChildNodes[3], stockId, name);
         }
 
-        public void ParseSingleNode(int startIndex, string url, string xPzth, Prices price, Action<HtmlNode, Prices> action)
+        private void ParseSingleNode(int startIndex, string url, string xPzth, Prices price, Action<HtmlNode, Prices> action)
         {
             var rootNode = GetRootNoteByUrl(url);
             var node = rootNode.SelectSingleNode(xPzth);
