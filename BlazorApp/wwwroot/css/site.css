@@ -152,7 +152,7 @@ app {
     }
 }
 
-
+/**Stock **/
 input[type=button] {
     background-color: #99ccff;
     border: none;
@@ -198,4 +198,8 @@ input[type=search] {
     width: 100px;
     position: relative;
     left: 30px;
+}
+
+#selectChosenStockType {
+    width: 100px;
 }
