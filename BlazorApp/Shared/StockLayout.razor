@@ -61,7 +61,12 @@
             <br />
             <div>
                 <input id="stockFinder" type="search" onkeydown="onFindStockId(this)" placeholder="輸入編號" />
-                <input id="btnSelectStock" type="button" value="選股" onclick="selectStock()" /><br /><br />
+
+                <input id="txtChosenStockType" list="chosenStockType" type="text" placeholder="選股類型"/>
+                <datalist id="chosenStockType"></datalist>
+                <input id="btnSelectStock" type="button" value="加入選股" onclick="selectStock()" />
+                <input id="btnRemoveStock" type="button" value="移除選股" onclick="removeStock()" />
+                <br /><br />
                 <select id="chooseStockList" onchange="goToStockMaster()">
                     <option value="0">選股網站</option>
                     <option value="http://jsjustweb.jihsun.com.tw/Z/ZG/ZGK_DD.djhtm">投信選股</option>

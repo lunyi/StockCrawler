@@ -3,7 +3,8 @@
         setTimeout(function () {
             getDateList();
             getStocksByType(0);
-        }, 75);
+            getChosenStockTypes();
+        }, 100);
     });
 };
 
@@ -142,7 +143,8 @@ function onFindStockId(event) {
 }
 
 function selectStock() {
-    DotNet.invokeMethodAsync('BlazorApp', 'SetBestStockAsync', currentStockId, "頁面選股", "test")
+    var selectedStock = document.getElementById("selectChosenStockType");
+    DotNet.invokeMethodAsync('BlazorApp', 'SetBestStockAsync', currentStockId, selectedStock.value)
         .then(data => {
             console.log(data);
         });
@@ -186,6 +188,23 @@ function getStocksByType(stockType) {
         });
 }
 
+function getChosenStockTypes(stockType) {
+    DotNet.invokeMethodAsync('BlazorApp', 'GetChosenStockTypesAsync')
+        .then(data => {
+            var select = document.getElementById("chosenStockType");
+            if (select.options !== null) {
+                for (i = select.options.length - 1; i >= 0; i--) {
+                    select.remove(i);
+                }
+            }
+            for (var i = 0; i < data.length; i++) {
+                var option = document.createElement("option");
+                option.text = option.value = data[i];
+                select.appendChild(option);
+            }
+        });
+}
+
 function onGetStocksByDate() {
     var date = document.getElementById("selectDateList");
     var type = document.getElementById("selectRankType");
@@ -196,6 +215,36 @@ function onGetStocksByDate() {
                 setStocks(data);
             });
     }
+}
+
+$(document).ready(function() {
+    $('#txtChosenStockType').on('input', function () {
+        var userText = $(this).val();
+
+        $("#chosenStockType").find("option").each(function () {
+            if ($(this).val() === userText) {
+                alert("Make Ajax call here.");
+            }
+        });
+    });
+});
+
+function onChosenStockTypeChange() {
+    var chosenStockType = document.getElementById("selectChosenStockType");
+    var txtChosenStockType = document.getElementById("txtChosenStockType");
+
+    //for (var i = 0; i < option_length; i++) {
+    //    var option_value = $("option").eq(i).attr('data-value');
+    //    if (input_select == option_value) {
+    //        option_id = $("option").eq(i).attr('data-id');
+    //        break;
+    //    }
+    //}
+
+    DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByTypeAsync', chosenStockType.value)
+        .then(data => {
+            setStocks(data);
+        });
 }
 
 function setStocks(data) {

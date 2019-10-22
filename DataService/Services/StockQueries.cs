@@ -11,10 +11,12 @@ namespace DataService.Services
     {
         Task<Stocks[]> GetBestStocksAsync(int key);
         Task<string[]> GetDaysAsync();
+        Task<string[]> GetChosenStockTypesAsync();
         Task<Stocks[]> GetStocksByDateAsync(string datetime, int type);
-        Task SetBestStockAsync(string stockId, string type, string desc);
+        Task SetBestStockAsync(string stockId, string type);
         Task<Stocks[]> GetActiveStocksAsync();
         Task<Stocks[]> GetStocksBySqlAsync(string sql);
+        Task<Stocks[]> GetStocksByTypeAsync(string type);
     }
     public class StockQueries : IStockQueries
     {
@@ -40,8 +42,24 @@ namespace DataService.Services
                 .ToArrayAsync();
         }
 
+        Task<Stocks[]> IStockQueries.GetStocksByTypeAsync(string type)
+        {
+            var context = new StockDbContext();
+            return (from b in context.BestStocks join
+                     s in context.Stocks on b.StockId equals s.StockId
+                       where b.Type == type select s
+                      ).OrderBy(p => p.CreatedOn).ToArrayAsync();
+        }
 
-        async Task IStockQueries.SetBestStockAsync(string stockId, string type, string desc)
+        Task<string[]> IStockQueries.GetChosenStockTypesAsync()
+        {
+            var context = new StockDbContext();
+            return context.BestStocks.Select(p => p.Type)
+                .Distinct()
+                .ToArrayAsync();
+        }
+
+        async Task IStockQueries.SetBestStockAsync(string stockId, string type)
         {
             var context = new StockDbContext();
             var stock = context.Stocks.FirstOrDefault(p => p.StockId == stockId);
@@ -53,7 +71,6 @@ namespace DataService.Services
                     StockId = stock.StockId,
                     Name = stock.Name,
                     Type = type,
-                    Description = desc,
                     CreatedOn = DateTime.Now
                 };
                 context.BestStocks.Add(best);
