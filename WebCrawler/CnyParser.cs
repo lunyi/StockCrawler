@@ -22,43 +22,43 @@ namespace WebCrawler
             var context = new StockDbContext();
 
 
-            var stocks = context.Stocks
-                .Where(p => p.Status == 1)
-                .OrderBy(p => p.StockId)
-                .ToList();
+            //var stocks = context.Stocks
+            //    .Where(p => p.Status == 1)
+            //    .OrderBy(p => p.StockId)
+            //    .ToList();
 
             var s = Stopwatch.StartNew();
             s.Start();
 
             var parser = new CnyParser();
 
-            foreach (var item in stocks)
-            {
-                await ExecuteLastAsync(parser, context, item.StockId, item.Name);
-            }
+            //foreach (var item in stocks)
+            //{
+            //    await ExecuteLastAsync(parser, context, item.StockId, item.Name);
+            //}
 
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
 
             var sql = GetSql();
-            stocks = context.Stocks.FromSqlRaw(sql).ToList();
+            var stocks = context.Stocks.FromSqlRaw(sql).ToList();
 
             foreach (var item in stocks)
             {
                 Console.WriteLine($"Error: {item.StockId} {item.Name}");
                 await ExecuteLastAsync(parser, context, item.StockId, item.Name);
-
             }
         }
 
         private static string GetSql()
         {
+            //{DateTime.Today.ToString("yyyy/MM/dd")}
             return @$"
 select * from [Stocks]
 where StockId not in (
 SELECT StockId
   FROM [dbo].[Prices]
-  where [Datetime] = '{DateTime.Today.ToString("yyyy/MM/dd")}')
+  where [Datetime] = '2019-10-18')
  and [Status] = 1
   order by StockId";
         }

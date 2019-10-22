@@ -93,6 +93,24 @@ namespace DataService.Services
             return stocks.ToArrayAsync();
         }
 
+        private string 五日漲幅排行榜()
+        {
+            return @$"
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY [Name] 
+       order by [CreatedOn] desc
+    ) AS RowNo 
+    FROM [Prices]
+)
+SELECT StockId, Name, sum(漲跌百分比) 
+FROM TOPTEN 
+WHERE RowNo <=30
+Group by StockId, Name
+order by sum(漲跌百分比)  desc
+";
+        }
+
         private Dictionary<int, Func<string>> DateFunc = new Dictionary<int, Func<string>>
         {
             { 1 , ()=>一日漲幅排行榜() },
