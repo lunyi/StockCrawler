@@ -217,16 +217,21 @@ function onGetStocksByDate() {
     }
 }
 
-$(document).ready(function() {
-    $('#txtChosenStockType').on('input', function () {
-        var userText = $(this).val();
-
-        $("#chosenStockType").find("option").each(function () {
-            if ($(this).val() === userText) {
-                alert("Make Ajax call here.");
-            }
-        });
-    });
+function onClear() {
+    document.getElementById("txtChosenStockType").innerText = "";
+    getChosenStockTypes();
+}
+$(document).on('change', '#txtChosenStockType', function () {
+    var s = $("#chosenStockType");
+    var optionslist = $("#chosenStockType")[0].options;
+    var value = $(this).val();
+    for (var x = 0; x < optionslist.length; x++) {
+        if (optionslist[x].value === value) {
+            //Alert here value
+            getChosenStockTypes(value);
+            break;
+        }
+    }
 });
 
 function onChosenStockTypeChange() {
