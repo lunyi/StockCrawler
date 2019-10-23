@@ -11,6 +11,7 @@ namespace DataService.Services
     {
         Task CreatePriceAsync(Prices price);
         Task UpdateStockAsync(Stocks stock);
+        Task RemoveBestStockAsync(string stockId, string type);
     }
     public class StockCommands : IStockCommands
     {
@@ -24,6 +25,18 @@ namespace DataService.Services
             }
 
             await context.SaveChangesAsync();
+        }
+
+       async  Task IStockCommands.RemoveBestStockAsync(string stockId, string type)
+        {
+            var context = new StockDbContext();
+            var stock = await context.BestStocks.FirstOrDefaultAsync(p => p.StockId == stockId && p.Type == type);
+
+            if (stock != null)
+            {
+                context.Entry<BestStocks>(stock).State = EntityState.Deleted;
+                await context.SaveChangesAsync();
+            }
         }
 
         async Task IStockCommands.UpdateStockAsync(Stocks stock)

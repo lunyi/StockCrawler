@@ -136,17 +136,6 @@ function onFindStockId(event) {
     }
 }
 
-function selectStock() {
-    if ($("#txtChosenStockType").val() === "") {
-        alert("請選擇選股類型!!");
-        return;
-    }
-    DotNet.invokeMethodAsync('BlazorApp', 'SetBestStockAsync', currentStockId, $("#txtChosenStockType").val())
-        .then(data => {
-            console.log(data);
-        });
-}
-
 function onSetCurrentIndex() {
     currentUrlIndex = 1;
 }
@@ -160,12 +149,15 @@ function goToStockMaster() {
 
 function onSelectTypeChange() {
     var text = $("#selectStockType :selected").text();
-    DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByTypeAsync', text)
+    getStocksByBestStockType(text);
+}
+
+function getStocksByBestStockType(selectStockType) {
+    DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByTypeAsync', selectStockType)
         .then(data => {
             setStocks(data);
         });
 }
-
 
 function getDateList() {
     DotNet.invokeMethodAsync('BlazorApp', 'GetDateListAsync')
@@ -198,6 +190,7 @@ function getChosenStockTypes() {
 }
 
 function onGetStocksByDate() {
+    $("#selectStockType").val(0);
     var date = document.getElementById("selectDateList");
     var type = document.getElementById("selectRankType");
 
@@ -237,5 +230,27 @@ function setStocks(data) {
     for (var i = 0; i < data.length; i++) {
         var text = data[i].stockId + " - " + data[i].name + " (" + data[i].industry + ")";
         $("#stockList").append($("<option></option>").attr("value", data[i].stockId).text(text));
+    }
+}
+
+function selectStock() {
+    if ($("#txtChosenStockType").val() === "") {
+        alert("請選擇選股類型!!");
+        return;
+    }
+    DotNet.invokeMethodAsync('BlazorApp', 'SetBestStockAsync', currentStockId, $("#txtChosenStockType").val())
+        .then(data => {
+            console.log(data);
+        });
+}
+
+function removeStock() {
+    if ($("#txtChosenStockType").val() === $("#selectStockType :selected").text()) {
+        DotNet.invokeMethodAsync('BlazorApp', 'RemoveBestStockAsync', currentStockId, $("#txtChosenStockType").val())
+            .then(data => {
+                console.log(data);
+                getStocksByBestStockType($("#txtChosenStockType").val());
+            });
+        
     }
 }
