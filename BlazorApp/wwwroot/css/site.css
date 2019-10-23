@@ -203,3 +203,14 @@ input[type=search] {
 #selectChosenStockType {
     width: 100px;
 }
+
+#txtChosenStockType {
+    width: 150px;
+}
+#btnClear {
+    width: 50px
+}
+
+#btnSelectStock, #btnRemoveStock {
+    width: 75px;
+}

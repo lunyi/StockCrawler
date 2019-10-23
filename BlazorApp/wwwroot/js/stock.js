@@ -16,27 +16,21 @@ var second = 4000;
 
 function autoStockStart() {
     autoStatus = !autoStatus;
-    var btnAutoPlay = document.getElementById("autoPlay");
     if (autoStatus) {
         currentIndex = document.getElementById("stockList").selectedIndex;
         var parsed = parseInt(document.getElementById("number").value);
         second = parsed * 1000;
 
-        btnAutoPlay.value = "停止瀏覽股票";
+        $("#autoPlay").val("停止瀏覽股票");
         timeoutId = window.setInterval(() => autoSetUrl(), second);
     } else {
-        btnAutoPlay.value = "自動瀏覽股票";
+        $("#autoPlay").val("自動瀏覽股票");
         clearInterval(timeoutId);
     }
 }
 
 function autoSetUrl() {
     var list = document.getElementById("stockList");
-    //var url =  "http://5850web.moneydj.com/z/zc/zcx/zcxNew_" + list.options[currentIndex].value + ".djhtm"
-    //var url = "https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_" + list.options[currentIndex].value + ".djhtm";
-    //var url = "https://www.cmoney.tw/follow/channel/stock-" + list.options[currentIndex].value + "?chart=d";
-    //var url = "https://concords.moneydj.com/Z/ZC/ZCX/ZCX_" +list.options[currentIndex].value+ ".djhtm";
-
     if (currentIndex < 0) {
         currentIndex = 0;
     }
@@ -72,16 +66,17 @@ function getName() {
 //https://concords.moneydj.com/z/zc/zca/zca_1101.djhtm
 //http://jsjustweb.jihsun.com.tw/z/zc/zcx/zcx_5521.djhtm
 //https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_1101.djhtm
+//
 
 var urls = {
-    //1: 'https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm',
-    //2: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zca_{0}.djhtm',
-    //3: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zca/zco_{0}.djhtm',
-    //4: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcl/zcl_{0}.djhtm',
-    1: 'https://concords.moneydj.com/Z/ZC/ZCX/ZCX_{0}.djhtm',
-    2: 'https://concords.moneydj.com/z/zc/zco/zca_{0}.djhtm',
-    3: 'https://concords.moneydj.com/z/zc/zca/zco_{0}.djhtm',
-    4: 'https://concords.moneydj.com/z/zc/zcl/zcl_{0}.djhtm',
+    //1: 'https://concords.moneydj.com/Z/ZC/ZCX/ZCX_{0}.djhtm',
+    //2: 'https://concords.moneydj.com/z/zc/zco/zca_{0}.djhtm',
+    //3: 'https://concords.moneydj.com/z/zc/zca/zco_{0}.djhtm',
+    //4: 'https://concords.moneydj.com/z/zc/zcl/zcl_{0}.djhtm',
+    1: 'https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm',
+    2: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zca_{0}.djhtm',
+    3: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zca/zco_{0}.djhtm',
+    4: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcl/zcl_{0}.djhtm',
     5: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=d',
     6: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=l',
     7: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=mf',
@@ -94,7 +89,7 @@ var urls = {
 
 var currentUrlIndex = 1;
 var currentStockId = "1101";
-var currentUrl = "https://5850web.moneydj.com/Z/ZC/ZCX/ZCX_{0}.djhtm";
+var currentUrl = "https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm";
 
 function onStockChangeAsync(obj) {
     currentStockId = obj.value;
@@ -114,7 +109,7 @@ function goToUrl() {
         window.open(url, '_blank').focus();
     }
     else {
-        document.getElementById("StockPage").src = url;
+        $("#StockPage").attr("src",url);
     }
 }
 //start to Auto Browser Stocks
@@ -143,8 +138,11 @@ function onFindStockId(event) {
 }
 
 function selectStock() {
-    var selectedStock = document.getElementById("selectChosenStockType");
-    DotNet.invokeMethodAsync('BlazorApp', 'SetBestStockAsync', currentStockId, selectedStock.value)
+    if ($("#txtChosenStockType").val() === "") {
+        alert("請選擇選股類型!!");
+        return;
+    }
+    DotNet.invokeMethodAsync('BlazorApp', 'SetBestStockAsync', currentStockId, $("#txtChosenStockType").val())
         .then(data => {
             console.log(data);
         });
@@ -155,9 +153,9 @@ function onSetCurrentIndex() {
 }
 
 function goToStockMaster() {
-    var list = document.getElementById("chooseStockList");
-    if (list.selectedIndex > 0) {
-        window.open(list.value, '_blank').focus();
+    var chooseStockUrl = $("#chooseStockList").val();
+    if (chooseStockUrl !== "0") {
+        window.open(chooseStockUrl, '_blank').focus();
     }
 }
 
@@ -188,19 +186,27 @@ function getStocksByType(stockType) {
         });
 }
 
-function getChosenStockTypes(stockType) {
+function getChosenStockTypes() {
     DotNet.invokeMethodAsync('BlazorApp', 'GetChosenStockTypesAsync')
         .then(data => {
-            var select = document.getElementById("chosenStockType");
-            if (select.options !== null) {
-                for (i = select.options.length - 1; i >= 0; i--) {
-                    select.remove(i);
-                }
-            }
+            //var select = document.getElementById("chosenStockType");
+            //if (select.options !== null) {
+            //    for (i = select.options.length - 1; i >= 0; i--) {
+            //        select.remove(i);
+            //    }
+            //}
+            //for (var i = 0; i < data.length; i++) {
+            //    var option = document.createElement("option");
+            //    option.text = option.value = data[i];
+            //    select.appendChild(option);
+            //}
+            $("#chosenStockType option").remove();
+            $("#selectStockType option").remove();
+            $("#selectStockType").append($("<option></option>").attr("value", 0).text("----全部----"));
+
             for (var i = 0; i < data.length; i++) {
-                var option = document.createElement("option");
-                option.text = option.value = data[i];
-                select.appendChild(option);
+                $("#chosenStockType").append($("<option></option>").attr("value", data[i]).text(data[i]));
+                $("#selectStockType").append($("<option></option>").attr("value",i+1).text(data[i]));
             }
         });
 }
@@ -218,35 +224,23 @@ function onGetStocksByDate() {
 }
 
 function onClear() {
-    document.getElementById("txtChosenStockType").innerText = "";
-    getChosenStockTypes();
+    $("#txtChosenStockType").val("");
 }
-$(document).on('change', '#txtChosenStockType', function () {
-    var s = $("#chosenStockType");
-    var optionslist = $("#chosenStockType")[0].options;
-    var value = $(this).val();
-    for (var x = 0; x < optionslist.length; x++) {
-        if (optionslist[x].value === value) {
-            //Alert here value
-            getChosenStockTypes(value);
-            break;
-        }
-    }
-});
 
-function onChosenStockTypeChange() {
-    var chosenStockType = document.getElementById("selectChosenStockType");
-    var txtChosenStockType = document.getElementById("txtChosenStockType");
+//$(document).on('change', '#txtChosenStockType', function () {
+//    var s = $("#chosenStockType");
+//    var optionslist = $("#chosenStockType")[0].options;
+//    var value = $(this).val();
+//    for (var x = 0; x < optionslist.length; x++) {
+//        if (optionslist[x].value === value) {
+//            setChosenStockTypes(value);
+//            break;
+//        }
+//    }
+//});
 
-    //for (var i = 0; i < option_length; i++) {
-    //    var option_value = $("option").eq(i).attr('data-value');
-    //    if (input_select == option_value) {
-    //        option_id = $("option").eq(i).attr('data-id');
-    //        break;
-    //    }
-    //}
-
-    DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByTypeAsync', chosenStockType.value)
+function setChosenStockTypes(chosenType) {
+    DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByTypeAsync', chosenType)
         .then(data => {
             setStocks(data);
         });
