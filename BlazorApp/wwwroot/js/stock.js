@@ -159,10 +159,13 @@ function goToStockMaster() {
 }
 
 function onSelectTypeChange() {
-    let type = document.getElementById("selectStockType");
-    console.log("onSelectTypeChange");
-    getStocksByType(type.selectedIndex);
+    var text = $("#selectStockType :selected").text();
+    DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByTypeAsync', text)
+        .then(data => {
+            setStocks(data);
+        });
 }
+
 
 function getDateList() {
     DotNet.invokeMethodAsync('BlazorApp', 'GetDateListAsync')
