@@ -54,11 +54,10 @@ function goToWikiPedia() {
 }
 
 function getName() {
-    var list = document.getElementById("stockList");
-    var s = list.options[list.selectedIndex];
-    var startIndex = s.innerText.indexOf('-') + 2;
-    var endIndex = s.innerText.indexOf('(') - 1;
-    var name = s.innerText.substring(startIndex, endIndex);
+    var text = $("#stockList").text();
+    var startIndex = text.indexOf('-') + 2;
+    var endIndex = text.indexOf('(') - 1;
+    var name = text.substring(startIndex, endIndex);
     return name;
 }
 //End Auto Browser Stocks
@@ -168,13 +167,8 @@ function onSelectTypeChange() {
 function getDateList() {
     DotNet.invokeMethodAsync('BlazorApp', 'GetDateListAsync')
         .then(data => {
-            var select = document.getElementById("selectDateList");
-
             for (var i = 0; i < data.length; i++) {
-                var option = document.createElement("option");
-                option.value = data[i];
-                option.text = data[i];
-                select.add(option);
+                $("#selectDateList").append($("<option></option>").attr("value", data[i]).text(data[i]));
             }
         });
 }
@@ -189,17 +183,6 @@ function getStocksByType(stockType) {
 function getChosenStockTypes() {
     DotNet.invokeMethodAsync('BlazorApp', 'GetChosenStockTypesAsync')
         .then(data => {
-            //var select = document.getElementById("chosenStockType");
-            //if (select.options !== null) {
-            //    for (i = select.options.length - 1; i >= 0; i--) {
-            //        select.remove(i);
-            //    }
-            //}
-            //for (var i = 0; i < data.length; i++) {
-            //    var option = document.createElement("option");
-            //    option.text = option.value = data[i];
-            //    select.appendChild(option);
-            //}
             $("#chosenStockType option").remove();
             $("#selectStockType option").remove();
             $("#selectStockType").append($("<option></option>").attr("value", 0).text("----全部----"));
@@ -247,18 +230,9 @@ function setChosenStockTypes(chosenType) {
 }
 
 function setStocks(data) {
-    var select = document.getElementById("stockList");
-
-    if (select.options !== null) {
-        for (i = select.options.length - 1; i >= 0; i--) {
-            select.remove(i);
-        }
-    }
-
+    $("#stockList option").remove();
     for (var i = 0; i < data.length; i++) {
-        var option = document.createElement("option");
-        option.value = data[i].stockId;
-        option.text = data[i].stockId + " - " + data[i].name + " (" + data[i].industry + ")";
-        select.add(option);
+        var text = data[i].stockId + " - " + data[i].name + " (" + data[i].industry + ")";
+        $("#stockList").append($("<option></option>").attr("value", data[i].stockId).text(text));
     }
 }
