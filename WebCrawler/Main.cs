@@ -17,7 +17,7 @@ namespace WebCrawler
         static async Task Main(string[] args)
         {
 
-            var s = new CnyParser();
+            var s = new MoneyDjParser();
             await s.RunAsync();
 
             Console.ReadLine();
