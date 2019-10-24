@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DataService.Enums;
 using DataService.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,11 +21,6 @@ namespace DataService.Services
     }
     public class StockQueries : IStockQueries
     {
-        //private StockDbContext _context;
-        //public StockQueries(StockDbContext context)
-        //{
-        //    _context = context;
-        //}
 
         Task<Stocks[]> IStockQueries.GetActiveStocksAsync()
         {
@@ -78,7 +74,6 @@ namespace DataService.Services
             }
         }
 
-
         Task<string[]> IStockQueries.GetDaysAsync()
         {
             var context = new StockDbContext();
@@ -97,55 +92,129 @@ namespace DataService.Services
             return stocks.ToArrayAsync();
         }
 
-        Task<Stocks[]> IStockQueries.GetStocksByDateAsync(string datetime, int type)
+       Task<Stocks[]> IStockQueries.GetStocksByDateAsync(string datetime, int type)
         {
             var context = new StockDbContext();
-            var whereCondition = DateFunc[type]();
-            var sql = @$"SELECT s.*
-  FROM [dbo].[Prices] p
-  join Stocks s on p.StockId = s.StockId
-  where [Datetime] = '{datetime}' {whereCondition}";
 
-            var stocks = context.Stocks.FromSqlRaw(sql);
-            return stocks.ToArrayAsync();
+            string sql = string.Empty;
+
+            switch (type)
+            {
+                case (int)ChooseStockType.五日漲幅排行榜:
+                    sql = 五日漲幅排行榜(datetime, 5);
+                    break;
+                case (int)ChooseStockType.五日跌幅排行榜:
+                    sql = 五日跌幅排行榜(datetime, 5);
+                    break;
+                default:
+                    var whereCondition = DateFunc[(ChooseStockType)type]();
+                    sql = @$"SELECT s.*
+                          FROM [dbo].[Prices] p
+                          join Stocks s on p.StockId = s.StockId
+                          where [Datetime] = '{datetime}' {whereCondition}";
+                    break;
+            }
+           
+            return context.Stocks.FromSqlRaw(sql).ToArrayAsync();
         }
 
-        private string 五日漲幅排行榜()
+        private string 五日漲幅排行榜(string datetime, int days)
         {
             return @$"
+WITH TOPTEN as (
    SELECT *, ROW_NUMBER() 
     over (
         PARTITION BY [Name] 
        order by [CreatedOn] desc
     ) AS RowNo 
-    FROM [Prices]
+    FROM [Prices] where [Datetime] <= '{datetime}'
 )
-SELECT StockId, Name, sum(漲跌百分比) 
+
+SELECT top 100 StockId, Name, sum(漲跌百分比) as [Description]
+into #tmp
 FROM TOPTEN 
-WHERE RowNo <=30
+WHERE RowNo <= {days}
 Group by StockId, Name
-order by sum(漲跌百分比)  desc
-";
+order by sum(漲跌百分比) desc
+
+
+select s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+      ,CAST(t.[Description] AS nvarchar(30)) AS [Description]
+from Stocks s 
+join #tmp t on t.StockId = s.StockId
+order by t.[Description] desc
+drop table #tmp";
         }
 
-        private Dictionary<int, Func<string>> DateFunc = new Dictionary<int, Func<string>>
+        private string 五日跌幅排行榜(string datetime, int days)
         {
-            { 1 , ()=>一日漲幅排行榜() },
-            { 2 , ()=>外資投信同步買超排行榜() },
+            return @$"
+WITH TOPTEN as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY [Name] 
+       order by [CreatedOn] desc
+    ) AS RowNo 
+    FROM [Prices] where [Datetime] <= '{datetime}'
+)
 
-            { 3 , ()=>外資買超排行榜() },
-            { 4 , ()=>投信買超排行榜() },
-            { 5 , ()=>自營買超排行榜() },
-            { 6 , ()=>融資買超排行榜() },
-            { 7 , ()=>融券賣超排行榜() },
+SELECT top 100 StockId, Name, sum(漲跌百分比) as [Description]
+into #tmp
+FROM TOPTEN 
+WHERE RowNo <= {days}
+Group by StockId, Name
+order by sum(漲跌百分比) asc
+
+
+select s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+      ,CAST(t.[Description] AS nvarchar(30)) AS [Description]
+from Stocks s 
+join #tmp t on t.StockId = s.StockId
+order by t.[Description] asc
+drop table #tmp";
+        }
+
+        private Dictionary<ChooseStockType, Func<string>> DateFunc = new Dictionary<ChooseStockType, Func<string>>
+        {
+            { ChooseStockType.一日漲幅排行榜 , ()=>一日漲幅排行榜() },
+            { ChooseStockType.外資投信同步買超排行榜 , ()=>外資投信同步買超排行榜() },
+            { ChooseStockType.外資買超排行榜  , ()=>外資買超排行榜() },
+            { ChooseStockType.投信買超排行榜  , ()=>投信買超排行榜() },
+            { ChooseStockType.自營買超排行榜  , ()=>自營買超排行榜() },
+            { ChooseStockType.融資買超排行榜  , ()=>融資買超排行榜() },
+            { ChooseStockType.融券賣超排行榜  , ()=>融券賣超排行榜() },
             
-            { 8 , ()=>一日跌幅排行榜() },
-            { 9 , ()=>外資投信同步賣超排行榜() },
-            { 10 , ()=>外資賣超排行榜() },
-            { 11 , ()=>投信賣超排行榜() },
-            { 12 , ()=>自營賣超排行榜() },
-            { 13 , ()=>融資賣超排行榜() },
-            { 14 , ()=>融券賣超排行榜() }
+            { ChooseStockType.一日跌幅排行榜  , ()=>一日跌幅排行榜() },
+            { ChooseStockType.外資投信同步賣超排行榜  , ()=>外資投信同步賣超排行榜() },
+            { ChooseStockType.外資賣超排行榜  , ()=>外資賣超排行榜() },
+            { ChooseStockType.投信賣超排行榜  , ()=>投信賣超排行榜() },
+            { ChooseStockType.自營賣超排行榜  , ()=>自營賣超排行榜() },
+            { ChooseStockType.融資賣超排行榜  , ()=>融資賣超排行榜() },
+            { ChooseStockType.融券買超排行榜  , ()=>融券買超排行榜() }
         };
 
         private Dictionary<int, Func<string>> MapFunc = new Dictionary<int, Func<string>>

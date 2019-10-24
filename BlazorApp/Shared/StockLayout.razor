@@ -7,26 +7,28 @@
         <select id="selectRankType" onchange="onGetStocksByDate()">
             <option value="0">----選股----</option>
             <option value="1">一日漲幅排行</option>
-            <option value="2">外資投信同步買超排行</option>
-            <option value="3">外資買超排行</option>
-            <option value="4">投信買超排行</option>
-            <option value="5">自營商買超排行</option>
-            <option value="6">融資買超排行</option>
-            <option value="7">融券賣超排行</option>
+            <option value="2">五日漲幅排行</option>
+            <option value="3">外資投信同步買超排行</option>
+            <option value="4">外資買超排行</option>
+            <option value="5">投信買超排行</option>
+            <option value="6">自營商買超排行</option>
+            <option value="7">融資買超排行</option>
+            <option value="8">融券賣超排行</option>
 
-            <option value="8">一日跌幅排行</option>
-            <option value="9">外資投信同步賣超排行</option>
-            <option value="10">外資賣超排行</option>
-            <option value="11">投信賣超排行</option>
-            <option value="12">自營商賣超排行</option>
-            <option value="13">融資賣超排行</option>
-            <option value="14">融券買超排行</option>
+            <option value="-1">一日跌幅排行</option>
+            <option value="-2">五日跌幅排行</option>
+            <option value="-3">外資投信同步賣超排行</option>
+            <option value="-4">外資賣超排行</option>
+            <option value="-5">投信賣超排行</option>
+            <option value="-6">自營商賣超排行</option>
+            <option value="-7">融資賣超排行</option>
+            <option value="-8">融券買超排行</option>
         </select>
         <select id="stockList" size="30" onchange="onStockChangeAsync(this)"></select>
         <input id="txtChosenStockType" list="chosenStockType" type="text" placeholder="選股類型" />
         <input id="btnClear" type="button" class="fa fa-close" value="清空" onclick="onClear()" />
         <datalist id="chosenStockType"></datalist>
-        <input id="btnSelectStock" type="button" value="加入選股" onclick="selectStock()" />
+        <input id="btnSelectStock" type="button" value="加入選股" onclick="chooseStock()" />
         <input id="btnRemoveStock" type="button" value="移除選股" onclick="removeStock()" />
         <br />
     </div>

@@ -191,11 +191,11 @@ function getChosenStockTypes() {
 
 function onGetStocksByDate() {
     $("#selectStockType").val(0);
-    var date = document.getElementById("selectDateList");
-    var type = document.getElementById("selectRankType");
+    var date = $("#selectDateList");
+    var type = $("#selectRankType");
 
-    if (type.selectedIndex > 0) {
-        DotNet.invokeMethodAsync('BlazorApp', 'GetStocksDateAsync', date.value, type.selectedIndex)
+    if (type.val() !== 0) {
+        DotNet.invokeMethodAsync('BlazorApp', 'GetStocksDateAsync', date.val(), parseInt(type.val()))
             .then(data => {
                 setStocks(data);
             });
@@ -228,12 +228,13 @@ function setChosenStockTypes(chosenType) {
 function setStocks(data) {
     $("#stockList option").remove();
     for (var i = 0; i < data.length; i++) {
-        var text = data[i].stockId + " - " + data[i].name + " (" + data[i].industry + ")";
+        var desc = data[i].description === null ? "" : data[i].description
+        var text = data[i].stockId + " - " + data[i].name + " (" + data[i].industry + " " + desc + " )";
         $("#stockList").append($("<option></option>").attr("value", data[i].stockId).text(text));
     }
 }
 
-function selectStock() {
+function chooseStock() {
     if ($("#txtChosenStockType").val() === "") {
         alert("請選擇選股類型!!");
         return;
