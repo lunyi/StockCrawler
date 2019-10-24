@@ -43,12 +43,12 @@ function goTo104Page() {
 }
 
 function goToWikiPedia() {
-    var url = "https://www.moneydj.com/KMDJ/search/list.aspx?QueryType=WK&Query=" + getName();
+    var url = "https://www.moneydj.com/KMDJ/search/list.aspx?_QueryType_=WK&_Query_=" + getName();
     $("#StockPage").attr("src", url);
 }
 
 function getName() {
-    var text = $("#stockList").text();
+    var text = $("#stockList :selected").text();
     var startIndex = text.indexOf('-') + 2;
     var endIndex = text.indexOf('(') - 1;
     var name = text.substring(startIndex, endIndex);

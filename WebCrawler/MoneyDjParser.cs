@@ -18,7 +18,6 @@ namespace WebCrawler
 
             var context = new StockDbContext();
 
-
             var stocks = context.Stocks
                 .Where(p => p.Status == 1 && p.Address == null)
                 .OrderBy(p => p.StockId)
