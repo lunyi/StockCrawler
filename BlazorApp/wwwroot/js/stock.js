@@ -17,8 +17,8 @@ var second = 4000;
 function autoStockStart() {
     autoStatus = !autoStatus;
     if (autoStatus) {
-        currentIndex = document.getElementById("stockList").selectedIndex;
-        var parsed = parseInt(document.getElementById("number").value);
+        currentIndex = $("#stockList").prop("selectedIndex");
+        var parsed = parseInt($("#number").val());
         second = parsed * 1000;
 
         $("#autoPlay").val("停止瀏覽股票");
@@ -30,16 +30,10 @@ function autoStockStart() {
 }
 
 function autoSetUrl() {
-    var list = document.getElementById("stockList");
-    if (currentIndex < 0) {
-        currentIndex = 0;
-    }
-    currentStockId = list.options[currentIndex].value;
-    currentUrl = urls[currentUrlIndex];
-    var url = currentUrl.replace('{0}', currentStockId);
+    currentStockId = $('#stockList option').eq(currentIndex).val();
+    $("#stockList").val(currentStockId);
+    $("#StockPage").attr("src", urls[currentUrlIndex].replace('{0}', currentStockId));
 
-    document.getElementById("StockPage").src = url;
-    list.value = list.options[currentIndex].value;
     currentIndex++;
 }
 
@@ -49,8 +43,8 @@ function goTo104Page() {
 }
 
 function goToWikiPedia() {
-    var url = "https://www.moneydj.com/KMDJ/search/list.aspx?_QueryType_=WK&_Query_=" + getName();
-    document.getElementById("StockPage").src = url;
+    var url = "https://www.moneydj.com/KMDJ/search/list.aspx?QueryType=WK&Query=" + getName();
+    $("#StockPage").attr("src", url);
 }
 
 function getName() {
