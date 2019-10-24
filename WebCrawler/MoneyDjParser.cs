@@ -48,7 +48,7 @@ namespace WebCrawler
                 stock.Address = rootNode.SelectSingleNode("/html/body/div/table/tr[2]/td[2]/table/tr[1]/td/table/tr[24]/td[2]").InnerText;
                 await context.SaveChangesAsync();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 Console.WriteLine($"{stock.StockId} Failed");
             }
