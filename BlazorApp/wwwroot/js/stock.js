@@ -54,11 +54,10 @@ function goToWikiPedia() {
 }
 
 function getName() {
-    var list = document.getElementById("stockList");
-    var s = list.options[list.selectedIndex];
-    var startIndex = s.innerText.indexOf('-') + 2;
-    var endIndex = s.innerText.indexOf('(') - 1;
-    var name = s.innerText.substring(startIndex, endIndex);
+    var text = $("#stockList").text();
+    var startIndex = text.indexOf('-') + 2;
+    var endIndex = text.indexOf('(') - 1;
+    var name = text.substring(startIndex, endIndex);
     return name;
 }
 //End Auto Browser Stocks
@@ -137,17 +136,6 @@ function onFindStockId(event) {
     }
 }
 
-function selectStock() {
-    if ($("#txtChosenStockType").val() === "") {
-        alert("請選擇選股類型!!");
-        return;
-    }
-    DotNet.invokeMethodAsync('BlazorApp', 'SetBestStockAsync', currentStockId, $("#txtChosenStockType").val())
-        .then(data => {
-            console.log(data);
-        });
-}
-
 function onSetCurrentIndex() {
     currentUrlIndex = 1;
 }
@@ -160,21 +148,22 @@ function goToStockMaster() {
 }
 
 function onSelectTypeChange() {
-    let type = document.getElementById("selectStockType");
-    console.log("onSelectTypeChange");
-    getStocksByType(type.selectedIndex);
+    var text = $("#selectStockType :selected").text();
+    getStocksByBestStockType(text);
+}
+
+function getStocksByBestStockType(selectStockType) {
+    DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByTypeAsync', selectStockType)
+        .then(data => {
+            setStocks(data);
+        });
 }
 
 function getDateList() {
     DotNet.invokeMethodAsync('BlazorApp', 'GetDateListAsync')
         .then(data => {
-            var select = document.getElementById("selectDateList");
-
             for (var i = 0; i < data.length; i++) {
-                var option = document.createElement("option");
-                option.value = data[i];
-                option.text = data[i];
-                select.add(option);
+                $("#selectDateList").append($("<option></option>").attr("value", data[i]).text(data[i]));
             }
         });
 }
@@ -201,6 +190,7 @@ function getChosenStockTypes() {
 }
 
 function onGetStocksByDate() {
+    $("#selectStockType").val(0);
     var date = document.getElementById("selectDateList");
     var type = document.getElementById("selectRankType");
 
@@ -236,18 +226,31 @@ function setChosenStockTypes(chosenType) {
 }
 
 function setStocks(data) {
-    var select = document.getElementById("stockList");
-
-    if (select.options !== null) {
-        for (i = select.options.length - 1; i >= 0; i--) {
-            select.remove(i);
-        }
-    }
-
+    $("#stockList option").remove();
     for (var i = 0; i < data.length; i++) {
-        var option = document.createElement("option");
-        option.value = data[i].stockId;
-        option.text = data[i].stockId + " - " + data[i].name + " (" + data[i].industry + ")";
-        select.add(option);
+        var text = data[i].stockId + " - " + data[i].name + " (" + data[i].industry + ")";
+        $("#stockList").append($("<option></option>").attr("value", data[i].stockId).text(text));
+    }
+}
+
+function selectStock() {
+    if ($("#txtChosenStockType").val() === "") {
+        alert("請選擇選股類型!!");
+        return;
+    }
+    DotNet.invokeMethodAsync('BlazorApp', 'SetBestStockAsync', currentStockId, $("#txtChosenStockType").val())
+        .then(data => {
+            console.log(data);
+        });
+}
+
+function removeStock() {
+    if ($("#txtChosenStockType").val() === $("#selectStockType :selected").text()) {
+        DotNet.invokeMethodAsync('BlazorApp', 'RemoveBestStockAsync', currentStockId, $("#txtChosenStockType").val())
+            .then(data => {
+                console.log(data);
+                getStocksByBestStockType($("#txtChosenStockType").val());
+            });
+        
     }
 }

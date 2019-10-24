@@ -18,6 +18,13 @@ namespace BlazorApp.Shared
         }
 
         [JSInvokable]
+        public static async Task RemoveBestStockAsync(string stockId, string type)
+        {
+            IStockCommands commands = new StockCommands();
+            await commands.RemoveBestStockAsync(stockId, type);
+        }
+
+        [JSInvokable]
         public static async Task<Stocks[]> GetBestStocksAsync(int index)
         {
             IStockQueries dataLayer = new StockQueries();
