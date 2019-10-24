@@ -90,7 +90,10 @@ SELECT StockId
             if (p == null)
             {
                 context.Prices.Add(price);
-            }
+                var stock = await context.Stocks.FirstOrDefaultAsync(p => p.StockId == stockId);
+                stock.Description = price.Close.ToString();
+                context.Entry<Stocks>(stock).State = EntityState.Modified;
+            } 
 
             await context.SaveChangesAsync();
         }

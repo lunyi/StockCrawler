@@ -20,7 +20,8 @@ namespace WebAutoCrawler
         {
             var context = new StockDbContext();
             //var s = context.Stocks.FromSqlRaw(GetSql()).ToList();
-            var stocks = context.Stocks.FromSqlRaw(GetSql()).ToList();
+            //var stocks = context.Stocks.FromSqlRaw(GetSql()).ToList();
+            var stocks = context.Stocks.Where(p=>p.StockId == "6161").ToList();
 
             foreach (var stock in stocks)
             {

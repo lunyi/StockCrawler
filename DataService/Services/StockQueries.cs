@@ -106,6 +106,12 @@ namespace DataService.Services
                 case (int)ChooseStockType.五日跌幅排行榜:
                     sql = 五日跌幅排行榜(datetime, 5);
                     break;
+                case (int)ChooseStockType.CMoney選股:
+                    sql = GetCMoneyStocksSql();
+                    break;
+                case (int)ChooseStockType.財報狗選股:
+                    sql = GetStatemenetDogStocksSql();
+                    break;
                 default:
                     var whereCondition = DateFunc[(ChooseStockType)type]();
                     sql = @$"SELECT s.*
@@ -407,7 +413,7 @@ order by StockId
 )
 
 select * from [Stocks] 
-where StockId in (SELECT StockId FROM ranked_messages WHERE rn = 1 and Remark = '很好')
+where StockId in (SELECT StockId FROM ranked_messages WHERE rn = 1 and Remark in ('很好','優秀'))
 order by StockId
 
 ";
