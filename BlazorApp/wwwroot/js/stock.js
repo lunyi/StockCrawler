@@ -189,17 +189,6 @@ function getStocksByType(stockType) {
 function getChosenStockTypes() {
     DotNet.invokeMethodAsync('BlazorApp', 'GetChosenStockTypesAsync')
         .then(data => {
-            //var select = document.getElementById("chosenStockType");
-            //if (select.options !== null) {
-            //    for (i = select.options.length - 1; i >= 0; i--) {
-            //        select.remove(i);
-            //    }
-            //}
-            //for (var i = 0; i < data.length; i++) {
-            //    var option = document.createElement("option");
-            //    option.text = option.value = data[i];
-            //    select.appendChild(option);
-            //}
             $("#chosenStockType option").remove();
             $("#selectStockType option").remove();
             $("#selectStockType").append($("<option></option>").attr("value", 0).text("----全部----"));
