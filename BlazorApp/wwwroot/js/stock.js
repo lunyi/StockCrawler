@@ -4,7 +4,7 @@
             getDateList();
             getStocksByType(0);
             getChosenStockTypes();
-        }, 100);
+        }, 1000);
     });
 };
 
@@ -90,8 +90,15 @@ function onStockChangeAsync(obj) {
 }
 
 function onUrlChangeAsync(index) {
-    currentUrlIndex = index;
-    goToUrl();
+    var url = urls[index].replace('{0}', currentStockId);
+
+    if (index >= 10) {
+        window.open(url, '_blank').focus();
+    }
+    else {
+        currentUrlIndex = index;
+        $("#StockPage").attr("src", url);
+    }
 }
 
 function goToUrl() {
