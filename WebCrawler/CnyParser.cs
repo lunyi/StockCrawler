@@ -22,15 +22,23 @@ namespace WebCrawler
             var context = new StockDbContext();
 
 
-            var stocks = context.Stocks
-                .Where(p => p.Status == 1)
-                .OrderBy(p => p.StockId)
-                .ToList();
+            //var stocks = context.Stocks
+            //    .Where(p => p.Status == 1)
+            //    .OrderBy(p => p.StockId)
+            //    .ToList();
 
             var s = Stopwatch.StartNew();
             s.Start();
 
             var parser = new CnyParser();
+
+            //foreach (var item in stocks)
+            //{
+            //    await ExecuteLastAsync(parser, context, item.StockId, item.Name);
+            //}
+
+
+            var stocks = context.Stocks.FromSqlRaw(GetSql()).ToList();
 
             foreach (var item in stocks)
             {
@@ -40,13 +48,6 @@ namespace WebCrawler
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
 
-            stocks = context.Stocks.FromSqlRaw(GetSql()).ToList();
-
-            foreach (var item in stocks)
-            {
-                Console.WriteLine($"Error: {item.StockId} {item.Name}");
-                await ExecuteLastAsync(parser, context, item.StockId, item.Name);
-            }
         }
 
         private static string GetSql()

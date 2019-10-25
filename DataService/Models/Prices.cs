@@ -23,13 +23,10 @@ namespace DataService.Models
         public int? 融資賣出 { get; set; }
         public int? 融資現償 { get; set; }
         public int? 融資餘額 { get; set; }
-        public int? 融資限額 { get; set; }
         public decimal? 融資使用率 { get; set; }
         public int? 融券買進 { get; set; }
         public int? 融券賣出 { get; set; }
-        public int? 融券券償 { get; set; }
         public int? 融券餘額 { get; set; }
-        public int? 券資比 { get; set; }
         public int? 資券相抵 { get; set; }
         public int? 外資持股 { get; set; }
         public decimal? 外資持股比例 { get; set; }
