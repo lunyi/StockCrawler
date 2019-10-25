@@ -106,6 +106,12 @@ namespace DataService.Services
                 case (int)ChooseStockType.五日跌幅排行榜:
                     sql = 五日跌幅排行榜(datetime, 5);
                     break;
+                case (int)ChooseStockType.投信連續買超排行榜:
+                    sql = 投信連續買超排行榜(datetime);
+                    break;
+                case (int)ChooseStockType.投信連續賣超排行榜:
+                    sql = 投信連續賣超排行榜(datetime);
+                    break;
                 case (int)ChooseStockType.CMoney選股:
                     sql = GetCMoneyStocksSql();
                     break;
@@ -204,10 +210,104 @@ order by t.[Description] asc
 drop table #tmp";
         }
 
+        private string 投信連續買超排行榜(string datetime)
+        {
+            return @$"
+WITH TOPTEN as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY  StockId, Name 
+       order by [Datetime] desc
+    ) AS RowNo 
+    FROM [Prices] where [Datetime] <= '{datetime}' and  投信買賣超<=0
+)
+
+select 
+a.StockId,
+a.Name, 
+count(1) as [Count]
+into #tmp
+from Prices a join (
+	SELECT 	*
+	FROM TOPTEN 
+	WHERE RowNo <= 1) b on a.StockId = b.StockId
+where a.[Datetime] > b.[Datetime] 
+group by a.StockId,a.Name 
+having count(1) >= 2
+order by count(1) desc
+
+select s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
+from [Stocks]s 
+join #tmp t on s.StockId = t.StockId
+order by t.[Count] desc
+
+drop table #tmp";
+        }
+
+        private string 投信連續賣超排行榜(string datetime)
+        {
+            return @$"
+WITH TOPTEN as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY  StockId, Name 
+       order by [Datetime] desc
+    ) AS RowNo 
+    FROM [Prices] where [Datetime] <= '{datetime}' and  投信買賣超>=0
+)
+
+select 
+a.StockId,
+a.Name, 
+count(1) as [Count]
+into #tmp
+from Prices a join (
+	SELECT 	*
+	FROM TOPTEN 
+	WHERE RowNo <= 1) b on a.StockId = b.StockId
+where a.[Datetime] > b.[Datetime] 
+group by a.StockId,a.Name 
+having count(1) >= 2
+order by count(1) asc
+
+select s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
+from [Stocks]s 
+join #tmp t on s.StockId = t.StockId
+order by t.[Count] desc
+
+drop table #tmp";
+        }
         private Dictionary<ChooseStockType, Func<string>> DateFunc = new Dictionary<ChooseStockType, Func<string>>
         {
             { ChooseStockType.一日漲幅排行榜 , ()=>一日漲幅排行榜() },
             { ChooseStockType.外資投信同步買超排行榜 , ()=>外資投信同步買超排行榜() },
+            { ChooseStockType.投信連續買超排行榜 , ()=>外資投信同步買超排行榜() },
             { ChooseStockType.外資買超排行榜  , ()=>外資買超排行榜() },
             { ChooseStockType.投信買超排行榜  , ()=>投信買超排行榜() },
             { ChooseStockType.自營買超排行榜  , ()=>自營買超排行榜() },
@@ -216,6 +316,7 @@ drop table #tmp";
             
             { ChooseStockType.一日跌幅排行榜  , ()=>一日跌幅排行榜() },
             { ChooseStockType.外資投信同步賣超排行榜  , ()=>外資投信同步賣超排行榜() },
+            { ChooseStockType.投信連續賣超排行榜 , ()=>外資投信同步買超排行榜() },
             { ChooseStockType.外資賣超排行榜  , ()=>外資賣超排行榜() },
             { ChooseStockType.投信賣超排行榜  , ()=>投信賣超排行榜() },
             { ChooseStockType.自營賣超排行榜  , ()=>自營賣超排行榜() },
@@ -471,3 +572,27 @@ SELECT
         #endregion
     }
 }
+
+
+//連續外資買超天數
+//WITH TOPTEN as (
+//   SELECT*, ROW_NUMBER()
+//   over(
+//       PARTITION BY  StockId, Name
+//      order by[Datetime] desc
+//   ) AS RowNo
+//    FROM[Prices] where[Datetime] <= '2019-10-24' and[外資買賣超]<=0
+//)
+
+//select
+//a.StockId,
+//a.Name,
+//count(1)
+//from Prices a join(
+//SELECT
+//*
+//FROM TOPTEN
+//WHERE RowNo <= 1) b on a.StockId = b.StockId
+//where a.[Datetime] > b.[Datetime]
+//group by a.StockId, a.Name
+//order by count(1) desc
