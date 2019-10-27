@@ -149,7 +149,6 @@ WHERE RowNo <= {days}
 Group by StockId, Name
 order by sum(漲跌百分比) desc
 
-
 select s.[Id]
       ,s.[StockId]
       ,s.[Name]

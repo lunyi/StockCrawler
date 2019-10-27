@@ -17,12 +17,10 @@ namespace WebCrawler
         static async Task Main(string[] args)
         {
 
-            var s = new CnyParser();
+            var s = new ChipParser();
             await s.RunAsync();
 
             Console.ReadLine();
         }
-
-
     }
 }

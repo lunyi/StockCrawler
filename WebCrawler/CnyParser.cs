@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DataService.Models;
+using EFCore.BulkExtensions;
 using HtmlAgilityPack;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,38 +17,86 @@ namespace WebCrawler
     {
         public ConcurrentDictionary<string, string> ErrorStocks { get; set; }
 
-
-        public async Task RunAsync()
+        public async Task RunMainForceAsync()
         {
             var context = new StockDbContext();
+            
+            var prices = await context.Prices
+            .Where(p => p.Datetime == Convert.ToDateTime("2019-10-25")&& p.十日主力買超張數 == null)
+            .OrderBy(p => p.StockId).ToArrayAsync();
 
+            var count = prices.Length;
+            //for (int i = 0; i < prices.Length; i++)
+            //{
+            //    Console.WriteLine($"{i}/{prices.Length} {prices[i].StockId},{prices[i].Datetime.ToString("yyyy-MM-dd")}, Thread ID={Thread.CurrentThread.ManagedThreadId}");
+            //    ParseMainForce(prices[i].StockId, prices[i].Datetime.ToString("yyyy-MM-dd"), prices[i]);
+            //    context.Entry(prices[i]).State = EntityState.Modified;
+            //}
 
+            //context.BulkUpdate(prices.ToList());
+            //Console.WriteLine($"OK!!!");
+
+            try
+            {
+                Parallel.ForEach(prices, (price, state, index) =>
+                {
+                    try
+                    {
+                        Console.WriteLine($"{index}/{count} {price.StockId},{price.Datetime.ToString("yyyy-MM-dd")}, Thread ID={Thread.CurrentThread.ManagedThreadId}");
+                        ParseMainForce(price.StockId, price.Datetime.ToString("yyyy-MM-dd"), price);
+                        context.Entry(price).State = EntityState.Modified;
+                    }
+                    catch (Exception)
+                    {
+                        state.Stop();
+                    }
+                });
+            }
+            finally
+            {
+                Console.WriteLine($"Start Save");
+                context.BulkUpdate(prices.ToList());
+                Console.WriteLine($"OK!!!");
+            }
+        }
+
+        private async Task RunSingleMainForceAsync(StockDbContext context, string stockId, ParallelQuery<Prices> prices)
+        {
+            Console.WriteLine($"{stockId}, Thread ID={Thread.CurrentThread.ManagedThreadId}");
+            foreach (var price in prices)
+            {
+                ParseMainForce(stockId, price.Datetime.ToString("yyyy-MM-dd"), price);
+                context.Entry(price).State = EntityState.Modified;
+            }
+        }
+        public async Task RunAsync()
+        {
+            await RunMainForceAsync();
+            //var context = new StockDbContext();
             //var stocks = context.Stocks
             //    .Where(p => p.Status == 1)
             //    .OrderBy(p => p.StockId)
             //    .ToList();
 
-            var s = Stopwatch.StartNew();
-            s.Start();
+            //var s = Stopwatch.StartNew();
+            //s.Start();
 
-            var parser = new CnyParser();
+            //var parser = new CnyParser();
 
             //foreach (var item in stocks)
             //{
             //    await ExecuteLastAsync(parser, context, item.StockId, item.Name);
             //}
 
+            //stocks = context.Stocks.FromSqlRaw(GetSql()).ToList();
 
-            var stocks = context.Stocks.FromSqlRaw(GetSql()).ToList();
+            //foreach (var item in stocks)
+            //{
+            //    await ExecuteLastAsync(parser, context, item.StockId, item.Name);
+            //}
 
-            foreach (var item in stocks)
-            {
-                await ExecuteLastAsync(parser, context, item.StockId, item.Name);
-            }
-
-            s.Stop();
-            Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
-
+            //s.Stop();
+            //Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
         }
 
         private static string GetSql()
@@ -99,7 +148,6 @@ SELECT StockId
             await context.SaveChangesAsync();
         }
 
-
         private Prices[] ParserHistory(string stockId, string name)
         {
             try
@@ -133,6 +181,7 @@ SELECT StockId
                 ParseSingleNode(3, $"https://www.cnyes.com/twstock/itrust/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[4]/table", price, (htmlNode, p) => SetItrust(htmlNode, p));
                 ParseSingleNode(3, $"https://www.cnyes.com/twstock/dealer/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[4]/table", price, (htmlNode, p) => SetDealer(htmlNode, p));
                 ParseTech(stockId, price);
+                ParseMainForce(stockId, DateTime.Today.ToString("yyyy/MM/dd"), price);
                 return price;
             }
             catch (Exception ex)
@@ -220,6 +269,50 @@ SELECT StockId
                 prices.Add(SetPrice(node.ChildNodes[i], stockId, name));
             }
             return prices.ToArray();
+        }
+
+        public void ParseMainForce(string stockId,string datetime, Prices price)
+        {
+            var mainForces = new ConcurrentDictionary<int, Tuple<decimal, decimal>>();
+
+            for (int index = 1; index <= 6; index++)
+            {
+                var rootNode = GetRootNoteByUrl($"https://concords.moneydj.com/z/zc/zco/zco_{stockId}_{index}.djhtm", false);
+                var nodes = rootNode.SelectNodes("/html[1]/body[1]/div[1]/table[1]/tr[2]/td[2]/form[1]/table[1]/tr[1]/td[1]/table[1]/tr");
+
+                decimal 主力買超張數 = 0, 主力賣超張數 = 0;
+
+                for (int i = 6; i < nodes.Count; i++)
+                {
+                    var node = nodes[i];
+
+                    if (node.ChildNodes[1].InnerHtml == "合計買超張數")
+                    {
+                        主力買超張數 = Convert.ToDecimal(node.ChildNodes[3].InnerHtml.Replace(",", ""));
+                        主力賣超張數 = Convert.ToDecimal(node.ChildNodes[7].InnerHtml.Replace(",", ""));
+
+                    }
+                    else if (node.ChildNodes[1].InnerHtml == "合計買超股數")
+                    {
+                        主力買超張數 = Convert.ToDecimal(node.ChildNodes[3].InnerHtml.Replace(",", "")) / 1000;
+                        主力賣超張數 = Convert.ToDecimal(node.ChildNodes[7].InnerHtml.Replace(",", "")) / 1000;
+                    }
+                }
+                mainForces.TryAdd(index, Tuple.Create(主力買超張數, 主力賣超張數));
+            }
+
+            price.主力買超張數 = mainForces[1].Item1;
+            price.主力賣超張數 = mainForces[1].Item2;
+            price.五日主力買超張數 = mainForces[2].Item1;
+            price.五日主力賣超張數 = mainForces[2].Item2;
+            price.十日主力買超張數 = mainForces[3].Item1;
+            price.十日主力賣超張數 = mainForces[3].Item2;
+            price.二十日主力買超張數 = mainForces[4].Item1;
+            price.二十日主力賣超張數 = mainForces[4].Item2;
+            price.四十日主力買超張數 = mainForces[5].Item1;
+            price.四十日主力賣超張數 = mainForces[5].Item2;
+            price.六十日主力買超張數 = mainForces[6].Item1;
+            price.六十日主力賣超張數 = mainForces[6].Item2;
         }
 
         private void ParseTech(string stockId, Prices price)
