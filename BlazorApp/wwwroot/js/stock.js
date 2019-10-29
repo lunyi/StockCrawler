@@ -79,6 +79,9 @@ var urls = {
     11: 'https://www.fugle.tw/ai/{0}?p=2460385721&perfect=true',
     12: 'http://www.fortunengine.com.tw/evaluator.aspx?menu=on&scode={0}'
 };
+//個股新聞 https://www.moneydj.com/KMDJ/search/list.aspx?_Query_=6449&_QueryType_=NW
+//https://www.moneydj.com/KMDJ/Common/ListNewArticles.aspx?svc=NW&a=X0200000
+//https://tw.stock.yahoo.com/q/h?s=6449 
 
 var currentUrlIndex = 1;
 var currentStockId = "1101";

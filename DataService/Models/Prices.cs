@@ -55,5 +55,17 @@ namespace DataService.Models
         public decimal? VMA60 { get; set; }
         public decimal? VMA120 { get; set; }
         public decimal? VMA240 { get; set; }
+        public decimal? 主力買超張數 { get; set; }
+        public decimal? 主力賣超張數 { get; set; }
+        public decimal? 五日主力買超張數 { get; set; }
+        public decimal? 五日主力賣超張數 { get; set; }
+        public decimal? 十日主力買超張數 { get; set; }
+        public decimal? 十日主力賣超張數 { get; set; }
+        public decimal? 二十日主力買超張數 { get; set; }
+        public decimal? 二十日主力賣超張數 { get; set; }
+        public decimal? 四十日主力買超張數 { get; set; }
+        public decimal? 四十日主力賣超張數 { get; set; }
+        public decimal? 六十日主力買超張數 { get; set; }
+        public decimal? 六十日主力賣超張數 { get; set; }
     }
 }
