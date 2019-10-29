@@ -32,6 +32,7 @@ namespace DataService.Models
             }
         }
 
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<AnaCMoney>(entity =>

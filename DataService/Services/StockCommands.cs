@@ -34,7 +34,7 @@ namespace DataService.Services
 
             if (stock != null)
             {
-                context.Entry<BestStocks>(stock).State = EntityState.Deleted;
+                context.Entry(stock).State = EntityState.Deleted;
                 await context.SaveChangesAsync();
             }
         }
@@ -45,7 +45,7 @@ namespace DataService.Services
             var p = await context.Stocks.FirstOrDefaultAsync(p => p.StockId == stock.StockId);
             if (p != null)
             {
-                context.Entry<Stocks>(p).State = EntityState.Modified;
+                context.Entry(p).State = EntityState.Modified;
             }
 
             await context.SaveChangesAsync();
