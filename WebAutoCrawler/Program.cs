@@ -12,7 +12,7 @@ namespace WebCrawler
             var s = Stopwatch.StartNew();
             s.Start();
 
-            var h = new CMoneyCrawler();
+            var h = new HistoryPriceCrawler();
             await h.ExecuteAsync();
 
             s.Stop();
