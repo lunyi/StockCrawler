@@ -16,17 +16,32 @@ namespace WebCrawler
             s.Start();
 
             var context = new StockDbContext();
+            var stocks = context.Stocks.Where(p => p.Status == 1).ToList();
             var h = new HistoryPriceCrawler();
-            var prices = h.Execute("2330");
+            var history = new HistoryParser();
 
-            for (int i = 0; i < prices.Count; i++)
+            for (int i = 0; i < stocks.Count; i++)
             {
-                prices[i].StockId
+                if (stocks[i].StockId == "2330")
+                {
+
+                    var prices = h.Execute(stocks[i].StockId);
+
+                    for (int j  = 0; j < prices.Count; j++)
+                    {
+                        prices[j].StockId = stocks[i].StockId;
+                        stocks[i].Name = stocks[i].Name;
+                        history.TrustParser()
+  
+                    }
+
+                    await context.BulkInsertAsync(prices);
+                }
             }
 
-             var history = new HistoryParser();
-            history.TrustParser()
-            await context.BulkInsertAsync(prices);
+
+           
+
             s.Stop();
             Console.WriteLine(s.Elapsed.TotalMinutes);
             Console.ReadLine();
