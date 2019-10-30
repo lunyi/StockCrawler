@@ -11,61 +11,42 @@ namespace WebAutoCrawler
 {
     public class HistoryPriceCrawler : BaseCrawler
     {
-        string Url = "https://www.cnyes.com/twstock/ps_historyprice/2330.htm";
 
         public HistoryPriceCrawler() : base()
         {
 
         }
-        //public override async Task ExecuteAsync()
-        //{
-        //    var context = new StockDbContext();
-        //    var stocks = context.Stocks
-        //        .Where(p => p.Status == 1)
-        //        .OrderBy(p => p.StockId)
-        //        .ToList();
-
-        //    foreach (var stock in stocks)
-        //    {
-        //        try
-        //        {
-        //            var checks = Parser(string.Format(HealthCheckUrl, stock.StockId));
-        //            foreach (var check in checks)
-        //            {
-        //                foreach (var checkItem in check.Value)
-        //                {
-        //                    var item = new AnaStatementDogs
-        //                    {
-        //                        Id = Guid.NewGuid(),
-        //                        StockId = stock.StockId,
-        //                        Name = stock.Name,
-        //                        Type = check.Key,
-        //                        Pass = checkItem.Result,
-        //                        Description = checkItem.Name,
-        //                        CreatedOn = DateTime.Now,
-        //                    };
-        //                    context.AnaStatementDogs.Add(item);
-        //                }
-        //            }
-        //            await context.SaveChangesAsync();
-        //        }
-        //        catch (Exception)
-        //        {
-        //            Console.WriteLine($"{stock.StockId} {stock.Name} Parser Failed !");
-        //        }
-        //    }
-        //}
-
-        public override async Task ExecuteAsync()
+        public override Task ExecuteAsync()
         {
-            GoToUrl(Url);
+            return Task.FromResult(true);
+        }
 
-            var cancelBtn = FindElement(By.ClassName("img_cancel"));
-
-            if (cancelBtn != null)
+        private void TryCloseAdIfExists()
+        {
+            try
             {
-                cancelBtn.Click();
+                var cancelBtn = FindElement(By.ClassName("img_cancel"));
+
+                if (cancelBtn != null)
+                {
+                    cancelBtn.Click();
+                }
             }
+            catch (NoSuchElementException ex)
+            { 
+                
+            }
+            finally
+            {
+
+            }
+        }
+        public List<HistoryPrice> Execute(string stockId)
+        {
+            var url = $"https://www.cnyes.com/twstock/ps_historyprice/{stockId}.htm";
+
+            GoToUrl(url);
+            TryCloseAdIfExists();
 
             var input = FindElement(By.Name("ctl00$ContentPlaceHolder1$startText"));
             for (int i = 0; i < 10; i++)
@@ -82,12 +63,27 @@ namespace WebAutoCrawler
 
             var tabs = FindElements(By.XPath("//*[@id='main3']/div[5]/div[3]/table/tbody/tr"));
 
+            var prices = new List<HistoryPrice>();
             for (int i = 1; i < tabs.Count; i++)
             {
-                var td = tabs[i].FindElements(By.TagName("td"));
-                var datetime = td[0].Text;
-            }
+                var price = new HistoryPrice();
+                price.Id = Guid.NewGuid();
+                price.CreatedOn = DateTime.Now;
 
+                var td = tabs[i].FindElements(By.TagName("td"));
+                price.Datetime = Convert.ToDateTime(td[0].Text);
+                price.Open = Convert.ToDecimal(td[1].Text);
+                price.High = Convert.ToDecimal(td[2].Text);
+                price.Low = Convert.ToDecimal(td[3].Text);
+                price.Close = Convert.ToDecimal(td[4].Text);
+                price.漲跌 = Convert.ToDecimal(td[4].Text);
+                price.漲跌百分比 = Convert.ToDecimal(td[4].Text.Replace("%",""));
+                price.成交量 = Convert.ToInt32(td[4].Text.Replace(",", ""));
+                price.成交金額 = Convert.ToInt32(td[4].Text.Replace(",", ""));
+                price.本益比 = Convert.ToDecimal(td[4].Text);
+                prices.Add(price);
+            }
+            return prices.OrderByDescending(p => p.Datetime).ToList();
         }
     }
 }

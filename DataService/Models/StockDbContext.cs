@@ -20,6 +20,7 @@ namespace DataService.Models
         public virtual DbSet<AnaStatementDogs> AnaStatementDogs { get; set; }
         public virtual DbSet<BestStocks> BestStocks { get; set; }
         public virtual DbSet<Chip> Chip { get; set; }
+        public virtual DbSet<HistoryPrice> HistoryPrice { get; set; }
         public virtual DbSet<Infomations> Infomations { get; set; }
         public virtual DbSet<Prices> Prices { get; set; }
         public virtual DbSet<Seasons> Seasons { get; set; }
@@ -33,7 +34,6 @@ namespace DataService.Models
                 optionsBuilder.UseSqlServer("Server=220.133.185.1;Database=StockDb;User ID=stock;Password=stock;");
             }
         }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -146,6 +146,46 @@ namespace DataService.Models
                 entity.Property(e => e.主力買進).HasColumnType("numeric(18, 3)");
 
                 entity.Property(e => e.主力賣出).HasColumnType("numeric(18, 3)");
+            });
+
+            modelBuilder.Entity<HistoryPrice>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.Close).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.CreatedOn).HasColumnType("datetime");
+
+                entity.Property(e => e.Datetime).HasColumnType("datetime");
+
+                entity.Property(e => e.High).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.Low).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Open).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.StockId)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.主力買超張數).HasColumnType("numeric(18, 3)");
+
+                entity.Property(e => e.主力賣超張數).HasColumnType("numeric(18, 3)");
+
+                entity.Property(e => e.券資比).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.本益比).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.漲跌).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.漲跌百分比).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.融資使用率).HasColumnType("numeric(18, 2)");
             });
 
             modelBuilder.Entity<Infomations>(entity =>
