@@ -18,7 +18,7 @@ namespace WebCrawler
         {
 
             var s = new HistoryParser();
-            var ss =  s.TrustParser("2330", "2017-01-01", "2019-10-29");
+            //var ss =  s.ParseTrust("2330", "2017-01-01", "2019-10-29");
 
             Console.ReadLine();
         }

@@ -54,7 +54,7 @@ namespace WebAutoCrawler
                 input.SendKeys(Keys.Backspace);
             }
 
-            FindElement(By.XPath("//*[@id='datepicker_div']/div[3]/div/select[2]/option[@value='2014']")).Click();
+            FindElement(By.XPath("//*[@id='datepicker_div']/div[3]/div/select[2]/option[@value='2017']")).Click();
             FindElement(By.XPath("//*[@id='datepicker_div']/div[3]/div/select[1]/option[@value='0']")).Click();
             FindElement(By.XPath("//*[@id='datepicker_div']/div[3]/table/tbody/tr[1]/td[4]/a")).Click();
             FindElement(By.Name("ctl00$ContentPlaceHolder1$submitBut")).Click();
@@ -76,11 +76,11 @@ namespace WebAutoCrawler
                 price.High = Convert.ToDecimal(td[2].Text);
                 price.Low = Convert.ToDecimal(td[3].Text);
                 price.Close = Convert.ToDecimal(td[4].Text);
-                price.漲跌 = Convert.ToDecimal(td[4].Text);
-                price.漲跌百分比 = Convert.ToDecimal(td[4].Text.Replace("%",""));
-                price.成交量 = Convert.ToInt32(td[4].Text.Replace(",", ""));
-                price.成交金額 = Convert.ToInt32(td[4].Text.Replace(",", ""));
-                price.本益比 = Convert.ToDecimal(td[4].Text);
+                price.漲跌 = Convert.ToDecimal(td[5].Text);
+                price.漲跌百分比 = Convert.ToDecimal(td[6].Text.Replace("%",""));
+                price.成交量 = Convert.ToInt32(td[7].Text.Replace(",", ""));
+                price.成交金額 = Convert.ToInt32(td[8].Text.Replace(",", ""));
+                price.本益比 = Convert.ToDecimal(td[9].Text);
                 prices.Add(price);
             }
             return prices.OrderByDescending(p => p.Datetime).ToList();

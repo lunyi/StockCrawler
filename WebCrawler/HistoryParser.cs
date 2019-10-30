@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DataService.Models;
@@ -47,61 +48,58 @@ namespace WebCrawler
             return (主力買超張數, 主力賣超張數);
         }
 
-        public HistoryPrice[] TrustParser(string stockId, string startDate, string endDate)
+        public void ParseTrust(List<HistoryPrice> prices, string stockId, string startDate, string endDate)
         {
             var url = $"http://5850web.moneydj.com/z/zc/zcl/zcl.djhtm?a={stockId}&c={startDate}&d={endDate}";
             var rootNode = GetRootNoteByUrl(url, false);
             var node = rootNode.SelectSingleNode("//*[@id='SysJustIFRAMEDIV']/table/tr[2]/td[2]/form/table/tr/td/table");
 
-            var prices = new List<HistoryPrice>();
             for (int i = 15; i < node.ChildNodes.Count - 2; i += 2)
             {
                 var c = node.ChildNodes[i];
-                var s = new HistoryPrice
+                var datetime = Convert.ToDateTime(node.ChildNodes[i].ChildNodes[1].InnerText).AddYears(1911);
+                var oldPrice = prices.FirstOrDefault(p => p.Datetime == datetime);
+
+                if (oldPrice != null)
                 {
-                    Datetime = Convert.ToDateTime(node.ChildNodes[i].ChildNodes[1].InnerText).AddYears(1911),
-                    外資買賣超 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[3].InnerText.Replace(",", "")),
-                    投信買賣超 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[5].InnerText.Replace(",", "")),
-                    自營商買賣超 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[7].InnerText.Replace(",", "")),
-                    外資持股 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[9].InnerText.Replace(",", "")),
-                    投信持股 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[13].InnerText.Replace(",", "")),
-                    自營商持股 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[15].InnerText.Replace(",", "")),
-                    外資持股比重 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[19].InnerText.Replace(",", "").Replace("%", "")),
-                    三大法人持股比重 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[19].InnerText.Replace(",", "").Replace("%", "")),
-                };
-                prices.Add(s);
+                    oldPrice.外資買賣超 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[3].InnerText.Replace(",", "").Replace("--", "0"));
+                    oldPrice.投信買賣超 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[5].InnerText.Replace(",", "").Replace("--", "0"));
+                    oldPrice.自營商買賣超 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[7].InnerText.Replace(",", "").Replace("--", "0"));
+                    oldPrice.外資持股 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[9].InnerText.Replace(",", "").Replace("--", "0"));
+                    oldPrice.投信持股 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[13].InnerText.Replace(",", "").Replace("--", "0"));
+                    oldPrice.自營商持股 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[15].InnerText.Replace(",", "").Replace("--", "0"));
+                    oldPrice.外資持股比重 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[19].InnerText.Replace(",", "").Replace("--", "0").Replace("%", ""));
+                    oldPrice.三大法人持股比重 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[19].InnerText.Replace(",", "").Replace("--", "0").Replace("%", ""));
+                }
             }
-            return prices.ToArray();
         }
 
-        public HistoryPrice[] FinancingParser(string stockId, string startDate, string endDate)
+        public void ParseFinancing(List<HistoryPrice> prices, string stockId, string startDate, string endDate)
         {
             var url = $"http://5850web.moneydj.com/z/zc/zcn/zcn.djhtm?a={stockId}&c={startDate}&d={endDate}";
             var rootNode = GetRootNoteByUrl(url, false);
             var node = rootNode.SelectSingleNode("//*[@id='SysJustIFRAMEDIV']/table/tr[2]/td[2]/form/table/tr/td/table");
 
-            var prices = new List<HistoryPrice>();
             for (int i = 15; i < node.ChildNodes.Count - 2; i+=2)
             {
                 var c = node.ChildNodes[i];
-                var s = new HistoryPrice
+                var datetime = Convert.ToDateTime(node.ChildNodes[i].ChildNodes[1].InnerText).AddYears(1911);
+                var oldPrice = prices.FirstOrDefault(p => p.Datetime == datetime);
+                if (oldPrice != null)
                 {
-                    Datetime = Convert.ToDateTime(node.ChildNodes[i].ChildNodes[1].InnerText).AddYears(1911),
-                    融資買進 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[3].InnerText.Replace(",","")),
-                    融資賣出 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[5].InnerText.Replace(",", "")),
-                    融資現償 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[7].InnerText.Replace(",", "")),
-                    融資餘額 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[9].InnerText.Replace(",", "")),
-                    融資限額 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[13].InnerText.Replace(",", "")),
-                    融資使用率 = Convert.ToDecimal(node.ChildNodes[i].ChildNodes[15].InnerText.Replace(",", "").Replace("%", "")),
-                    融券買進 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[19].InnerText.Replace(",", "")),
-                    融券賣出 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[17].InnerText.Replace(",", "")),
-                    融券餘額 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[23].InnerText.Replace(",", "")),
-                    券資比 = Convert.ToDecimal(node.ChildNodes[i].ChildNodes[27].InnerText.Replace(",", "").Replace("%", "")),
-                    資券相抵 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[29].InnerText.Replace(",", "")),
-                };
-                prices.Add(s);
+                    oldPrice.融資買進 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[3].InnerText.Replace(",", ""));
+                    oldPrice.融資賣出 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[5].InnerText.Replace(",", ""));
+                    oldPrice.融資現償 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[7].InnerText.Replace(",", ""));
+                    oldPrice.融資餘額 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[9].InnerText.Replace(",", ""));
+                    oldPrice.融資限額 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[13].InnerText.Replace(",", ""));
+                    oldPrice.融資使用率 = Convert.ToDecimal(node.ChildNodes[i].ChildNodes[15].InnerText.Replace(",", "").Replace("%", ""));
+                    oldPrice.融券買進 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[19].InnerText.Replace(",", ""));
+                    oldPrice.融券賣出 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[17].InnerText.Replace(",", ""));
+                    oldPrice.融券餘額 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[23].InnerText.Replace(",", ""));
+                    oldPrice.券資比 = Convert.ToDecimal(node.ChildNodes[i].ChildNodes[27].InnerText.Replace(",", "").Replace("%", ""));
+                    oldPrice.資券相抵 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[29].InnerText.Replace(",", ""));
+                }
             }
-            return prices.ToArray();
         }
     }
 }

@@ -177,7 +177,27 @@ namespace DataService.Models
 
                 entity.Property(e => e.主力賣超張數).HasColumnType("numeric(18, 3)");
 
+                entity.Property(e => e.二十日主力買超張數).HasColumnType("numeric(18, 3)");
+
+                entity.Property(e => e.二十日主力賣超張數).HasColumnType("numeric(18, 3)");
+
+                entity.Property(e => e.五日主力買超張數).HasColumnType("numeric(18, 3)");
+
+                entity.Property(e => e.五日主力賣超張數).HasColumnType("numeric(18, 3)");
+
+                entity.Property(e => e.六十日主力買超張數).HasColumnType("numeric(18, 3)");
+
+                entity.Property(e => e.六十日主力賣超張數).HasColumnType("numeric(18, 3)");
+
                 entity.Property(e => e.券資比).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.十日主力買超張數).HasColumnType("numeric(18, 3)");
+
+                entity.Property(e => e.十日主力賣超張數).HasColumnType("numeric(18, 3)");
+
+                entity.Property(e => e.四十日主力買超張數).HasColumnType("numeric(18, 3)");
+
+                entity.Property(e => e.四十日主力賣超張數).HasColumnType("numeric(18, 3)");
 
                 entity.Property(e => e.本益比).HasColumnType("numeric(18, 2)");
 
