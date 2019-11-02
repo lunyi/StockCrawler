@@ -173,6 +173,8 @@ namespace DataService.Models
                     .HasMaxLength(8)
                     .IsUnicode(false);
 
+                entity.Property(e => e.三大法人持股比重).HasColumnType("numeric(18, 3)");
+
                 entity.Property(e => e.主力買超張數).HasColumnType("numeric(18, 3)");
 
                 entity.Property(e => e.主力賣超張數).HasColumnType("numeric(18, 3)");
@@ -198,6 +200,8 @@ namespace DataService.Models
                 entity.Property(e => e.四十日主力買超張數).HasColumnType("numeric(18, 3)");
 
                 entity.Property(e => e.四十日主力賣超張數).HasColumnType("numeric(18, 3)");
+
+                entity.Property(e => e.外資持股比重).HasColumnType("numeric(18, 3)");
 
                 entity.Property(e => e.本益比).HasColumnType("numeric(18, 2)");
 

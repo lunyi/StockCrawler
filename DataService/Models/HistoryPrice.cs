@@ -25,8 +25,8 @@ namespace DataService.Models
         public int? 外資持股 { get; set; }
         public int? 投信持股 { get; set; }
         public int? 自營商持股 { get; set; }
-        public int? 外資持股比重 { get; set; }
-        public int? 三大法人持股比重 { get; set; }
+        public decimal? 外資持股比重 { get; set; }
+        public decimal? 三大法人持股比重 { get; set; }
         public decimal? 主力買超張數 { get; set; }
         public decimal? 主力賣超張數 { get; set; }
         public int? 融資買進 { get; set; }

@@ -68,8 +68,8 @@ namespace WebCrawler
                     oldPrice.外資持股 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[9].InnerText.Replace(",", "").Replace("--", "0"));
                     oldPrice.投信持股 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[13].InnerText.Replace(",", "").Replace("--", "0"));
                     oldPrice.自營商持股 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[15].InnerText.Replace(",", "").Replace("--", "0"));
-                    oldPrice.外資持股比重 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[19].InnerText.Replace(",", "").Replace("--", "0").Replace("%", ""));
-                    oldPrice.三大法人持股比重 = Convert.ToInt32(node.ChildNodes[i].ChildNodes[19].InnerText.Replace(",", "").Replace("--", "0").Replace("%", ""));
+                    oldPrice.外資持股比重 = Convert.ToDecimal(node.ChildNodes[i].ChildNodes[19].InnerText.Replace(",", "").Replace("--", "0").Replace("%", ""));
+                    oldPrice.三大法人持股比重 = Convert.ToDecimal(node.ChildNodes[i].ChildNodes[19].InnerText.Replace(",", "").Replace("--", "0").Replace("%", ""));
                 }
             }
         }

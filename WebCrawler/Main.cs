@@ -17,7 +17,8 @@ namespace WebCrawler
         static async Task Main(string[] args)
         {
 
-            var s = new HistoryParser();
+            var s = new CnyParser();
+            await s.RunAsync();
             //var ss =  s.ParseTrust("2330", "2017-01-01", "2019-10-29");
 
             Console.ReadLine();

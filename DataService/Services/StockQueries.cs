@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DataService.DataModel;
 using DataService.Enums;
 using DataService.Models;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ namespace DataService.Services
 {
     public interface IStockQueries
     {
+        Task<StockeModel> GetPricesByStockIdAsync(string stockId);
         Task<Stocks[]> GetBestStocksAsync(int key);
         Task<string[]> GetDaysAsync();
         Task<string[]> GetChosenStockTypesAsync();
@@ -21,6 +23,49 @@ namespace DataService.Services
     }
     public class StockQueries : IStockQueries
     {
+        private StockDbContext _context;
+        public StockQueries()
+        {
+            _context = new StockDbContext();
+        }
+
+        public StockQueries(StockDbContext context)
+        {
+            _context = context;
+        }
+        async Task<StockeModel> IStockQueries.GetPricesByStockIdAsync(string stockId)
+        {
+            var context = new StockDbContext();
+            var prices = await (from price in context.Prices
+                     where price.StockId == stockId
+                     orderby price.Datetime descending
+                     select new PriceModel
+                     {
+                         StockId = price.StockId,
+                         Name = price.Name,
+                         Datetime = price.Datetime,
+                         Open = price.Open,
+                         High = price.High,
+                         Low = price.Low,
+                         Close = price.Close,
+                         漲跌 = price.漲跌,
+                         漲跌百分比 = price.漲跌百分比,
+                         成交量 = price.成交量,
+                         本益比 = price.本益比,
+                         外資持股 = price.外資持股,
+                         外資持股比例 = price.外資持股比例,
+                         外資買賣超 = price.外資買進 - price.外資賣出,
+                         投信買賣超 = price.投信買進 - price.投信賣出,
+                         自營商買賣超 = price.自營商買進 - price.自營商賣出,
+                         主力買賣超 = price.主力買超張數 - price.主力賣超張數,
+                         籌碼集中度 = (price.主力買超張數 - price.主力賣超張數)/price.成交量
+                     }).ToArrayAsync() ;
+            return new StockeModel
+            {
+                Stock = await context.Stocks.FirstOrDefaultAsync(p=>p.StockId == stockId),
+                Prices = prices
+            };
+        }
 
         Task<Stocks[]> IStockQueries.GetActiveStocksAsync()
         {

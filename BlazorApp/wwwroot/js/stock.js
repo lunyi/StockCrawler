@@ -67,17 +67,18 @@ var urls = {
     //3: 'https://concords.moneydj.com/z/zc/zca/zco_{0}.djhtm',
     //4: 'https://concords.moneydj.com/z/zc/zcl/zcl_{0}.djhtm',
     1: 'https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm',
-    2: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zca_{0}.djhtm',
-    3: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zca/zco_{0}.djhtm',
-    4: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcl/zcl_{0}.djhtm',
-    5: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=d',
-    6: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=l',
-    7: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=mf',
-    8: 'https://www.cmoney.tw/finance/stockmainkline.aspx?s={0}',
-    9: 'https://www.cnyes.com/twstock/Margin/{0}.htm',
-    10: 'https://statementdog.com/analysis/tpe/{0}/stock-health-check',
-    11: 'https://www.fugle.tw/ai/{0}?p=2460385721&perfect=true',
-    12: 'http://www.fortunengine.com.tw/evaluator.aspx?menu=on&scode={0}'
+    2: 'Prices?stockId={0}',
+    3: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zca_{0}.djhtm',
+    4: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zca/zco_{0}.djhtm',
+    5: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcl/zcl_{0}.djhtm',
+    6: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=d',
+    7: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=l',
+    8: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=mf',
+    9: 'https://www.cmoney.tw/finance/stockmainkline.aspx?s={0}',
+    10: 'https://www.cnyes.com/twstock/Margin/{0}.htm',
+    11: 'https://statementdog.com/analysis/tpe/{0}/stock-health-check',
+    12: 'https://www.fugle.tw/ai/{0}?p=2460385721&perfect=true',
+    13: 'http://www.fortunengine.com.tw/evaluator.aspx?menu=on&scode={0}'
 };
 //個股新聞 https://www.moneydj.com/KMDJ/search/list.aspx?_Query_=6449&_QueryType_=NW
 //https://www.moneydj.com/KMDJ/Common/ListNewArticles.aspx?svc=NW&a=X0200000

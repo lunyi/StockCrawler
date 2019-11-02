@@ -71,32 +71,32 @@ namespace WebCrawler
         }
         public async Task RunAsync()
         {
-            await RunMainForceAsync();
-            //var context = new StockDbContext();
+            //await RunMainForceAsync();
+            var context = new StockDbContext();
             //var stocks = context.Stocks
             //    .Where(p => p.Status == 1)
             //    .OrderBy(p => p.StockId)
             //    .ToList();
 
-            //var s = Stopwatch.StartNew();
-            //s.Start();
+            var s = Stopwatch.StartNew();
+            s.Start();
 
-            //var parser = new CnyParser();
-
-            //foreach (var item in stocks)
-            //{
-            //    await ExecuteLastAsync(parser, context, item.StockId, item.Name);
-            //}
-
-            //stocks = context.Stocks.FromSqlRaw(GetSql()).ToList();
+            var parser = new CnyParser();
 
             //foreach (var item in stocks)
             //{
             //    await ExecuteLastAsync(parser, context, item.StockId, item.Name);
             //}
 
-            //s.Stop();
-            //Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
+            var stocks = context.Stocks.FromSqlRaw(GetSql()).ToList();
+
+            foreach (var item in stocks)
+            {
+                await ExecuteLastAsync(parser, context, item.StockId, item.Name);
+            }
+
+            s.Stop();
+            Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
         }
 
         private static string GetSql()
