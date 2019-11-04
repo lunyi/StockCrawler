@@ -43,7 +43,7 @@ namespace DataService.Services
                      {
                          StockId = price.StockId,
                          Name = price.Name,
-                         Datetime = price.Datetime,
+                         Datetime = price.Datetime.ToString("yyyy-MM-dd"),
                          Open = price.Open,
                          High = price.High,
                          Low = price.Low,
@@ -58,7 +58,8 @@ namespace DataService.Services
                          投信買賣超 = price.投信買進 - price.投信賣出,
                          自營商買賣超 = price.自營商買進 - price.自營商賣出,
                          主力買賣超 = price.主力買超張數 - price.主力賣超張數,
-                         籌碼集中度 = (price.主力買超張數 - price.主力賣超張數)/price.成交量
+                         籌碼集中度 = 100 * Math.Round(((price.主力買超張數 - price.主力賣超張數) / price.成交量).Value, 5),
+                         周轉率 = 100 * Math.Round(((decimal)price.成交量 / price.發行張數).Value, 5)
                      }).ToArrayAsync() ;
             return new StockeModel
             {

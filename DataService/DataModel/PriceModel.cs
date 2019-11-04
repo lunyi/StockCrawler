@@ -14,7 +14,7 @@ namespace DataService.DataModel
     {
         public string StockId { get; set; }
         public string Name { get; set; }
-        public DateTime Datetime { get; set; }
+        public string Datetime { get; set; }
         public decimal High { get; set; }
         public decimal Low { get; set; }
         public decimal Open { get; set; }
@@ -36,5 +36,6 @@ namespace DataService.DataModel
         public decimal? 外資持股比例 { get; set; }
         public decimal? 主力買賣超 { get; set; }
         public decimal? 籌碼集中度 { get; set; }
+        public decimal? 周轉率 { get; set; }
     }
 }

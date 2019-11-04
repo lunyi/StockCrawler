@@ -2,7 +2,14 @@
 
     var url = "http://localhost:8081/stock/" + getUrlParameter('stockId');
     $.get(url, function (data) {
-        alert(data);
+
+        var vue = new Vue({
+            el: '#textExample',
+            data: {
+                Stock: data.stock,
+                Prices: data.prices
+            }  
+        });
     });
 
 })();
