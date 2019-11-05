@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
 </head>
 <body>
-    <link href="css/table.css" rel="stylesheet" />
+    @*<link href="css/table.css" rel="stylesheet" />*@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.16.0/polyfill.min.js"></script>
     <script src="https://cdn.jsdelivr.net/data-transformer/0.1.12/data-transformer-browser.min.js"></script>
@@ -21,14 +21,16 @@
         <table class="table table-bordered responsive-table">
             <thead>
                 <tr>
-                    <th>代號</th>
                     <th>名稱</th>
                     <th>日期</th>
                     <th>收盤</th>
                     <th>量</th>
                     <th>漲跌</th>
-                    <th>漲跌百分比</th>
+                    <th>百分比</th>
+                    <th>融資</th>
+                    <th>融資比例</th>
                     <th>外資</th>
+                    <th>外資持股</th>
                     <th>投信</th>
                     <th>自營商</th>
                     <th>主力</th>
@@ -38,14 +40,16 @@
                 </tr>
             </thead>
             <tr v-for="price in Prices">
-                <td>{{price.stockId}}</td>
                 <td>{{price.name}}</td>
                 <td>{{price.datetime}}</td>
                 <td>{{price.close}}</td>
                 <td>{{price.成交量}}</td>
                 <td>{{price.漲跌}}</td>
-                <td>{{price.漲跌百分比}}</td>
+                <td>{{price.漲跌百分比}}%</td>
+                <td>{{price.融資買賣超}}</td>
+                <td>{{price.融資使用率}}%</td>
                 <td>{{price.外資買賣超}}</td>
+                <td>{{price.外資持股比重}}%</td>
                 <td>{{price.投信買賣超}}</td>
                 <td>
                     {{price.自營商買賣超}}
