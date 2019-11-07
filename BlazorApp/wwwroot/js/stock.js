@@ -128,6 +128,7 @@ function onFindStockId(event) {
                 currentStockId = stockId;
                 goToUrl();
                 find = true;
+                event.value = "";
             }
         }
 
