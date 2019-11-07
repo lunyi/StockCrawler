@@ -73,22 +73,22 @@ namespace WebCrawler
         {
             //await RunMainForceAsync();
             var context = new StockDbContext();
-            //var stocks = context.Stocks
-            //    .Where(p => p.Status == 1)
-            //    .OrderBy(p => p.StockId)
-            //    .ToList();
+            var stocks = context.Stocks
+                .Where(p => p.Status == 1)
+                .OrderBy(p => p.StockId)
+                .ToList();
 
             var s = Stopwatch.StartNew();
             s.Start();
 
             var parser = new CnyParser();
 
-            //foreach (var item in stocks)
-            //{
-            //    await ExecuteLastAsync(parser, context, item.StockId, item.Name);
-            //}
+            foreach (var item in stocks)
+            {
+                await ExecuteLastAsync(parser, context, item.StockId, item.Name);
+            }
 
-            var stocks = context.Stocks.FromSqlRaw(GetSql()).ToList();
+            stocks = context.Stocks.FromSqlRaw(GetSql()).ToList();
 
             foreach (var item in stocks)
             {
@@ -98,6 +98,35 @@ namespace WebCrawler
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
         }
+
+        public async Task UpdateAsync()
+        {
+            var context = new StockDbContext();
+            var s = Stopwatch.StartNew();
+            s.Start();
+
+            var prices = context.Prices.FromSqlRaw(GetSqlToUpdate()).ToList();
+
+            foreach (var item in prices)
+            {
+                ParseTrust(item.StockId, item);
+                await context.SaveChangesAsync();
+                Console.WriteLine($"{item.StockId}");
+            }
+
+            s.Stop();
+            Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
+        }
+
+        private static string GetSqlToUpdate()
+        {
+            return @$"
+SELECT *
+  FROM [dbo].[Prices]
+  where [Datetime] = '{DateTime.Today.AddDays(-1).ToString("yyyy/MM/dd")}' and [投信持股] is null
+  order by StockId";
+        }
+
 
         private static string GetSql()
         {
@@ -182,6 +211,7 @@ SELECT StockId
                 ParseSingleNode(3, $"https://www.cnyes.com/twstock/dealer/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[4]/table", price, (htmlNode, p) => SetDealer(htmlNode, p));
                 ParseTech(stockId, price);
                 ParseMainForce(stockId, DateTime.Today.ToString("yyyy/MM/dd"), price);
+                ParseTrust(stockId, price);
                 return price;
             }
             catch (Exception ex)
@@ -269,6 +299,18 @@ SELECT StockId
                 prices.Add(SetPrice(node.ChildNodes[i], stockId, name));
             }
             return prices.ToArray();
+        }
+        public void ParseTrust(string stockId, Prices price) 
+        {
+            var datetime = DateTime.Now.ToString("yyyy-MM-dd");
+            var url = $@"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcl/zcl.djhtm?a={stockId}&c={datetime}&d={datetime}";
+            var rootNode = GetRootNoteByUrl(url, false);
+
+            var ss = rootNode.SelectSingleNode("//*[@id='SysJustIFRAMEDIV']/table/tr[2]/td[2]/form/table/tr[1]/td[1]/table/tr[8]/td[7]");
+            price.投信持股 = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id='SysJustIFRAMEDIV']/table/tr[2]/td[2]/form/table/tr[1]/td[1]/table/tr[8]/td[7]").InnerHtml.Replace(",", ""));
+            //price.投信持股比例 = Convert.ToDecimal(rootNode.SelectSingleNode("//*[@id='bttb']/table[2]/tbody/tr[3]/td[6]").InnerHtml.Replace("%", ""));
+            price.自營商持股 = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id='SysJustIFRAMEDIV']/table/tr[2]/td[2]/form/table/tr[1]/td[1]/table/tr[8]/td[8]").InnerHtml.Replace(",", ""));
+            //price.自營商持股比例 = Convert.ToDecimal(rootNode.SelectSingleNode("//*[@id='bttb']/table[3]/tbody/tr[3]/td[6]").InnerHtml.Replace("%", ""));
         }
 
         public void ParseMainForce(string stockId,string datetime, Prices price)
