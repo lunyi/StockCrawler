@@ -16,7 +16,6 @@
             }  
         });
     });
-
 })();
 
 function renewPrices(prices) {

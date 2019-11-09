@@ -53,6 +53,7 @@ namespace DataService.Services
                          成交量 = price.成交量,
                          本益比 = price.本益比,
                          外資持股 = price.外資持股,
+                         投信持股 = price.投信持股,
                          外資持股比例 = price.外資持股比例,
                          融資買賣超 = price.融資買進 - price.融資賣出,
                          融資使用率 = price.融資使用率,
@@ -156,10 +157,22 @@ namespace DataService.Services
                     sql = 五日跌幅排行榜(datetime, 5);
                     break;
                 case (int)ChooseStockType.投信連續買超排行榜:
-                    sql = 投信連續買超排行榜(datetime);
+                    sql = 連續買超排行榜(datetime, "投信買賣超");
                     break;
                 case (int)ChooseStockType.投信連續賣超排行榜:
-                    sql = 投信連續賣超排行榜(datetime);
+                    sql = 連續賣超排行榜(datetime, "投信買賣超");
+                    break;
+                case (int)ChooseStockType.外資連續買超排行榜:
+                    sql = 連續買超排行榜(datetime, "外資買賣超");
+                    break;
+                case (int)ChooseStockType.外資連續賣超排行榜:
+                    sql = 連續賣超排行榜(datetime, "外資買賣超");
+                    break;
+                case (int)ChooseStockType.買方籌碼集中排行榜:
+                    sql = Get籌碼集中排行榜Sql(datetime, "desc");
+                    break;
+                case (int)ChooseStockType.賣方籌碼集中排行榜:
+                    sql = Get籌碼集中排行榜Sql(datetime);
                     break;
                 case (int)ChooseStockType.CMoney選股:
                     sql = GetCMoneyStocksSql();
@@ -177,6 +190,17 @@ namespace DataService.Services
             }
            
             return context.Stocks.FromSqlRaw(sql).ToArrayAsync();
+        }
+
+        private string Get籌碼集中排行榜Sql(string datetime, string orderby = "")
+        {
+            return $@"
+select top 100
+s.*
+from [Prices] p join [Stocks] s on s.StockId = p.StockId 
+where p.[Datetime] = '{datetime}'
+order by (p.[主力買超張數] - p.[主力賣超張數]) / p.成交量 {orderby}
+";
         }
 
         private string 五日漲幅排行榜(string datetime, int days)
@@ -258,7 +282,7 @@ order by t.[Description] asc
 drop table #tmp";
         }
 
-        private string 投信連續買超排行榜(string datetime)
+        private string 連續買超排行榜(string datetime, string 買賣超 = "投信買賣超")
         {
             return @$"
 WITH TOPTEN as (
@@ -267,7 +291,7 @@ WITH TOPTEN as (
         PARTITION BY  StockId, Name 
        order by [Datetime] desc
     ) AS RowNo 
-    FROM [Prices] where [Datetime] <= '{datetime}' and  投信買賣超<=0
+    FROM [Prices] where [Datetime] <= '{datetime}' and [{買賣超}]<=0
 )
 
 select 
@@ -305,7 +329,7 @@ order by t.[Count] desc
 drop table #tmp";
         }
 
-        private string 投信連續賣超排行榜(string datetime)
+        private string 主力連續買超排行榜(string datetime, string 買賣超 = "投信買賣超")
         {
             return @$"
 WITH TOPTEN as (
@@ -314,7 +338,54 @@ WITH TOPTEN as (
         PARTITION BY  StockId, Name 
        order by [Datetime] desc
     ) AS RowNo 
-    FROM [Prices] where [Datetime] <= '{datetime}' and  投信買賣超>=0
+    FROM [Prices] where [Datetime] <= '{datetime}' and []
+)
+
+select 
+a.StockId,
+a.Name, 
+count(1) as [Count]
+into #tmp
+from Prices a join (
+	SELECT 	*
+	FROM TOPTEN 
+	WHERE RowNo <= 1) b on a.StockId = b.StockId
+where a.[Datetime] > b.[Datetime] 
+group by a.StockId,a.Name 
+having count(1) >= 2
+order by count(1) desc
+
+select s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
+from [Stocks]s 
+join #tmp t on s.StockId = t.StockId
+order by t.[Count] desc
+
+drop table #tmp";
+        }
+
+        private string 連續賣超排行榜(string datetime, string 買賣超 = "投信買賣超")
+        {
+            return @$"
+WITH TOPTEN as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY  StockId, Name 
+       order by [Datetime] desc
+    ) AS RowNo 
+    FROM [Prices] where [Datetime] <= '{datetime}' and  [{買賣超}]>=0
 )
 
 select 
@@ -423,7 +494,7 @@ drop table #tmp";
             return @$"
   and [外資買賣超] > 0
   and [外資買賣超] * [Close] > 4000
-  order by [外資買賣超] *[Close] desc
+  order by [外資買賣超] desc
 ";
         }
 
@@ -432,7 +503,7 @@ drop table #tmp";
             return @$"
   and [外資買賣超] < 0
   and [外資買賣超] * [Close] < -4000
-  order by [外資買賣超] *[Close] asc
+  order by [外資買賣超] asc
 ";
         }
 
@@ -440,7 +511,7 @@ drop table #tmp";
         {
             return @$"
   and [投信買賣超] > 0
-  order by [投信買賣超] *[Close] desc
+  order by [投信買賣超] desc
 ";
         }
 
@@ -448,7 +519,7 @@ drop table #tmp";
         {
             return @$"
   and [投信買賣超] < 0
-  order by [投信買賣超] *[Close] asc
+  order by [投信買賣超] asc
 ";
         }
 
@@ -457,7 +528,7 @@ drop table #tmp";
             return @$"
   and [自營商買賣超] > 0
   and [自營商買賣超] * [Close] > 1000
-  order by [自營商買賣超] *[Close] desc
+  order by [自營商買賣超] desc
 ";
         }
 
@@ -466,7 +537,7 @@ drop table #tmp";
             return @$"
   and [自營商買賣超] < 0
   and [自營商買賣超] * [Close] <- 1000
-  order by [自營商買賣超] *[Close] asc
+  order by [自營商買賣超] asc
 ";
         }
 
@@ -476,7 +547,7 @@ drop table #tmp";
             return @$"
   and ([融資買進] - [融資賣出])>0
   and ([融資買進] - [融資賣出]) * [Close] > 5000
-  order by ([融資買進] - [融資賣出]) * [Close] desc 
+  order by ([融資買進] - [融資賣出]) desc 
 ";
         }
 
@@ -485,7 +556,7 @@ drop table #tmp";
             return @$"
   and ( [融資賣出] - [融資買進])>0
   and ( [融資賣出] - [融資買進]) * [Close] > 5000
-  order by ([融資賣出] - [融資買進]) * [Close] desc 
+  order by ([融資賣出] - [融資買進]) desc 
 ";
         }
 
@@ -493,7 +564,7 @@ drop table #tmp";
         {
             return @$"
   and ([融券買進] - [融券賣出])>0
-  order by ([融券買進] - [融券賣出]) * [Close] desc 
+  order by ([融券買進] - [融券賣出]) desc 
 ";
         }
 
@@ -501,7 +572,7 @@ drop table #tmp";
         {
             return @$"
   and ( [融券賣出] - [融券買進])>0
-  order by ( [融券賣出] - [融券買進]) * [Close] desc 
+  order by ( [融券賣出] - [融券買進])  desc 
 ";
         }
 
@@ -620,7 +691,6 @@ SELECT
         #endregion
     }
 }
-
 
 //連續外資買超天數
 //WITH TOPTEN as (
