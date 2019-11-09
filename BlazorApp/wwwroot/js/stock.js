@@ -59,7 +59,7 @@ function getName() {
 //https://concords.moneydj.com/z/zc/zca/zca_1101.djhtm
 //http://jsjustweb.jihsun.com.tw/z/zc/zcx/zcx_5521.djhtm
 //https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_1101.djhtm
-//
+//https://fubon-ebrokerdj.fbs.com.tw/z/zk/zk4/zkparse_560_4.djhtm 集保庫存選股
 
 var urls = {
     //1: 'https://concords.moneydj.com/Z/ZC/ZCX/ZCX_{0}.djhtm',
@@ -86,6 +86,7 @@ var urls = {
 //個股新聞 https://www.moneydj.com/KMDJ/search/list.aspx?_Query_=6449&_QueryType_=NW
 //https://www.moneydj.com/KMDJ/Common/ListNewArticles.aspx?svc=NW&a=X0200000
 //https://tw.stock.yahoo.com/q/h?s=6449 
+
 
 var currentUrlIndex = 1;
 var currentStockId = "1101";

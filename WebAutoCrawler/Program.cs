@@ -13,6 +13,12 @@ namespace WebCrawler
     {
         static async Task Main(string[] args)
         {
+            var c = new CMoneyCrawler();
+            await c.ExecuteBillionAsync();
+        }
+
+        private async Task ParseHistory()
+        {
             var s = Stopwatch.StartNew();
             s.Start();
 
@@ -28,7 +34,7 @@ namespace WebCrawler
 
                     var prices = h.Execute(stocks[i].StockId);
 
-                    for (int j  = 0; j < prices.Count; j++)
+                    for (int j = 0; j < prices.Count; j++)
                     {
                         prices[j].StockId = stocks[i].StockId;
                         prices[j].Name = stocks[i].Name;

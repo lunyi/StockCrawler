@@ -25,6 +25,7 @@ namespace DataService.Models
         public virtual DbSet<Prices> Prices { get; set; }
         public virtual DbSet<Seasons> Seasons { get; set; }
         public virtual DbSet<Stocks> Stocks { get; set; }
+        public virtual DbSet<Thousand> Thousand { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -320,13 +321,13 @@ namespace DataService.Models
 
                 entity.Property(e => e.投信持股比例).HasColumnType("numeric(18, 2)");
 
-                entity.Property(e => e.自營商持股比例).HasColumnType("numeric(18, 2)");
-
                 entity.Property(e => e.本益比).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.漲跌).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.漲跌百分比).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.自營商持股比例).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.融資使用率).HasColumnType("numeric(18, 2)");
             });
@@ -372,6 +373,28 @@ namespace DataService.Models
                 entity.Property(e => e.營收比重).HasMaxLength(1024);
 
                 entity.Property(e => e.股本).HasColumnType("decimal(18, 2)");
+            });
+
+            modelBuilder.Entity<Thousand>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.CreatedOn).HasColumnType("datetime");
+
+                entity.Property(e => e.Datetime).HasColumnType("datetime");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Percent).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.StockId)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Type).HasMaxLength(50);
             });
 
             OnModelCreatingPartial(modelBuilder);

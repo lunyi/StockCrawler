@@ -30,11 +30,6 @@ namespace DataService.Models
         public int? 資券相抵 { get; set; }
         public int? 外資持股 { get; set; }
         public decimal? 外資持股比例 { get; set; }
-        public int? 投信持股 { get; set; }
-        public decimal? 投信持股比例 { get; set; }
-        public int? 自營商持股 { get; set; }
-        public decimal? 自營商持股比例 { get; set; }
-
         public int? 外資買賣超 { get; set; }
         public int? 外資買進 { get; set; }
         public int? 外資賣出 { get; set; }
@@ -72,5 +67,9 @@ namespace DataService.Models
         public decimal? 四十日主力賣超張數 { get; set; }
         public decimal? 六十日主力買超張數 { get; set; }
         public decimal? 六十日主力賣超張數 { get; set; }
+        public int? 投信持股 { get; set; }
+        public decimal? 投信持股比例 { get; set; }
+        public int? 自營商持股 { get; set; }
+        public decimal? 自營商持股比例 { get; set; }
     }
 }
