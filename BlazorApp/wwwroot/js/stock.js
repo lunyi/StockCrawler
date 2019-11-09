@@ -76,9 +76,10 @@ var urls = {
     8: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=mf',
     9: 'https://www.cmoney.tw/finance/stockmainkline.aspx?s={0}',
     10: 'https://www.cnyes.com/twstock/Margin/{0}.htm',
-    11: 'https://statementdog.com/analysis/tpe/{0}/stock-health-check',
-    12: 'https://www.fugle.tw/ai/{0}?p=2460385721&perfect=true',
-    13: 'http://www.fortunengine.com.tw/evaluator.aspx?menu=on&scode={0}'
+    11: 'https://www.moneydj.com/KMDJ/search/list.aspx?_Query_={0}&_QueryType_=NW',
+    12: 'https://statementdog.com/analysis/tpe/{0}/stock-health-check',
+    13: 'https://www.fugle.tw/ai/{0}?p=2460385721&perfect=true',
+    14: 'http://www.fortunengine.com.tw/evaluator.aspx?menu=on&scode={0}'
 };
 //個股新聞 https://www.moneydj.com/KMDJ/search/list.aspx?_Query_=6449&_QueryType_=NW
 //https://www.moneydj.com/KMDJ/Common/ListNewArticles.aspx?svc=NW&a=X0200000
@@ -87,6 +88,7 @@ var urls = {
 var currentUrlIndex = 1;
 var currentStockId = "1101";
 var currentUrl = "https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm";
+var urlIndexNewTab = 12;
 
 function onStockChangeAsync(obj) {
     currentStockId = obj.value;
@@ -96,7 +98,7 @@ function onStockChangeAsync(obj) {
 function onUrlChangeAsync(index) {
     var url = urls[index].replace('{0}', currentStockId);
 
-    if (index >= 10) {
+    if (index >= urlIndexNewTab) {
         window.open(url, '_blank').focus();
     }
     else {
@@ -109,7 +111,7 @@ function goToUrl() {
     currentUrl = urls[currentUrlIndex];
     var url = currentUrl.replace('{0}', currentStockId);
 
-    if (currentUrlIndex >= 10) {
+    if (currentUrlIndex >= urlIndexNewTab) {
         window.open(url, '_blank').focus();
     }
     else {
@@ -212,18 +214,6 @@ function onClear() {
     $("#txtChosenStockType").val("");
 }
 
-//$(document).on('change', '#txtChosenStockType', function () {
-//    var s = $("#chosenStockType");
-//    var optionslist = $("#chosenStockType")[0].options;
-//    var value = $(this).val();
-//    for (var x = 0; x < optionslist.length; x++) {
-//        if (optionslist[x].value === value) {
-//            setChosenStockTypes(value);
-//            break;
-//        }
-//    }
-//});
-
 function setChosenStockTypes(chosenType) {
     DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByTypeAsync', chosenType)
         .then(data => {
@@ -257,7 +247,6 @@ function removeStock() {
             .then(data => {
                 console.log(data);
                 getStocksByBestStockType($("#txtChosenStockType").val());
-            });
-        
+            });    
     }
 }

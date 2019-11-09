@@ -63,7 +63,7 @@ namespace DataService.Services
                          主力買賣超 = price.主力買超張數 - price.主力賣超張數,
                          籌碼集中度 = 100 * Math.Round(((price.主力買超張數 - price.主力賣超張數) / price.成交量).Value, 5),
                          周轉率 = 100 * Math.Round(((decimal)price.成交量 / price.發行張數).Value, 5)
-                     }).ToArrayAsync() ;
+                     }).Take(40).ToArrayAsync() ;
             return new StockeModel
             {
                 Stock = await context.Stocks.FirstOrDefaultAsync(p=>p.StockId == stockId),
