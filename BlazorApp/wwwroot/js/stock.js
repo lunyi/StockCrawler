@@ -75,7 +75,7 @@ var urls = {
     7: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=l',
     8: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=mf',
     9: 'https://www.cmoney.tw/finance/stockmainkline.aspx?s={0}',
-    10: 'https://www.cmoney.tw/finance/f00040.aspx?s={0}',
+    10: 'https://www.cmoney.tw/finance/f00040.aspx?s={0}&o=3',
     11: 'https://www.cmoney.tw/finance/f00038.aspx?s={0}',
     12: 'https://www.cnyes.com/twstock/Margin/{0}.htm',
     13: 'https://www.moneydj.com/KMDJ/search/list.aspx?_Query_={0}&_QueryType_=NW',

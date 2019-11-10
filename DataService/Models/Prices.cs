@@ -68,8 +68,7 @@ namespace DataService.Models
         public decimal? 六十日主力買超張數 { get; set; }
         public decimal? 六十日主力賣超張數 { get; set; }
         public int? 投信持股 { get; set; }
-        public decimal? 投信持股比例 { get; set; }
         public int? 自營商持股 { get; set; }
-        public decimal? 自營商持股比例 { get; set; }
+        public int? 董監持股 { get; set; }
     }
 }

@@ -319,15 +319,11 @@ namespace DataService.Models
 
                 entity.Property(e => e.外資持股比例).HasColumnType("numeric(18, 2)");
 
-                entity.Property(e => e.投信持股比例).HasColumnType("numeric(18, 2)");
-
                 entity.Property(e => e.本益比).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.漲跌).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.漲跌百分比).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.自營商持股比例).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.融資使用率).HasColumnType("numeric(18, 2)");
             });

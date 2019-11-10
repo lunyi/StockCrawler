@@ -61,8 +61,8 @@ namespace WebAutoCrawler
         {
             var context = new StockDbContext();
             //var s = context.Stocks.FromSqlRaw(GetSql()).ToList();
-            //var stocks = context.Stocks.FromSqlRaw(GetSql()).ToList();
-            var stocks = context.Stocks.Where(p => p.Status == 1).OrderBy(p=>p.StockId).ToList();
+            var stocks = context.Stocks.FromSqlRaw(GetSql2()).ToList();
+            //var stocks = context.Stocks.Where(p => p.Status == 1).OrderBy(p=>p.StockId).ToList();
 
             foreach (var stock in stocks)
             {
@@ -114,6 +114,17 @@ namespace WebAutoCrawler
   where b.StockId is null and a.Status = 1
   order by StockId
             ";
+        }
+
+        string GetSql2()
+        {
+            return $@"
+select * from [Stocks]
+  where [Status] = 1 and StockId not in (
+  select StockId
+  FROM [StockDb].[dbo].[Thousand])
+  order by StockId
+";
         }
     }
 }
