@@ -21,6 +21,7 @@ namespace DataService.Enums
 
         買方籌碼集中排行榜 = 14,
         賣方籌碼集中排行榜 = -14,
+        集保庫存排行榜 = 15,
 
         CMoney選股 = 11,
         財報狗選股 = 12,

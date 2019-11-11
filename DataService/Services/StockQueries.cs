@@ -174,6 +174,9 @@ namespace DataService.Services
                 case (int)ChooseStockType.賣方籌碼集中排行榜:
                     sql = Get籌碼集中排行榜Sql(datetime);
                     break;
+                case (int)ChooseStockType.集保庫存排行榜:
+                    sql = 集保庫存排行榜(datetime);
+                    break;
                 case (int)ChooseStockType.CMoney選股:
                     sql = GetCMoneyStocksSql();
                     break;
@@ -435,13 +438,22 @@ WITH TOPTEN as (
     FROM [Thousand] where [Datetime] <= '{datetime}'
 )
 
-
-select t1.StockID,t1.[NAme], t1.[Datetime] , 
-    t1.[Percent] as P1,
-	t2.[Percent] as P2, 
-	t3.[Percent] as P3 ,
-	t1.[Percent] -  t2.[Percent]
-from TOPTEN t1
+select s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+	  ,CAST(t1.[Percent] -  t2.[Percent] AS nvarchar(30)) AS [Description]
+from [Stocks]s 
+join TOPTEN t1 on s.StockId = t1.StockId
 join TOPTEN t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
 join TOPTEN t3 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
 WHERE t1.RowNo=1 and (t1.[Percent] -  t2.[Percent]) > 1
