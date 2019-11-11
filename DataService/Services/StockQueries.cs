@@ -422,6 +422,32 @@ order by t.[Count] desc
 
 drop table #tmp";
         }
+
+        private string 集保庫存排行榜(string datetime)
+        {
+            return $@"
+WITH TOPTEN as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY [Name] 
+       order by [Datetime] desc
+    ) AS RowNo 
+    FROM [Thousand] where [Datetime] <= '{datetime}'
+)
+
+
+select t1.StockID,t1.[NAme], t1.[Datetime] , 
+    t1.[Percent] as P1,
+	t2.[Percent] as P2, 
+	t3.[Percent] as P3 ,
+	t1.[Percent] -  t2.[Percent]
+from TOPTEN t1
+join TOPTEN t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
+join TOPTEN t3 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
+WHERE t1.RowNo=1 and (t1.[Percent] -  t2.[Percent]) > 1
+order by  (t1.[Percent] -  t2.[Percent]) desc
+";
+        }
         private Dictionary<ChooseStockType, Func<string>> DateFunc = new Dictionary<ChooseStockType, Func<string>>
         {
             { ChooseStockType.一日漲幅排行榜 , ()=>一日漲幅排行榜() },
