@@ -1,6 +1,6 @@
 ﻿(function () {
 
-    var url = "http://localhost:8081/stock/" + getUrlParameter('stockId');
+    var url = "http://220.133.185.1:8081/stock/" + getUrlParameter('stockId');
     $.get(url, function (data) {
 
         $("#income").text(data.stock.營收比重);
@@ -27,6 +27,13 @@ function renewPrices(prices) {
         else if (prices[i].close < prices[i + 1].close) {
             prices[i].close = prices[i].close + "↓";
             prices[i].updownColor = "green";
+        }
+
+        if (prices[i].成交量 > (prices[i + 1].成交量 * 2.5)) {
+            prices[i].zfontWeight = "bold";
+        }
+        else {
+            prices[i].zfontWeight = "normal";
         }
 
         if (prices[i].籌碼集中度 > 0) {
@@ -69,6 +76,13 @@ function renewPrices(prices) {
         }
         else if (prices[i].漲跌百分比 < 0) {
             prices[i].pColor = "green";
+        }
+
+        if (prices[i].漲跌百分比 > 3 || prices[i].漲跌百分比 < -3) {
+            prices[i].fontWeight = "bold";
+        }
+        else {
+            prices[i].fontWeight = "normal";
         }
 
         if (prices[i].融資買賣超 > 0) {

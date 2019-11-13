@@ -18,7 +18,7 @@ namespace WebCrawler
         {
 
             var s = new CnyParser();
-            await s.RunAsync();
+            await s.ParserMarginAsync();
             //var ss =  s.ParseTrust("2330", "2017-01-01", "2019-10-29");
 
             Console.ReadLine();

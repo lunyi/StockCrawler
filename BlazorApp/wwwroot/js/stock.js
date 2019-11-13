@@ -130,12 +130,14 @@ function onFindStockId(event) {
         for (var i = 0; i < stockList.options.length; i++) {
             if (stockList.options[i].value === stockId) {
                 stockList.value = stockId;
-                currentStockId = stockId;
-                goToUrl();
+
                 find = true;
                 event.value = "";
             }
         }
+
+        currentStockId = stockId;
+        goToUrl();
 
         if (find === false) {
             event.placeholder = stockId + " not found!!";

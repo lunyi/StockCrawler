@@ -26,6 +26,7 @@ namespace DataService.Models
         public virtual DbSet<Seasons> Seasons { get; set; }
         public virtual DbSet<Stocks> Stocks { get; set; }
         public virtual DbSet<Thousand> Thousand { get; set; }
+        public virtual DbSet<YearData> YearData { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -391,6 +392,48 @@ namespace DataService.Models
                     .IsUnicode(false);
 
                 entity.Property(e => e.Type).HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<YearData>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.CreatedOn).HasColumnType("datetime");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.StockId)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsFixedLength();
+
+                entity.Property(e => e.公告每股淨值).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.每股稅後盈餘).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.毛利率).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.流動負債).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.流動資產).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.營業毛利).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.稅前純益).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.稅後純益).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.稅後股東權益報酬率).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.稅後資產報酬率).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.股東權益).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.負債總計).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.資產總計).HasColumnType("decimal(18, 2)");
             });
 
             OnModelCreatingPartial(modelBuilder);

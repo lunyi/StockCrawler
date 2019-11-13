@@ -223,6 +223,30 @@ SELECT StockId
             }
         }
 
+        public async Task ParserMarginAsync()
+        {
+            var context = new StockDbContext();
+            var prices = context.Prices.Where(p=>p.Datetime == DateTime.Today)
+                .OrderBy(p => p.StockId)
+                .ToList();
+
+            for (int i = 0; i < prices.Count; i++)
+            {
+                try
+                {
+                    var stockId = prices[i].StockId;
+                    var name = prices[i].Name;
+                    ParseSingleNode(3, $"https://www.cnyes.com/twstock/Margin/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[2]/table", prices[i], (htmlNode, p) => SetMargin(htmlNode, p));
+                    await context.SaveChangesAsync();
+                    Console.WriteLine(stockId+"::"+name);
+                }
+                catch (Exception ex)
+                { 
+                    
+                }
+            }
+        }
+
         public CnyParser()
         {
             ErrorStocks = new ConcurrentDictionary<string, string>();

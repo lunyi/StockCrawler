@@ -14,7 +14,7 @@ namespace WebCrawler
         static async Task Main(string[] args)
         {
             var c = new CMoneyCrawler();
-            await c.ExecuteBillionAsync();
+            await c.ExecuteFinanceAsync();
         }
 
         private async Task ParseHistory()
@@ -23,7 +23,7 @@ namespace WebCrawler
             s.Start();
 
             var context = new StockDbContext();
-            var stocks = context.Stocks.Where(p => p.Status == 1).ToList();
+            var stocks = context.Stocks.Where(p => p.Status == 1).OrderBy(p=>p.StockId).ToList();
             var h = new HistoryPriceCrawler();
             var history = new HistoryParser();
 
