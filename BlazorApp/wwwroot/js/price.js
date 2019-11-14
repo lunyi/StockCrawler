@@ -43,6 +43,13 @@ function renewPrices(prices) {
             prices[i].chipColor = "green";
         }
 
+        if (prices[i].籌碼集中度 > 25 || prices[i].籌碼集中度 < -25) {
+            prices[i].cfontWeight = "bold";
+        }
+        else {
+            prices[i].cfontWeight = "normal";
+        }
+
         if (prices[i].外資買賣超 > 0) {
             prices[i].fColor = "red";
         }
