@@ -54,6 +54,7 @@ namespace DataService.Services
                          本益比 = price.本益比,
                          外資持股 = price.外資持股,
                          投信持股 = price.投信持股,
+                         董監持股 = price.董監持股,
                          外資持股比例 = price.外資持股比例,
                          融資買賣超 = price.融資買進 - price.融資賣出,
                          融資使用率 = price.融資使用率,
@@ -176,6 +177,9 @@ namespace DataService.Services
                     break;
                 case (int)ChooseStockType.集保庫存排行榜:
                     sql = 集保庫存排行榜(datetime);
+                    break;
+                case (int)ChooseStockType.董監買賣超排行榜:
+                    sql = GetSqlByChairmanAsync(datetime);
                     break;
                 case (int)ChooseStockType.CMoney選股:
                     sql = GetCMoneyStocksSql();
@@ -341,7 +345,7 @@ WITH TOPTEN as (
         PARTITION BY  StockId, Name 
        order by [Datetime] desc
     ) AS RowNo 
-    FROM [Prices] where [Datetime] <= '{datetime}' and []
+    FROM [Prices] where [Datetime] <= '{datetime}' and  [{買賣超}]<0
 )
 
 select 
@@ -725,6 +729,47 @@ SELECT
       ,[Name]
 	having count([Pass]) >=10)
 ";
+        }
+        private string GetSqlByChairmanAsync(string datetime)
+        {
+            _context = new StockDbContext();
+            var dd = Convert.ToDateTime(datetime);
+            var datetime2 = _context.Prices.Where(p => p.StockId == "2330" && p.Datetime < dd)
+                .OrderByDescending(p => p.Datetime)
+                .Take(1)
+                .Select(p=>p.Datetime)
+                .FirstOrDefault().ToString("yyyy/MM/dd");
+
+            return $@"
+select s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+	  ,CAST(b.買超 AS nvarchar(30)) AS [Description]
+
+from [Stocks] s join (
+select a.StockId, a.NAme, a.[董監持股]- b.[董監持股] as 買超
+from (
+select * from [Prices] 
+where [Datetime] = '{datetime}' ) a 
+
+join (
+select * from [Prices] 
+where [Datetime] = '{datetime2}' ) b  on a.StockId = b.StockId
+where a.[董監持股] !=  b.[董監持股]) b on s.StockId = b.StockId
+order by b.買超 desc
+
+";
+
         }
         #endregion
     }

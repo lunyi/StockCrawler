@@ -137,7 +137,7 @@ SELECT StockId
   FROM [dbo].[Prices]
   where [Datetime] = '{DateTime.Today.ToString("yyyy/MM/dd")}')
  and [Status] = 1
-  order by StockId";
+  order by StockId desc";
         }
 
         private async Task ExecuteHistoryAsync(CnyParser parser, StockDbContext context, string stockId, string name)
@@ -226,7 +226,7 @@ SELECT StockId
         public async Task ParserMarginAsync()
         {
             var context = new StockDbContext();
-            var prices = context.Prices.Where(p=>p.Datetime == DateTime.Today)
+            var prices = context.Prices.Where(p => p.Datetime == DateTime.Today.AddDays(-1) && p.融券買進 == null)
                 .OrderBy(p => p.StockId)
                 .ToList();
 
@@ -314,6 +314,8 @@ SELECT StockId
 
         private Prices[] ParseHistoryPrice(string stockId, string name)
         {
+            var s = Stopwatch.StartNew();
+            s.Start();
             var rootNode = GetRootNoteByUrl($"https://www.cnyes.com/twstock/ps_historyprice/{stockId}.htm");
             var node = rootNode.SelectSingleNode("/html/body/div[5]/div[1]/form/div[3]/div[5]/div[3]/table");
 
@@ -322,10 +324,15 @@ SELECT StockId
             {
                 prices.Add(SetPrice(node.ChildNodes[i], stockId, name));
             }
+
+            s.Stop();
+            Console.WriteLine("基本股價：" + s.Elapsed.TotalSeconds);
             return prices.ToArray();
         }
         public void ParseTrust(string stockId, Prices price) 
         {
+            var s = Stopwatch.StartNew();
+            s.Start();
             var datetime = DateTime.Now.ToString("yyyy-MM-dd");
             //var url = $@"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcl/zcl.djhtm?a={stockId}&c={datetime}&d={datetime}";
             var url = $@"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcj/zcj_{stockId}.djhtm";
@@ -336,10 +343,15 @@ SELECT StockId
             price.外資持股 = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id='SysJustIFRAMEDIV']/table/tr[2]/td[2]/table/tr/td/table/tr/td/table/tr[4]/td[2]").InnerHtml.Replace(",", ""));
             price.投信持股 = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id='SysJustIFRAMEDIV']/table/tr[2]/td[2]/table/tr/td/table/tr/td/table/tr[5]/td[2]").InnerHtml.Replace(",", ""));
             price.自營商持股 = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id='SysJustIFRAMEDIV']/table/tr[2]/td[2]/table/tr/td/table/tr/td/table/tr[6]/td[2]").InnerHtml.Replace(",", ""));
+
+            s.Stop();
+            Console.WriteLine("持股：" + s.Elapsed.TotalSeconds);
         }
 
         public void ParseMainForce(string stockId,string datetime, Prices price)
         {
+            var s = Stopwatch.StartNew();
+            s.Start();
             var mainForces = new ConcurrentDictionary<int, Tuple<decimal, decimal>>();
 
             for (int index = 1; index <= 6; index++)
@@ -380,10 +392,15 @@ SELECT StockId
             price.四十日主力賣超張數 = mainForces[5].Item2;
             price.六十日主力買超張數 = mainForces[6].Item1;
             price.六十日主力賣超張數 = mainForces[6].Item2;
+
+            s.Stop();
+            Console.WriteLine("主力買賣超：" + s.Elapsed.TotalSeconds);
         }
 
         private void ParseTech(string stockId, Prices price)
         {
+            var s = Stopwatch.StartNew();
+            s.Start();
             var rootNode = GetRootNoteByUrl($"https://www.cnyes.com/twstock/Technical/{stockId}.htm");
             var node = rootNode.SelectSingleNode("/html/body/div[5]/div[1]/form/div[3]/div[5]/div[3]/table[1]");
 
@@ -407,6 +424,9 @@ SELECT StockId
                 price.VMA120 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[7].InnerText);
                 price.VMA240 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[8].InnerText);
             }
+
+            s.Stop();
+            Console.WriteLine("MA, VMA：" + s.Elapsed.TotalSeconds);
         }
 
         private void ParseNode(int startIndex, string url, string xPzth, Prices[] prices, Action<HtmlNode, Prices> action)
@@ -434,6 +454,8 @@ SELECT StockId
 
         private void ParseSingleNode(int startIndex, string url, string xPzth, Prices price, Action<HtmlNode, Prices> action)
         {
+            var s = Stopwatch.StartNew();
+            s.Start();
             var rootNode = GetRootNoteByUrl(url);
             var node = rootNode.SelectSingleNode(xPzth);
 
@@ -445,6 +467,8 @@ SELECT StockId
                     action(node.ChildNodes[startIndex], price);
                 }
             }
+            s.Stop();
+            Console.WriteLine(url + "：" +s.Elapsed.TotalSeconds);
         }
     }
 }

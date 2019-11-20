@@ -34,6 +34,7 @@ namespace DataService.DataModel
         public int? 融券買進 { get; set; }
         public int? 外資持股 { get; set; }
         public int? 投信持股 { get; set; }
+        public int? 董監持股 { get; set; }
         public decimal? 外資持股比例 { get; set; }
         public decimal? 主力買賣超 { get; set; }
         public decimal? 籌碼集中度 { get; set; }
