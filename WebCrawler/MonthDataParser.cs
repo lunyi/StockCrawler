@@ -70,7 +70,7 @@ namespace WebCrawler
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{stock.StockId} {ex}");
+                Console.WriteLine($"{stock.StockId} {stock.Name} {ex}");
             }
         }
     }
