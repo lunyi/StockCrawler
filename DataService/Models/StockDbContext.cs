@@ -22,6 +22,7 @@ namespace DataService.Models
         public virtual DbSet<Chip> Chip { get; set; }
         public virtual DbSet<HistoryPrice> HistoryPrice { get; set; }
         public virtual DbSet<Infomations> Infomations { get; set; }
+        public virtual DbSet<MonthData> MonthData { get; set; }
         public virtual DbSet<Prices> Prices { get; set; }
         public virtual DbSet<Seasons> Seasons { get; set; }
         public virtual DbSet<Stocks> Stocks { get; set; }
@@ -236,6 +237,38 @@ namespace DataService.Models
                     .IsUnicode(false);
 
                 entity.Property(e => e.UpdatedOn).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<MonthData>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.CreatedOn).HasColumnType("datetime");
+
+                entity.Property(e => e.Datetime).HasColumnType("datetime");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.StockId)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.去年同月營收).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.去年累計營收).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.單月年增率).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.單月月增率).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.單月營收).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.累積年增率).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.累計營收).HasColumnType("decimal(18, 2)");
             });
 
             modelBuilder.Entity<Prices>(entity =>

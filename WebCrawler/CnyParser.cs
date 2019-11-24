@@ -73,22 +73,22 @@ namespace WebCrawler
         {
             //await RunMainForceAsync();
             var context = new StockDbContext();
-            var stocks = context.Stocks
-                .Where(p => p.Status == 1)
-                .OrderBy(p => p.StockId)
-                .ToList();
+            //var stocks = context.Stocks
+            //    .Where(p => p.Status == 1 && p.MarketCategory == "上市")
+            //    .OrderBy(p => p.StockId)
+            //    .ToList();
 
             var s = Stopwatch.StartNew();
             s.Start();
 
             var parser = new CnyParser();
 
-            foreach (var item in stocks)
-            {
-                await ExecuteLastAsync(parser, context, item.StockId, item.Name);
-            }
+            //foreach (var item in stocks)
+            //{
+            //    await ExecuteLastAsync(parser, context, item.StockId, item.Name);
+            //}
 
-            stocks = context.Stocks.FromSqlRaw(GetSql()).ToList();
+            var stocks = context.Stocks.FromSqlRaw(GetSql()).ToList();
 
             foreach (var item in stocks)
             {
@@ -232,17 +232,18 @@ SELECT StockId
 
             for (int i = 0; i < prices.Count; i++)
             {
+                var stockId = prices[i].StockId;
+                var name = prices[i].Name;
+
                 try
                 {
-                    var stockId = prices[i].StockId;
-                    var name = prices[i].Name;
                     ParseSingleNode(3, $"https://www.cnyes.com/twstock/Margin/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[2]/table", prices[i], (htmlNode, p) => SetMargin(htmlNode, p));
                     await context.SaveChangesAsync();
-                    Console.WriteLine(stockId+"::"+name);
+                    Console.WriteLine(stockId + "::" + name);
                 }
                 catch (Exception ex)
-                { 
-                    
+                {
+                    Console.WriteLine(stockId + "::" + name + "::" + ex);
                 }
             }
         }

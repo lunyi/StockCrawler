@@ -18,7 +18,8 @@ namespace WebCrawler
             var web = new HtmlWeb();
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             web.OverrideEncoding = isUtf8 ? Encoding.GetEncoding(65001) : Encoding.GetEncoding("big5");
-            return web.Load(url).DocumentNode;
+            var res = web.Load(url).DocumentNode;
+            return res;
         }
     }
 }

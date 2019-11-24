@@ -103,11 +103,13 @@ namespace WebCrawler
             await context.SaveChangesAsync();
         }
 
-        private IEnumerable<Stocks> 取得股票清單(int mode, string startKey, string endKey)
+        private Stocks[] 取得股票清單(int mode, string startKey, string endKey)
         {
             var url = $"https://isin.twse.com.tw/isin/C_public.jsp?strMode={mode}";
             var rootNode = GetRootNoteByUrl(url, false);
             var n1 = rootNode.ChildNodes[3].ChildNodes[1];
+
+            var s = new List<Stocks>();
 
             var start = false;
 
@@ -117,7 +119,7 @@ namespace WebCrawler
                 if (tr.ChildNodes.Count >= 4 && start)
                 {
                     var tmp = tr.ChildNodes[0].InnerText.Split('　');
-                    yield return (new Stocks
+                    s.Add(new Stocks
                     {
                         StockId = tmp[0],
                         Name = tmp[1],
@@ -139,6 +141,8 @@ namespace WebCrawler
                     break;
                 }
             }
+
+            return s.ToArray();
         }
     }
 }
