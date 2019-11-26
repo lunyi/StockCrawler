@@ -17,58 +17,7 @@ namespace WebCrawler
     {
         public ConcurrentDictionary<string, string> ErrorStocks { get; set; }
 
-        public async Task RunMainForceAsync()
-        {
-            var context = new StockDbContext();
-            
-            var prices = await context.Prices
-            .Where(p => p.Datetime == Convert.ToDateTime("2019-10-25")&& p.十日主力買超張數 == null)
-            .OrderBy(p => p.StockId).ToArrayAsync();
 
-            var count = prices.Length;
-            //for (int i = 0; i < prices.Length; i++)
-            //{
-            //    Console.WriteLine($"{i}/{prices.Length} {prices[i].StockId},{prices[i].Datetime.ToString("yyyy-MM-dd")}, Thread ID={Thread.CurrentThread.ManagedThreadId}");
-            //    ParseMainForce(prices[i].StockId, prices[i].Datetime.ToString("yyyy-MM-dd"), prices[i]);
-            //    context.Entry(prices[i]).State = EntityState.Modified;
-            //}
-
-            //context.BulkUpdate(prices.ToList());
-            //Console.WriteLine($"OK!!!");
-
-            try
-            {
-                Parallel.ForEach(prices, (price, state, index) =>
-                {
-                    try
-                    {
-                        Console.WriteLine($"{index}/{count} {price.StockId},{price.Datetime.ToString("yyyy-MM-dd")}, Thread ID={Thread.CurrentThread.ManagedThreadId}");
-                        ParseMainForce(price.StockId, price.Datetime.ToString("yyyy-MM-dd"), price);
-                        context.Entry(price).State = EntityState.Modified;
-                    }
-                    catch (Exception)
-                    {
-                        state.Stop();
-                    }
-                });
-            }
-            finally
-            {
-                Console.WriteLine($"Start Save");
-                context.BulkUpdate(prices.ToList());
-                Console.WriteLine($"OK!!!");
-            }
-        }
-
-        private async Task RunSingleMainForceAsync(StockDbContext context, string stockId, ParallelQuery<Prices> prices)
-        {
-            Console.WriteLine($"{stockId}, Thread ID={Thread.CurrentThread.ManagedThreadId}");
-            foreach (var price in prices)
-            {
-                ParseMainForce(stockId, price.Datetime.ToString("yyyy-MM-dd"), price);
-                context.Entry(price).State = EntityState.Modified;
-            }
-        }
         public async Task RunAsync()
         {
             //await RunMainForceAsync();
@@ -98,35 +47,6 @@ namespace WebCrawler
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
         }
-
-        public async Task UpdateAsync()
-        {
-            var context = new StockDbContext();
-            var s = Stopwatch.StartNew();
-            s.Start();
-
-            var prices = context.Prices.FromSqlRaw(GetSqlToUpdate()).ToList();
-
-            foreach (var item in prices)
-            {
-                ParseTrust(item.StockId, item);
-                await context.SaveChangesAsync();
-                Console.WriteLine($"{item.StockId}");
-            }
-
-            s.Stop();
-            Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
-        }
-
-        private static string GetSqlToUpdate()
-        {
-            return @$"
-SELECT *
-  FROM [dbo].[Prices]
-  where [Datetime] = '{DateTime.Today.AddDays(-2).ToString("yyyy/MM/dd")}' and [董監持股] is null
-  order by StockId";
-        }
-
 
         private static string GetSql()
         {
@@ -172,7 +92,7 @@ SELECT StockId
                 var stock = await context.Stocks.FirstOrDefaultAsync(p => p.StockId == stockId);
                 stock.Description = price.Close.ToString();
                 context.Entry<Stocks>(stock).State = EntityState.Modified;
-            } 
+            }
 
             await context.SaveChangesAsync();
         }
@@ -226,7 +146,7 @@ SELECT StockId
         public async Task ParserMarginAsync()
         {
             var context = new StockDbContext();
-            var prices = context.Prices.Where(p => p.Datetime == DateTime.Today.AddDays(-1) && p.融券買進 == null)
+            var prices = context.Prices.Where(p => p.Datetime == DateTime.Today && p.融券買進 == null)
                 .OrderBy(p => p.StockId)
                 .ToList();
 
@@ -238,6 +158,9 @@ SELECT StockId
                 try
                 {
                     ParseSingleNode(3, $"https://www.cnyes.com/twstock/Margin/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[2]/table", prices[i], (htmlNode, p) => SetMargin(htmlNode, p));
+                    ParseSingleNode(5, $"https://www.cnyes.com/twstock/QFII/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[3]/table", prices[i], (htmlNode, p) => SetForeign(htmlNode, p));
+                    ParseSingleNode(3, $"https://www.cnyes.com/twstock/itrust/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[4]/table", prices[i], (htmlNode, p) => SetItrust(htmlNode, p));
+                    ParseSingleNode(3, $"https://www.cnyes.com/twstock/dealer/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[4]/table", prices[i], (htmlNode, p) => SetDealer(htmlNode, p));
                     await context.SaveChangesAsync();
                     Console.WriteLine(stockId + "::" + name);
                 }
@@ -335,7 +258,6 @@ SELECT StockId
             var s = Stopwatch.StartNew();
             s.Start();
             var datetime = DateTime.Now.ToString("yyyy-MM-dd");
-            //var url = $@"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcl/zcl.djhtm?a={stockId}&c={datetime}&d={datetime}";
             var url = $@"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcj/zcj_{stockId}.djhtm";
 
             var rootNode = GetRootNoteByUrl(url, false);
