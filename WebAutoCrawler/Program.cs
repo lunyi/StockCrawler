@@ -13,8 +13,8 @@ namespace WebCrawler
     {
         static async Task Main(string[] args)
         {
-            var c = new MonthDataCrawler();
-            await c.ExecuteAsync();
+            var c = new CMoneyCrawler();
+            await c.ExecuteBillionAsync();
         }
 
         private async Task ParseHistory()

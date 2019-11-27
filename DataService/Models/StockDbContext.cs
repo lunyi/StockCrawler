@@ -417,14 +417,16 @@ namespace DataService.Models
                     .IsRequired()
                     .HasMaxLength(50);
 
-                entity.Property(e => e.Percent).HasColumnType("decimal(18, 2)");
+                entity.Property(e => e.PercentOverFourHundreds).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.PercentOverThousand).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.PercentUnderFourHundreds).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.StockId)
                     .IsRequired()
                     .HasMaxLength(8)
                     .IsUnicode(false);
-
-                entity.Property(e => e.Type).HasMaxLength(50);
             });
 
             modelBuilder.Entity<YearData>(entity =>
