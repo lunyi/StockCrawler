@@ -8,9 +8,10 @@ namespace DataService.Models
         public Guid Id { get; set; }
         public string StockId { get; set; }
         public string Name { get; set; }
-        public string Type { get; set; }
         public DateTime? Datetime { get; set; }
-        public decimal? Percent { get; set; }
+        public decimal? PercentOverFourHundreds { get; set; }
         public DateTime? CreatedOn { get; set; }
+        public decimal? PercentOverThousand { get; set; }
+        public decimal? PercentUnderFourHundreds { get; set; }
     }
 }

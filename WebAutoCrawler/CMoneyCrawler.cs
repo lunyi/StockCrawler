@@ -62,8 +62,8 @@ namespace WebAutoCrawler
         {
             var context = new StockDbContext();
             //var s = context.Stocks.FromSqlRaw(GetSql()).ToList();
-            var stocks = context.Stocks.FromSqlRaw(GetSql2()).ToList();
-            //var stocks = context.Stocks.Where(p => p.Status == 1).OrderBy(p=>p.StockId).ToList();
+            //var stocks = context.Stocks.FromSqlRaw(GetSql2()).ToList();
+            var stocks = context.Stocks.Where(p => p.Status == 1).OrderBy(p=>p.StockId).ToList();
 
             foreach (var stock in stocks)
             {
@@ -72,21 +72,25 @@ namespace WebAutoCrawler
                     GoToUrl(string.Format(BillionUrl, stock.StockId));
 
                     Thread.Sleep(400);
-                    var contents = FindElements(By.XPath("//*[@id='MainContent']/ul/li/article/div[2]/div[2]/table/tbody/tr[3]/td"));
+                    var overFourHundreds = FindElements(By.XPath("//*[@id='MainContent']/ul/li/article/div[2]/div[2]/table/tbody/tr[3]/td"));
+                    var underFourHundreds = FindElements(By.XPath("//*[@id='MainContent']/ul/li/article/div[2]/div[2]/table/tbody/tr[2]/td"));
                     var titles = FindElements(By.XPath("//*[@id='MainContent']/ul/li/article/div[2]/div[2]/table/tbody/tr[1]/th"));
-
+                    var overThousand = FindElements(By.XPath("//*[@id='MainContent']/ul/li/article/div[2]/div[1]/table/tbody/tr[16]/td"));
+              
                     for (int i = 1; i < titles.Count; i++)
                     {
                         var s = new Thousand
                         {
                             Id = Guid.NewGuid(),
                             StockId = stock.StockId,
-                            Name = stock.Name,
-                            Type = contents[0].Text,
+                            Name = stock.Name,       
                             Datetime = Convert.ToDateTime(titles[i].Text + "/01"),
-                            Percent = Convert.ToDecimal(contents[i].Text),
+                            PercentOverFourHundreds = Convert.ToDecimal(overFourHundreds[i].Text),
+                            PercentOverThousand = Convert.ToDecimal(overThousand[i].Text),
+                            PercentUnderFourHundreds = Convert.ToDecimal(underFourHundreds[i].Text),
                             CreatedOn = DateTime.Now
                         };
+
                         context.Thousand.Add(s);
                     }
 

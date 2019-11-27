@@ -179,6 +179,9 @@ namespace DataService.Services
                 case (int)ChooseStockType.賣方籌碼集中排行榜:
                     sql = Get籌碼集中排行榜Sql(datetime);
                     break;
+                case (int)ChooseStockType.半年線附近:
+                    sql = Get半年線附近Sql(datetime);
+                    break;
                 case (int)ChooseStockType.集保庫存排行榜:
                     sql = 集保庫存排行榜(datetime);
                     break;
@@ -211,6 +214,16 @@ s.*
 from [Prices] p join [Stocks] s on s.StockId = p.StockId 
 where p.[Datetime] = '{datetime}'
 order by (p.[主力買超張數] - p.[主力賣超張數]) / p.成交量 {orderby}
+";
+        }
+
+        private string Get半年線附近Sql(string datetime, string orderby = "")
+        {
+            return $@"
+select top 200 s.* 
+from [Prices] p join [Stocks] s on s.StockId = p.StockId 
+where [Datetime] =  '{datetime}' and ([Close] - [MA120])/[Close] > -0.05
+order by  abs([Close] - [MA120])/[Close]
 ";
         }
 
