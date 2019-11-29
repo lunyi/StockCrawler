@@ -17,10 +17,10 @@ namespace WebCrawler
         static async Task Main(string[] args)
         {
 
-            var ss = new CnyParser();
-            //ss.ParserForeign("1101",null);
-            //var s = new CnyParser();
-            await ss.RunAsync();
+            //var ss = new MonthDataParser();
+            //ss.RunAsync
+            var s = new CnyParser();
+            await s.RunAsync();
             //await ss.ParserMarginAsync();
             //var ss =  s.ParseTrust("2330", "2017-01-01", "2019-10-29");
 

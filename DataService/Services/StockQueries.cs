@@ -65,7 +65,7 @@ namespace DataService.Services
                          主力買賣超 = price.主力買超張數 - price.主力賣超張數,
                          籌碼集中度 = 100 * Math.Round(((price.主力買超張數 - price.主力賣超張數) / price.成交量).Value, 5),
                          周轉率 = 100 * Math.Round(((decimal)price.成交量 / price.發行張數).Value, 5)
-                     }).Take(40).ToArrayAsync() ;
+                     }).Take(60).ToArrayAsync() ;
             return new StockeModel
             {
                 Stock = await context.Stocks.FirstOrDefaultAsync(p=>p.StockId == stockId),
@@ -103,6 +103,7 @@ namespace DataService.Services
             var context = new StockDbContext();
             return context.BestStocks.Select(p => p.Type)
                 .Distinct()
+                .OrderBy(p=>p)
                 .ToArrayAsync();
         }
 
@@ -172,11 +173,18 @@ namespace DataService.Services
                 case (int)ChooseStockType.買方籌碼集中排行榜:
                     sql = Get籌碼集中排行榜Sql(datetime, "desc");
                     break;
+                case (int)ChooseStockType.連續十二月單月年增率成長:
+                    sql = 連續十二月單月年增率成長(datetime);
+                    break;
+                    
                 case (int)ChooseStockType.賣方籌碼集中排行榜:
                     sql = Get籌碼集中排行榜Sql(datetime);
                     break;
                 case (int)ChooseStockType.半年線附近:
                     sql = Get半年線附近Sql(datetime);
+                    break;
+                case (int)ChooseStockType.大戶增加散戶減少:
+                    sql = Get大戶增加散戶減少Sql(datetime);
                     break;
                 case (int)ChooseStockType.集保庫存排行榜:
                     sql = 集保庫存排行榜(datetime);
@@ -222,7 +230,54 @@ where [Datetime] =  '{datetime}' and ([Close] - [MA120])/[Close] > -0.05
 order by  abs([Close] - [MA120])/[Close]
 ";
         }
+        private string Get大戶增加散戶減少Sql(string datetime, string orderby = "")
+        {
+            return $@"
 
+WITH TOPTEN1 as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY [Name] 
+       order by [Datetime] desc
+    ) AS RowNo 
+    FROM [Thousand] where [Datetime] <= '{datetime}'
+)
+
+select s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+	  ,s.[Description]
+from [Stocks]s 
+join TOPTEN1 t1 on s.StockId = t1.StockId
+join TOPTEN1 t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
+join TOPTEN1 t3 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
+join TOPTEN1 t4 on t1.StockId = t4.StockId and t1.RowNo + 3 = t4.RowNo
+join TOPTEN1 t5 on t1.StockId = t5.StockId and t1.RowNo + 4 = t5.RowNo
+join TOPTEN1 t6 on t1.StockId = t6.StockId and t1.RowNo + 5 = t6.RowNo
+WHERE t1.RowNo=1 and 
+(t1.[PercentOverThousand] > t2.[PercentOverThousand]) and 
+(t2.[PercentOverThousand] > t3.[PercentOverThousand]) and
+(t3.[PercentOverThousand] > t4.[PercentOverThousand]) and
+(t4.[PercentOverThousand] > t5.[PercentOverThousand]) and
+(t5.[PercentOverThousand] > t6.[PercentOverThousand]) and
+(t1.[PercentUnderFourHundreds] < t2.[PercentUnderFourHundreds]) and 
+(t2.[PercentUnderFourHundreds] < t3.[PercentUnderFourHundreds]) and
+(t3.[PercentUnderFourHundreds] < t4.[PercentUnderFourHundreds]) and
+(t4.[PercentUnderFourHundreds] < t5.[PercentUnderFourHundreds]) and
+(t5.[PercentUnderFourHundreds] < t6.[PercentUnderFourHundreds]) 
+order by StockId;
+";
+        }
         private string 五日漲幅排行榜(string datetime, int days)
         {
             return @$"
@@ -477,6 +532,63 @@ WHERE t1.RowNo=1 and (t1.[Percent] -  t2.[Percent]) > 1
 order by  (t1.[Percent] -  t2.[Percent]) desc
 ";
         }
+
+        private string 連續十二月單月年增率成長(string datetime)
+        {
+            return $@"
+WITH TOPTEN as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY [Name] 
+       order by [Datetime] desc
+    ) AS RowNo 
+    FROM [MonthData] where [Datetime] <= '{datetime}'
+)
+
+select s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+	  ,s.Description
+from [Stocks]s 
+join TOPTEN t1 on s.StockId = t1.StockId
+join TOPTEN t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
+join TOPTEN t3 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
+join TOPTEN t4 on t1.StockId = t4.StockId and t1.RowNo + 3 = t4.RowNo
+join TOPTEN t5 on t1.StockId = t5.StockId and t1.RowNo + 4 = t5.RowNo
+join TOPTEN t6 on t1.StockId = t6.StockId and t1.RowNo + 5 = t6.RowNo
+join TOPTEN t7 on t1.StockId = t7.StockId and t1.RowNo + 6 = t7.RowNo
+join TOPTEN t8 on t1.StockId = t8.StockId and t1.RowNo + 7 = t8.RowNo
+join TOPTEN t9 on t1.StockId = t9.StockId and t1.RowNo + 8 = t9.RowNo
+join TOPTEN t10 on t1.StockId = t10.StockId and t1.RowNo + 9 = t10.RowNo
+join TOPTEN t11 on t1.StockId = t11.StockId and t1.RowNo + 10 = t11.RowNo
+join TOPTEN t12 on t1.StockId = t12.StockId and t1.RowNo + 11 = t12.RowNo
+
+WHERE t1.RowNo=1 
+and t1.單月年增率 > 0
+and t2.單月年增率 > 0
+and t3.單月年增率 > 0
+and t4.單月年增率 > 0
+and t5.單月年增率 > 0
+and t6.單月年增率 > 0
+and t7.單月年增率 > 0
+and t8.單月年增率 > 0
+and t9.單月年增率 > 0
+and t10.單月年增率 > 0
+and t11.單月年增率 > 0
+and t12.單月年增率 > 0
+";
+        }
+
         private Dictionary<ChooseStockType, Func<string>> DateFunc = new Dictionary<ChooseStockType, Func<string>>
         {
             { ChooseStockType.一日漲幅排行榜 , ()=>一日漲幅排行榜() },

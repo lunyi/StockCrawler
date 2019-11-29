@@ -417,11 +417,39 @@ namespace DataService.Models
                     .IsRequired()
                     .HasMaxLength(50);
 
-                entity.Property(e => e.PercentOverFourHundreds).HasColumnType("decimal(18, 2)");
+                entity.Property(e => e.P1).HasColumnType("decimal(18, 2)");
 
-                entity.Property(e => e.PercentOverThousand).HasColumnType("decimal(18, 2)");
+                entity.Property(e => e.P10).HasColumnType("decimal(18, 2)");
 
-                entity.Property(e => e.PercentUnderFourHundreds).HasColumnType("decimal(18, 2)");
+                entity.Property(e => e.P100).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.P1000).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.P15).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.P20).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.P200).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.P30).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.P40).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.P400).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.P5).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.P50).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.P600).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.P800).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.PercentOver1000).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.PercentOver400).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.PercentUnder400).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.StockId)
                     .IsRequired()

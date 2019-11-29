@@ -55,9 +55,9 @@ select * from [Stocks]
 where StockId not in (
 SELECT StockId
   FROM [dbo].[Prices]
-  where [Datetime] = '{DateTime.Today.ToString("yyyy/MM/dd")}')
+  where [Datetime] = '{DateTime.Today.AddDays(-1).ToString("yyyy/MM/dd")}')
  and [Status] = 1
-  order by StockId desc";
+  order by StockId";
         }
 
         private async Task ExecuteHistoryAsync(CnyParser parser, StockDbContext context, string stockId, string name)
