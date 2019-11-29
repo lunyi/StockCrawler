@@ -20,8 +20,8 @@ namespace WebCrawler
             var ss = new CnyParser();
             //ss.ParserForeign("1101",null);
             //var s = new CnyParser();
-            //await ss.RunAsync();
-            await ss.ParserMarginAsync();
+            await ss.RunAsync();
+            //await ss.ParserMarginAsync();
             //var ss =  s.ParseTrust("2330", "2017-01-01", "2019-10-29");
 
             Console.ReadLine();
