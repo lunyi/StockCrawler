@@ -176,7 +176,11 @@ namespace DataService.Services
                 case (int)ChooseStockType.連續十二月單月年增率成長:
                     sql = 連續十二月單月年增率成長(datetime);
                     break;
-                    
+
+                case (int)ChooseStockType.當月大戶增散戶減投信買:
+                    sql = Get當月大戶增散戶減投信買Sql(datetime);
+                    break;
+
                 case (int)ChooseStockType.賣方籌碼集中排行榜:
                     sql = Get籌碼集中排行榜Sql(datetime);
                     break;
@@ -276,6 +280,147 @@ WHERE t1.RowNo=1 and
 (t4.[PercentUnderFourHundreds] < t5.[PercentUnderFourHundreds]) and
 (t5.[PercentUnderFourHundreds] < t6.[PercentUnderFourHundreds]) 
 order by StockId;
+";
+        }
+
+        private string Get當月大戶增散戶減投信買Sql(string datetime)
+        {
+            var past30Days = Convert.ToDateTime(datetime).AddDays(-30).ToString("yyyy-MM-dd");
+            return $@"
+
+WITH TOPTEN1 as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY [Name] 
+       order by [Datetime] desc
+    ) AS RowNo 
+    FROM [Thousand] where [Datetime] <= '{datetime}'
+)
+
+select s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+	  ,s.[Description]
+into #t2
+from [Stocks]s 
+join TOPTEN1 t1 on s.StockId = t1.StockId
+join TOPTEN1 t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
+join TOPTEN1 t3 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
+join TOPTEN1 t4 on t1.StockId = t4.StockId and t1.RowNo + 3 = t4.RowNo
+join TOPTEN1 t5 on t1.StockId = t5.StockId and t1.RowNo + 4 = t5.RowNo
+join TOPTEN1 t6 on t1.StockId = t6.StockId and t1.RowNo + 5 = t6.RowNo
+join TOPTEN1 t7 on t1.StockId = t7.StockId and t1.RowNo + 6 = t7.RowNo
+join TOPTEN1 t8 on t1.StockId = t8.StockId and t1.RowNo + 7 = t8.RowNo
+join TOPTEN1 t9 on t1.StockId = t9.StockId and t1.RowNo + 8 = t9.RowNo
+join TOPTEN1 t10 on t1.StockId = t10.StockId and t1.RowNo + 9 = t10.RowNo
+
+WHERE t1.RowNo=1 and
+ (t1.PercentOver1000 > t2.PercentOver1000) 
+ group by 
+ s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+	  ,s.[Description]
+ having
+ (sum(t1.P1 + t1.P5+ t1.P10+ t1.P15+ t1.P20+ t1.P30+ t1.P40 + t1.P50 + t1.P100)< sum(t2.P1 + t2.P5+ t2.P10+ t2.P15+ t2.P20+ t2.P30+ t2.P40 + t2.P50 + t2.P100));
+
+
+
+
+WITH TOPTEN2 as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY [Name] 
+       order by [Datetime] desc
+    ) AS RowNo 
+    FROM [MonthData] where [Datetime] <= '{datetime}'
+)
+
+select s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+	  ,s.Description
+into #t3
+from [Stocks]s 
+join TOPTEN2 t1 on s.StockId = t1.StockId
+join TOPTEN2 t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
+join TOPTEN2 t3 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
+join TOPTEN2 t4 on t1.StockId = t4.StockId and t1.RowNo + 3 = t4.RowNo
+join TOPTEN2 t5 on t1.StockId = t5.StockId and t1.RowNo + 4 = t5.RowNo
+join TOPTEN2 t6 on t1.StockId = t6.StockId and t1.RowNo + 5 = t6.RowNo
+join TOPTEN2 t7 on t1.StockId = t7.StockId and t1.RowNo + 6 = t7.RowNo
+join TOPTEN2 t8 on t1.StockId = t8.StockId and t1.RowNo + 7 = t8.RowNo
+join TOPTEN2 t9 on t1.StockId = t9.StockId and t1.RowNo + 8 = t9.RowNo
+join TOPTEN2 t10 on t1.StockId = t10.StockId and t1.RowNo + 9 = t10.RowNo
+join TOPTEN2 t11 on t1.StockId = t11.StockId and t1.RowNo + 10 = t11.RowNo
+join TOPTEN2 t12 on t1.StockId = t12.StockId and t1.RowNo + 11 = t12.RowNo
+
+WHERE t1.RowNo=1 
+and t1.單月年增率 >= 0;
+--and t2.單月年增率 >= 0
+--and t3.單月年增率 >= 0
+--and t4.單月年增率 >= 0
+--and t5.單月年增率 >= 0
+--and t6.單月年增率 >= 0
+--and t7.單月年增率 > 0
+--and t8.單月年增率 > 0
+--and t9.單月年增率 > 0
+--and t10.單月年增率 > 0
+--and t11.單月年增率 > 0
+--and t12.單月年增率 > 0
+
+
+select  p.StockId, p.Name, sum(投信買賣超) as 投信買賣超
+into #t1
+from [Prices] p
+where [Datetime] >= '{past30Days}' and 投信買賣超 != 0
+group by 
+ p.StockId, p.Name
+ having sum(投信買賣超) > 0
+order by sum(投信買賣超) desc
+
+select s.*
+from #t2 s
+join #t1 on s.StockId = #t1.StockId
+join #t3 on s.StockId = #t3.StockId
+join (SELECT *
+  FROM [StockDb].[dbo].[Prices]
+  where [Datetime] = '{datetime}') t3 on t3.StockId = s.StockId
+order by s.Industry, CONVERT(decimal(10,2), s.Description);
+
+
+drop table #t1, #t3 , #t2
+
 ";
         }
         private string 五日漲幅排行榜(string datetime, int days)
