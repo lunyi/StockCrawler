@@ -44,7 +44,8 @@ namespace WebAutoCrawler
         {
             GoToUrl(url);
             var table = FindElement(By.XPath("//*[@id='MainContent']/ul/li/article/div[2]/div/table"));
-            var season   = FindElements(By.XPath("//*[@id='MainContent']/ul/li/article/div[2]/div/table/tbody/tr[1]/td"));
+            var test = FindElement(By.XPath("//*[@id='MainContent']/ul/li/article/div[2]/div/table/tbody/tr[1]"));
+            var season   = FindElements(By.XPath("//*[@id='MainContent']/ul/li/article/div[2]/div/table/tbody/tr[1]/th"));
             var 資產累計 = FindElements(By.XPath("//*[@id='MainContent']/ul/li/article/div[2]/div/table/tbody/tr[10]/td"));
             var 負債 = FindElements(By.XPath("//*[@id='MainContent']/ul/li/article/div[2]/div/table/tbody/tr[15]/td"));
             var 股本 = FindElements(By.XPath("//*[@id='MainContent']/ul/li/article/div[2]/div/table/tbody/tr[16]/td"));
@@ -52,10 +53,10 @@ namespace WebAutoCrawler
             var 公告每股淨值 = FindElements(By.XPath("//*[@id='MainContent']/ul/li/article/div[2]/div/table/tbody/tr[18]/td"));
 
             var seasonData = new List<SeasonData>();
-            for (int i = 0; i < season.Count; i++)
+            for (int i = 1; i < season.Count; i++)
             {
-                var q = Convert.ToInt32(season[0].Text.Substring(5, 1)) * 3;
-                var datetime = Convert.ToDateTime(season[0].Text.Substring(0, 4) + "-" + q.ToString("00") + "-01"); 
+                var q = Convert.ToInt32(season[i].Text.Substring(5, 1)) * 3;
+                var datetime = Convert.ToDateTime(season[i].Text.Substring(0, 4) + "-" + q.ToString("00") + "-01"); 
                 seasonData.Add(new SeasonData
                 {
                     Id = Guid.NewGuid(),
@@ -72,31 +73,32 @@ namespace WebAutoCrawler
             }
 
             ParserFinance(stockId, seasonData);
-            return seasonData.ToArray();
+            return seasonData.OrderByDescending(p=>p.Datetime).ToArray();
         }
 
         private SeasonData[] ParserFinance(string stockId, List<SeasonData> data)
         {
             GoToUrl(string.Format(FinanceUrl, stockId));
             var table = FindElement(By.XPath("//*[@id='MainContent']/ul/li[2]/article/div/div/div/table"));
-            var title = FindElements(By.XPath("//*[@id='MainContent']/ul/li[2]/article/div/div/table/tbody/tr[1]/td"));
-            var 毛利率 = FindElements(By.XPath("//*[@id='MainContent']/ul/li[2]/article/div/div/table/tbody/tr[2]/td"));
-            var 營業利益率 = FindElements(By.XPath("//*[@id='MainContent']/ul/li[2]/article/div/div/table/tbody/tr[3]/td"));
-            var ROE = FindElements(By.XPath("//*[@id='MainContent']/ul/li[2]/article/div/div/table/tbody/tr[6]/td"));
-            var ROA = FindElements(By.XPath("//*[@id='MainContent']/ul/li[2]/article/div/div/table/tbody/tr[7]/td"));
-            var 每股營業額 = FindElements(By.XPath("//*[@id='MainContent']/ul/li[2]/article/div/div/table/tbody/tr[8]/td"));
-            var 每股稅後盈餘 = FindElements(By.XPath("//*[@id='MainContent']/ul/li[2]/article/div/div/table/tbody/tr[10]/td"));
+            var title = FindElements(By.XPath("//*[@id='MainContent']/ul/li[2]/article/div/div/div/table/tbody/tr[1]/th"));
+            var 毛利率 = FindElements(By.XPath("//*[@id='MainContent']/ul/li[2]/article/div/div/div/table/tbody/tr[2]/td"));
+            var 營業利益率 = FindElements(By.XPath("//*[@id='MainContent']/ul/li[2]/article/div/div/div/table/tbody/tr[3]/td"));
+            var ROE = FindElements(By.XPath("//*[@id='MainContent']/ul/li[2]/article/div/div/div/table/tbody/tr[6]/td"));
+            var ROA = FindElements(By.XPath("//*[@id='MainContent']/ul/li[2]/article/div/div/div/table/tbody/tr[7]/td"));
+            var 每股營業額 = FindElements(By.XPath("//*[@id='MainContent']/ul/li[2]/article/div/div/div/table/tbody/tr[8]/td"));
+            var 每股稅後盈餘 = FindElements(By.XPath("//*[@id='MainContent']/ul/li[2]/article/div/div/div/table/tbody/tr[10]/td"));
 
-            var seasonData = new List<SeasonData>();
-            for (int i =0; i < data.Count; i++)
+            for (int k = 0; k < data.Count; k++)
             {
-                var q = Convert.ToInt32(title[0].Text.Substring(5, 1)) * 3;
-                var datetime = Convert.ToDateTime(title[0].Text.Substring(0, 4) + "-" + q.ToString("00") + "-01");
-
+                var i = k + 1;
+                var t = title[i].Text;
+                var q = Convert.ToInt32(title[i].Text.Substring(5, 1)) * 3;
+                var datetime = Convert.ToDateTime(title[i].Text.Substring(0, 4) + "-" + q.ToString("00") + "-01");
                 var season = data.FirstOrDefault(p => p.Datetime == datetime);
 
                 if (season != null)
                 {
+                    var ss = 毛利率[i].Text;
                     season.毛利率 = Convert.ToDecimal(毛利率[i].Text);
                     season.營業利益率 = Convert.ToDecimal(營業利益率[i].Text);
                     season.ROE = Convert.ToDecimal(ROE[i].Text);
@@ -105,7 +107,7 @@ namespace WebAutoCrawler
                     season.每股稅後盈餘 = Convert.ToDecimal(每股稅後盈餘[i].Text);
                 }
             }
-            return seasonData.ToArray();
+            return data.ToArray();
         }
     }
 }
