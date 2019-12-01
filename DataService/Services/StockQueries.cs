@@ -249,6 +249,7 @@ WITH TOPTEN1 as (
     FROM [Thousand] where [Datetime] <= '{datetime}'
 )
 
+
 select s.[Id]
       ,s.[StockId]
       ,s.[Name]
@@ -271,16 +272,32 @@ join TOPTEN1 t4 on t1.StockId = t4.StockId and t1.RowNo + 3 = t4.RowNo
 join TOPTEN1 t5 on t1.StockId = t5.StockId and t1.RowNo + 4 = t5.RowNo
 join TOPTEN1 t6 on t1.StockId = t6.StockId and t1.RowNo + 5 = t6.RowNo
 WHERE t1.RowNo=1 and 
-(t1.[PercentOverThousand] > t2.[PercentOverThousand]) and 
-(t2.[PercentOverThousand] > t3.[PercentOverThousand]) and
-(t3.[PercentOverThousand] > t4.[PercentOverThousand]) and
-(t4.[PercentOverThousand] > t5.[PercentOverThousand]) and
-(t5.[PercentOverThousand] > t6.[PercentOverThousand]) and
-(t1.[PercentUnderFourHundreds] < t2.[PercentUnderFourHundreds]) and 
-(t2.[PercentUnderFourHundreds] < t3.[PercentUnderFourHundreds]) and
-(t3.[PercentUnderFourHundreds] < t4.[PercentUnderFourHundreds]) and
-(t4.[PercentUnderFourHundreds] < t5.[PercentUnderFourHundreds]) and
-(t5.[PercentUnderFourHundreds] < t6.[PercentUnderFourHundreds]) 
+(t1.[PercentOver1000] > t2.[PercentOver1000]) and 
+(t2.[PercentOver1000] > t3.[PercentOver1000]) and
+(t3.[PercentOver1000] > t4.[PercentOver1000]) and
+(t4.[PercentOver1000] > t5.[PercentOver1000]) and
+(t5.[PercentOver1000] > t6.[PercentOver1000]) 
+group by 
+	s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+	  ,s.[Description]
+having
+( sum(t1.P1 + t1.P5 + t1.P10 + t1.P15 + t1.P20 + t1.P30 + t1.P40 + t1.P50 + t1.P100) <   sum(t2.P1 + t2.P5 + t2.P10 + t2.P15 + t2.P20 + t2.P30 + t2.P40 + t2.P50 + t2.P100)) and 
+( sum(t2.P1 + t2.P5 + t2.P10 + t2.P15 + t2.P20 + t2.P30 + t2.P40 + t2.P50 + t2.P100) <  sum(t3.P1 + t3.P5 + t3.P10 + t3.P15 + t3.P20 + t3.P30 + t3.P40 + t3.P50 + t3.P100)) and
+( sum(t3.P1 + t3.P5 + t3.P10 + t3.P15 + t3.P20 + t3.P30 + t3.P40 + t3.P50 + t3.P100) <  sum(t4.P1 + t4.P5 + t4.P10 + t4.P15 + t4.P20 + t4.P30 + t4.P40 + t4.P50 + t4.P100)) and
+( sum(t4.P1 + t4.P5 + t4.P10 + t4.P15 + t4.P20 + t4.P30 + t4.P40 + t4.P50 + t4.P100) <  sum(t5.P1 + t5.P5 + t5.P10 + t5.P15 + t5.P20 + t5.P30 + t5.P40 + t5.P50 + t5.P100)) and
+( sum(t5.P1 + t5.P5 + t5.P10 + t5.P15 + t5.P20 + t5.P30 + t5.P40 + t5.P50 + t5.P100) <  sum(t6.P1 + t6.P5 + t6.P10 + t6.P15 + t6.P20 + t6.P30 + t6.P40 + t6.P50 + t6.P100)) 
 order by StockId;
 ";
         }
