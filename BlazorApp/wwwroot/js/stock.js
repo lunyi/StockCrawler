@@ -75,14 +75,16 @@ var urls = {
     7: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=l',
     8: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=mf',
     9: 'https://www.cmoney.tw/finance/stockmainkline.aspx?s={0}',
-    10: 'https://www.cmoney.tw/finance/f00040.aspx?s={0}&o=3',
-    11: 'https://www.cmoney.tw/finance/f00038.aspx?s={0}',
-    12: 'https://histock.tw/stock/financial.aspx?no={0}',
-    13: 'https://www.cnyes.com/twstock/Margin/{0}.htm',
-    14: 'https://www.moneydj.com/KMDJ/search/list.aspx?_Query_={0}&_QueryType_=NW',
-    15: 'https://statementdog.com/analysis/tpe/{0}/stock-health-check',
-    16: 'https://www.fugle.tw/ai/{0}?p=2460385721&perfect=true',
-    17: 'http://www.fortunengine.com.tw/evaluator.aspx?menu=on&scode={0}'
+    10: 'https://www.cmoney.tw/finance/f00033.aspx?s={0}',
+    11: 'https://www.cmoney.tw/finance/f00040.aspx?s={0}&o=3',
+    12: 'https://www.cmoney.tw/finance/f00038.aspx?s={0}',
+    13: 'https://www.cmoney.tw/finance/f00043.aspx?s={0}',
+    14: 'https://histock.tw/stock/financial.aspx?no={0}',
+    15: 'https://www.cnyes.com/twstock/Margin/{0}.htm',
+    16: 'https://www.moneydj.com/KMDJ/search/list.aspx?_Query_={0}&_QueryType_=NW',
+    17: 'https://statementdog.com/analysis/tpe/{0}/stock-health-check',
+    18: 'https://www.fugle.tw/ai/{0}?p=2460385721&perfect=true',
+    19: 'http://www.fortunengine.com.tw/evaluator.aspx?menu=on&scode={0}'
 };
 //個股新聞 https://www.moneydj.com/KMDJ/search/list.aspx?_Query_=6449&_QueryType_=NW
 //https://www.moneydj.com/KMDJ/Common/ListNewArticles.aspx?svc=NW&a=X0200000

@@ -23,6 +23,7 @@ namespace DataService.DataModel
         public decimal 漲跌百分比 { get; set; }
         public int 成交量 { get; set; }
         public decimal 本益比 { get; set; }
+        public decimal 股價淨值比 { get; set; }
         public int? 融資買賣超 { get; set; }
         public decimal? 融資使用率 { get; set; }
 

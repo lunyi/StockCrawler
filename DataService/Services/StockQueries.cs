@@ -37,6 +37,7 @@ namespace DataService.Services
         {
             var context = new StockDbContext();
             var prices = await (from price in context.Prices
+                     join stock in context.Stocks on price.StockId equals stock.StockId
                      where price.StockId == stockId
                      orderby price.Datetime descending
                      select new PriceModel
@@ -52,6 +53,7 @@ namespace DataService.Services
                          漲跌百分比 = price.漲跌百分比,
                          成交量 = price.成交量,
                          本益比 = price.本益比,
+                         股價淨值比 = Math.Round(price.Close / stock.每股淨值.Value, 2),
                          外資持股 = price.外資持股,
                          投信持股 = price.投信持股,
                          董監持股 = price.董監持股,

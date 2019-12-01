@@ -214,3 +214,7 @@ input[type=search] {
 #btnSelectStock, #btnRemoveStock {
     width: 75px;
 }
+
+.btnCmoney {
+    background-color:orange
+}

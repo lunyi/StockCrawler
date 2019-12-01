@@ -18,6 +18,9 @@ namespace DataService.Models
         public string Website { get; set; }
         public string 營收比重 { get; set; }
         public decimal? 股本 { get; set; }
+        public decimal? 股價 { get; set; }
+        public decimal? 每股淨值 { get; set; }
+        public decimal? 每股盈餘 { get; set; }
         public string Description { get; set; }
     }
 }
