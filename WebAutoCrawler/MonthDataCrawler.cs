@@ -11,21 +11,10 @@ namespace WebAutoCrawler
 {
     public class MonthDataCrawler : BaseCrawler
     {
-        string LoginUrl = "https://statementdog.com/users/sign_in";
-        string Username = "lunyi.lester@gmail.com";
-        string Password = "1q2w3e4r";
         string HealthCheckUrl = "https://histock.tw/stock/financial.aspx?no={0}";
 
         public MonthDataCrawler() : base()
         {
-            //GoToUrl(LoginUrl);
-            //var emailElement = FindElement(By.Id("user_email"));
-            //var passwordElement = FindElement(By.Id("user_password"));
-            //var submitElement = FindElement(By.ClassName("submit-btn"));
-
-            //emailElement.SendKeys(Username);
-            //passwordElement.SendKeys(Password);
-            //submitElement.Click();
         }
         public override async Task ExecuteAsync()
         {
