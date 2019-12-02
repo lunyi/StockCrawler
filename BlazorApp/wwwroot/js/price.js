@@ -6,6 +6,7 @@
         $("#income").text(data.stock.營收比重);
         $("#address").text(data.stock.address);
         $("#asset").text(data.stock.股本);
+        $("#cValue").text(data.stock.每股淨值);
         $("#website").attr("href", data.stock.website);
 
         var vue = new Vue({

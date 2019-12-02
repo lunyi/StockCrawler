@@ -263,20 +263,23 @@ select s.[Id]
       ,s.[Website]
       ,s.[營收比重]
       ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘]
 	  ,s.[Description]
 from [Stocks]s 
 join TOPTEN1 t1 on s.StockId = t1.StockId
 join TOPTEN1 t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
 join TOPTEN1 t3 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
-join TOPTEN1 t4 on t1.StockId = t4.StockId and t1.RowNo + 3 = t4.RowNo
-join TOPTEN1 t5 on t1.StockId = t5.StockId and t1.RowNo + 4 = t5.RowNo
-join TOPTEN1 t6 on t1.StockId = t6.StockId and t1.RowNo + 5 = t6.RowNo
+--join TOPTEN1 t4 on t1.StockId = t4.StockId and t1.RowNo + 3 = t4.RowNo
+--join TOPTEN1 t5 on t1.StockId = t5.StockId and t1.RowNo + 4 = t5.RowNo
+--join TOPTEN1 t6 on t1.StockId = t6.StockId and t1.RowNo + 5 = t6.RowNo
 WHERE t1.RowNo=1 and 
 (t1.[PercentOver1000] > t2.[PercentOver1000]) and 
-(t2.[PercentOver1000] > t3.[PercentOver1000]) and
-(t3.[PercentOver1000] > t4.[PercentOver1000]) and
-(t4.[PercentOver1000] > t5.[PercentOver1000]) and
-(t5.[PercentOver1000] > t6.[PercentOver1000]) 
+(t2.[PercentOver1000] > t3.[PercentOver1000]) --and
+--(t3.[PercentOver1000] > t4.[PercentOver1000]) and
+--(t4.[PercentOver1000] > t5.[PercentOver1000]) and
+--(t5.[PercentOver1000] > t6.[PercentOver1000]) 
 group by 
 	s.[Id]
       ,s.[StockId]
@@ -291,13 +294,16 @@ group by
       ,s.[Website]
       ,s.[營收比重]
       ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘]
 	  ,s.[Description]
 having
 ( sum(t1.P1 + t1.P5 + t1.P10 + t1.P15 + t1.P20 + t1.P30 + t1.P40 + t1.P50 + t1.P100) <   sum(t2.P1 + t2.P5 + t2.P10 + t2.P15 + t2.P20 + t2.P30 + t2.P40 + t2.P50 + t2.P100)) and 
-( sum(t2.P1 + t2.P5 + t2.P10 + t2.P15 + t2.P20 + t2.P30 + t2.P40 + t2.P50 + t2.P100) <  sum(t3.P1 + t3.P5 + t3.P10 + t3.P15 + t3.P20 + t3.P30 + t3.P40 + t3.P50 + t3.P100)) and
-( sum(t3.P1 + t3.P5 + t3.P10 + t3.P15 + t3.P20 + t3.P30 + t3.P40 + t3.P50 + t3.P100) <  sum(t4.P1 + t4.P5 + t4.P10 + t4.P15 + t4.P20 + t4.P30 + t4.P40 + t4.P50 + t4.P100)) and
-( sum(t4.P1 + t4.P5 + t4.P10 + t4.P15 + t4.P20 + t4.P30 + t4.P40 + t4.P50 + t4.P100) <  sum(t5.P1 + t5.P5 + t5.P10 + t5.P15 + t5.P20 + t5.P30 + t5.P40 + t5.P50 + t5.P100)) and
-( sum(t5.P1 + t5.P5 + t5.P10 + t5.P15 + t5.P20 + t5.P30 + t5.P40 + t5.P50 + t5.P100) <  sum(t6.P1 + t6.P5 + t6.P10 + t6.P15 + t6.P20 + t6.P30 + t6.P40 + t6.P50 + t6.P100)) 
+( sum(t2.P1 + t2.P5 + t2.P10 + t2.P15 + t2.P20 + t2.P30 + t2.P40 + t2.P50 + t2.P100) <  sum(t3.P1 + t3.P5 + t3.P10 + t3.P15 + t3.P20 + t3.P30 + t3.P40 + t3.P50 + t3.P100)) --and
+--( sum(t3.P1 + t3.P5 + t3.P10 + t3.P15 + t3.P20 + t3.P30 + t3.P40 + t3.P50 + t3.P100) <  sum(t4.P1 + t4.P5 + t4.P10 + t4.P15 + t4.P20 + t4.P30 + t4.P40 + t4.P50 + t4.P100)) and
+--( sum(t4.P1 + t4.P5 + t4.P10 + t4.P15 + t4.P20 + t4.P30 + t4.P40 + t4.P50 + t4.P100) <  sum(t5.P1 + t5.P5 + t5.P10 + t5.P15 + t5.P20 + t5.P30 + t5.P40 + t5.P50 + t5.P100)) and
+--( sum(t5.P1 + t5.P5 + t5.P10 + t5.P15 + t5.P20 + t5.P30 + t5.P40 + t5.P50 + t5.P100) <  sum(t6.P1 + t6.P5 + t6.P10 + t6.P15 + t6.P20 + t6.P30 + t6.P40 + t6.P50 + t6.P100)) 
 order by StockId;
 ";
         }
@@ -330,6 +336,9 @@ select s.[Id]
       ,s.[營收比重]
       ,s.[股本]
 	  ,s.[Description]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘]
 into #t2
 from [Stocks]s 
 join TOPTEN1 t1 on s.StockId = t1.StockId
@@ -360,11 +369,11 @@ WHERE t1.RowNo=1 and
       ,s.[營收比重]
       ,s.[股本]
 	  ,s.[Description]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘]
  having
  (sum(t1.P1 + t1.P5+ t1.P10+ t1.P15+ t1.P20+ t1.P30+ t1.P40 + t1.P50 + t1.P100)< sum(t2.P1 + t2.P5+ t2.P10+ t2.P15+ t2.P20+ t2.P30+ t2.P40 + t2.P50 + t2.P100));
-
-
-
 
 WITH TOPTEN2 as (
    SELECT *, ROW_NUMBER() 
@@ -388,6 +397,9 @@ select s.[Id]
       ,s.[Website]
       ,s.[營收比重]
       ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘]
 	  ,s.Description
 into #t3
 from [Stocks]s 
@@ -474,6 +486,9 @@ select s.[Id]
       ,s.[Website]
       ,s.[營收比重]
       ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘]
       ,CAST(t.[Description] AS nvarchar(30)) AS [Description]
 from Stocks s 
 join #tmp t on t.StockId = s.StockId
@@ -514,6 +529,9 @@ select s.[Id]
       ,s.[Website]
       ,s.[營收比重]
       ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘]
       ,CAST(t.[Description] AS nvarchar(30)) AS [Description]
 from Stocks s 
 join #tmp t on t.StockId = s.StockId
@@ -560,6 +578,9 @@ select s.[Id]
       ,s.[Website]
       ,s.[營收比重]
       ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘]
 	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
 from [Stocks]s 
 join #tmp t on s.StockId = t.StockId
@@ -607,6 +628,9 @@ select s.[Id]
       ,s.[Website]
       ,s.[營收比重]
       ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘]
 	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
 from [Stocks]s 
 join #tmp t on s.StockId = t.StockId
@@ -654,6 +678,9 @@ select s.[Id]
       ,s.[Website]
       ,s.[營收比重]
       ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘]
 	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
 from [Stocks]s 
 join #tmp t on s.StockId = t.StockId
@@ -687,13 +714,16 @@ select s.[Id]
       ,s.[Website]
       ,s.[營收比重]
       ,s.[股本]
-	  ,CAST(t1.[Percent] -  t2.[Percent] AS nvarchar(30)) AS [Description]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘]
+	  ,CAST(t1.[PercentOver1000] -  t2.[PercentOver1000] AS nvarchar(30)) AS [Description]
 from [Stocks]s 
 join TOPTEN t1 on s.StockId = t1.StockId
 join TOPTEN t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
 join TOPTEN t3 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
-WHERE t1.RowNo=1 and (t1.[Percent] -  t2.[Percent]) > 1
-order by  (t1.[Percent] -  t2.[Percent]) desc
+WHERE t1.RowNo=1 and (t1.[PercentOver1000] -  t2.[PercentOver1000]) > 2
+order by  (t1.[PercentOver1000] -  t2.[PercentOver1000]) desc
 ";
         }
 
@@ -757,6 +787,7 @@ and t12.單月年增率 > 0
         {
             { ChooseStockType.一日漲幅排行榜 , ()=>一日漲幅排行榜() },
             { ChooseStockType.外資投信同步買超排行榜 , ()=>外資投信同步買超排行榜() },
+            { ChooseStockType.外資主力同步買超排行榜 , ()=>外資主力同步買超排行榜() },
             { ChooseStockType.投信連續買超排行榜 , ()=>外資投信同步買超排行榜() },
             { ChooseStockType.外資買超排行榜  , ()=>外資買超排行榜() },
             { ChooseStockType.投信買超排行榜  , ()=>投信買超排行榜() },
@@ -803,7 +834,6 @@ and t12.單月年增率 > 0
 ";
         }
 
-
         private static string 外資投信同步買超排行榜()
         {
             return @$"
@@ -812,6 +842,14 @@ and t12.單月年增率 > 0
 ";
         }
 
+        private static string 外資主力同步買超排行榜()
+        {
+            return @$"
+  and [外資買賣超] > 0 and ([主力買超張數] - [主力賣超張數])> 0
+  order by [投信買賣超] desc
+";
+        }
+        
         private static string 外資投信同步賣超排行榜()
         {
             return @$"
@@ -1043,6 +1081,9 @@ select s.[Id]
       ,s.[Website]
       ,s.[營收比重]
       ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘]
 	  ,CAST(b.買超 AS nvarchar(30)) AS [Description]
 
 from [Stocks] s join (

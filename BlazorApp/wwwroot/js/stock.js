@@ -94,7 +94,7 @@ var urls = {
 var currentUrlIndex = 1;
 var currentStockId = "1101";
 var currentUrl = "https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm";
-var urlIndexNewTab = 15;
+var urlIndexNewTab = 17;
 
 function onStockChangeAsync(obj) {
     currentStockId = obj.value;
