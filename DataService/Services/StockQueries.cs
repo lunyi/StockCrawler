@@ -56,6 +56,53 @@ namespace DataService.Services
 
   EXEC sp_executesql  @PivotSQL;";
         }
+
+        private string Get多日籌碼集中度Sql(string datetime, string days,  bool isDesc = true)
+        {
+            var desc = isDesc ? "desc" : "asc";
+
+            return @$"
+WITH TOPTEN as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY  StockId, Name 
+       order by [Datetime] desc
+    ) AS RowNo 
+    FROM [Prices] where [Datetime] <= '{datetime}'
+)
+
+select top 100 
+	   s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘]
+	  ,CAST((b.{days}日主力買賣超 / a.{days}日成交量) AS nvarchar(30)) AS [Description]
+ from (
+	select StockId, [Name], Sum([成交量]) as  {days}日成交量
+	from TOPTEN 
+	where RowNo <=5
+	group by  StockId, [Name])  a 
+join (
+	select StockId, [Name], ([{days}日主力買超張數] - [{days}日主力賣超張數]) as {days}日主力買賣超
+	from TOPTEN 
+	where RowNo = 1
+) b on a.StockId = b.StockId
+join [Stocks] s on a.StockId = s.StockId
+order by  (b.{days}日主力買賣超 / a.{days}日成交量) {desc}";
+        }
+
         async Task<StockeModel> IStockQueries.GetPricesByStockIdAsync(string stockId)
         {
             var context = new StockDbContext();
@@ -206,6 +253,24 @@ namespace DataService.Services
                     break;
                 case (int)ChooseStockType.買方籌碼集中排行榜:
                     sql = Get籌碼集中排行榜Sql(datetime, "desc");
+                    break;
+                case (int)ChooseStockType.五日買方籌碼集中度排行榜:
+                    sql = Get多日籌碼集中度Sql(datetime, "五");
+                    break;
+                case (int)ChooseStockType.十日買方籌碼集中度排行榜:
+                    sql = Get多日籌碼集中度Sql(datetime, "十");
+                    break;
+                case (int)ChooseStockType.二十日買方籌碼集中度排行榜:
+                    sql = Get多日籌碼集中度Sql(datetime, "二十");
+                    break;
+                case (int)ChooseStockType.五日賣方籌碼集中度排行榜:
+                    sql = Get多日籌碼集中度Sql(datetime, "五", false) ;
+                    break;
+                case (int)ChooseStockType.十日賣方籌碼集中度排行榜:
+                    sql = Get多日籌碼集中度Sql(datetime, "十", false);
+                    break;
+                case (int)ChooseStockType.二十日賣方籌碼集中度排行榜:
+                    sql = Get多日籌碼集中度Sql(datetime, "二十", false);
                     break;
                 case (int)ChooseStockType.連續十二月單月年增率成長:
                     sql = 連續十二月單月年增率成長(datetime);
@@ -620,6 +685,8 @@ order by t.[Count] desc
 
 drop table #tmp";
         }
+
+
 
         private string 真主力連續買超排行榜(string datetime, bool 買超 = true)
         {
