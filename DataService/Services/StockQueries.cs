@@ -33,6 +33,29 @@ namespace DataService.Services
         {
             _context = context;
         }
+
+        private string GetMainForceSql(string mainForce)
+        {
+            return @$"
+
+  DECLARE @ColumnGroup NVARCHAR(MAX), @PivotSQL NVARCHAR(MAX) 
+
+  SELECT @ColumnGroup = COALESCE(@ColumnGroup + ',' ,'' ) + QUOTENAME([NAme])
+  FROM dbo.[Stocks] where [Status] = 1
+
+
+  SELECT @PivotSQL = N'
+  select * from 
+  (select  [Datetime], [Name], [外資買賣超]
+  from [Prices]) t 
+  pivot  (
+	MAX([外資買賣超]) 
+	for	[Name] in (' +@ColumnGroup+ ')
+  ) p order by [Datetime] desc'
+
+
+  EXEC sp_executesql  @PivotSQL;";
+        }
         async Task<StockeModel> IStockQueries.GetPricesByStockIdAsync(string stockId)
         {
             var context = new StockDbContext();
