@@ -28,23 +28,24 @@ namespace WebAutoCrawler
 
             foreach (var stock in stocks)
             {
+                var url = string.Format(HealthCheckUrl, stock.StockId);
                 try
                 {
                     //var monthData = Parser(string.Format(HealthCheckUrl, stock.StockId), stock.StockId, stock.Name);
                     //context.MonthData.AddRange(monthData);
                     //await context.SaveChangesAsync();
 
-                    var monthData = ParserLatest(string.Format(HealthCheckUrl, stock.StockId), stock.StockId, stock.Name, allMonthData);
+                    var monthData = ParserLatest(url, stock.StockId, stock.Name, allMonthData);
 
                     if (monthData != null)
                     {
                         context.MonthData.Add(monthData);
                         await context.SaveChangesAsync();
-                    }
-                
+                    }              
                 }
                 catch (Exception ex)
                 {
+                    Console.WriteLine($"{url} !");                  
                     Console.WriteLine($"{stock.StockId} {stock.Name} {ex} !");
                 }
             }

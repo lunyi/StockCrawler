@@ -157,7 +157,7 @@ namespace DataService.Services
             return  context.Prices
                 .GroupBy(p => p.Datetime)
                 .OrderByDescending(p => p.Key)
-                .Take(40)
+                .Take(60)
                 .Select(p=>p.Key.ToString("yyyy-MM-dd"))
                 .ToArrayAsync();
         }
@@ -180,6 +180,9 @@ namespace DataService.Services
                 case (int)ChooseStockType.五日漲幅排行榜:
                     sql = 五日漲幅排行榜(datetime, 5);
                     break;
+                case (int)ChooseStockType.二十日漲幅排行:
+                    sql = 五日漲幅排行榜(datetime, 20);
+                    break;
                 case (int)ChooseStockType.五日跌幅排行榜:
                     sql = 五日跌幅排行榜(datetime, 5);
                     break;
@@ -197,6 +200,9 @@ namespace DataService.Services
                     break;
                 case (int)ChooseStockType.主力連續買超排行榜:
                     sql = 真主力連續買超排行榜(datetime);
+                    break;
+                case (int)ChooseStockType.主力連續賣超排行榜:
+                    sql = 真主力連續買超排行榜(datetime, false);
                     break;
                 case (int)ChooseStockType.買方籌碼集中排行榜:
                     sql = Get籌碼集中排行榜Sql(datetime, "desc");
@@ -615,8 +621,9 @@ order by t.[Count] desc
 drop table #tmp";
         }
 
-        private string 真主力連續買超排行榜(string datetime)
+        private string 真主力連續買超排行榜(string datetime, bool 買超 = true)
         {
+            var key = 買超 ? "<" : ">";
             return @$"
 WITH TOPTEN as (
    SELECT *, ROW_NUMBER() 
@@ -624,7 +631,7 @@ WITH TOPTEN as (
         PARTITION BY  StockId, Name 
        order by [Datetime] desc
     ) AS RowNo 
-    FROM [Prices] where [Datetime] <= '{datetime}' and ([主力買超張數] - [主力賣超張數]) <=0
+    FROM [Prices] where [Datetime] <= '{datetime}' and ([主力買超張數] - [主力賣超張數]) {key}=0
 )
 
 select 
@@ -636,7 +643,7 @@ from Prices a join (
 	SELECT 	*
 	FROM TOPTEN 
 	WHERE RowNo <= 1) b on a.StockId = b.StockId
-where a.[Datetime] > b.[Datetime] 
+where a.[Datetime] > b.[Datetime]  and a.[Datetime] <= '{datetime}'
 group by a.StockId,a.Name 
 having count(1) >= 2
 order by count(1) desc
@@ -664,6 +671,7 @@ order by t.[Count] desc
 
 drop table #tmp";
         }
+
         private string 主力連續買超排行榜(string datetime, string 買賣超 = "投信買賣超")
         {
             return @$"
