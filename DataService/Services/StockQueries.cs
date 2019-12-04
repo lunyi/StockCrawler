@@ -71,7 +71,7 @@ WITH TOPTEN as (
     FROM [Prices] where [Datetime] <= '{datetime}'
 )
 
-select top 100 
+select top 300 
 	   s.[Id]
       ,s.[StockId]
       ,s.[Name]
