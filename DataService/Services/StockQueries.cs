@@ -172,6 +172,9 @@ namespace DataService.Services
                 case (int)ChooseStockType.外資連續賣超排行榜:
                     sql = 連續賣超排行榜(datetime, "外資買賣超");
                     break;
+                case (int)ChooseStockType.主力連續買超排行榜:
+                    sql = 真主力連續買超排行榜(datetime);
+                    break;
                 case (int)ChooseStockType.買方籌碼集中排行榜:
                     sql = Get籌碼集中排行榜Sql(datetime, "desc");
                     break;
@@ -589,6 +592,55 @@ order by t.[Count] desc
 drop table #tmp";
         }
 
+        private string 真主力連續買超排行榜(string datetime)
+        {
+            return @$"
+WITH TOPTEN as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY  StockId, Name 
+       order by [Datetime] desc
+    ) AS RowNo 
+    FROM [Prices] where [Datetime] <= '{datetime}' and ([主力買超張數] - [主力賣超張數]) <=0
+)
+
+select 
+a.StockId,
+a.Name, 
+count(1) as [Count]
+into #tmp
+from Prices a join (
+	SELECT 	*
+	FROM TOPTEN 
+	WHERE RowNo <= 1) b on a.StockId = b.StockId
+where a.[Datetime] > b.[Datetime] 
+group by a.StockId,a.Name 
+having count(1) >= 2
+order by count(1) desc
+
+select s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘]
+	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
+from [Stocks]s 
+join #tmp t on s.StockId = t.StockId
+order by t.[Count] desc
+
+drop table #tmp";
+        }
         private string 主力連續買超排行榜(string datetime, string 買賣超 = "投信買賣超")
         {
             return @$"
@@ -788,7 +840,6 @@ and t12.單月年增率 > 0
             { ChooseStockType.一日漲幅排行榜 , ()=>一日漲幅排行榜() },
             { ChooseStockType.外資投信同步買超排行榜 , ()=>外資投信同步買超排行榜() },
             { ChooseStockType.外資主力同步買超排行榜 , ()=>外資主力同步買超排行榜() },
-            { ChooseStockType.投信連續買超排行榜 , ()=>外資投信同步買超排行榜() },
             { ChooseStockType.外資買超排行榜  , ()=>外資買超排行榜() },
             { ChooseStockType.投信買超排行榜  , ()=>投信買超排行榜() },
             { ChooseStockType.自營買超排行榜  , ()=>自營買超排行榜() },
@@ -797,7 +848,7 @@ and t12.單月年增率 > 0
             
             { ChooseStockType.一日跌幅排行榜  , ()=>一日跌幅排行榜() },
             { ChooseStockType.外資投信同步賣超排行榜  , ()=>外資投信同步賣超排行榜() },
-            { ChooseStockType.投信連續賣超排行榜 , ()=>外資投信同步買超排行榜() },
+            { ChooseStockType.投信連續賣超排行榜 , ()=>外資投信同步賣超排行榜() },
             { ChooseStockType.外資賣超排行榜  , ()=>外資賣超排行榜() },
             { ChooseStockType.投信賣超排行榜  , ()=>投信賣超排行榜() },
             { ChooseStockType.自營賣超排行榜  , ()=>自營賣超排行榜() },
@@ -1091,7 +1142,6 @@ select a.StockId, a.NAme, a.[董監持股]- b.[董監持股] as 買超
 from (
 select * from [Prices] 
 where [Datetime] = '{datetime}' ) a 
-
 join (
 select * from [Prices] 
 where [Datetime] = '{datetime2}' ) b  on a.StockId = b.StockId
