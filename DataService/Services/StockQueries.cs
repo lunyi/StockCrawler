@@ -83,29 +83,7 @@ namespace DataService.Services
             }
             return $@"
 select top 300
-s.*
-from [Prices] p join [Stocks] s on s.StockId = p.StockId 
-where p.[Datetime] = '{datetime}'
-order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p.{strVolumn} {orderby}
-";
-        }
-
-        private string Get多日籌碼集中度Sql(string datetime, string days,  bool isDesc = true)
-        {
-            var desc = isDesc ? "desc" : "asc";
-
-            return @$"
-WITH TOPTEN as (
-   SELECT *, ROW_NUMBER() 
-    over (
-        PARTITION BY  StockId, Name 
-       order by [Datetime] desc
-    ) AS RowNo 
-    FROM [Prices] where [Datetime] <= '{datetime}'
-)
-
-select top 300 
-	   s.[Id]
+ s.[Id]
       ,s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
@@ -121,19 +99,11 @@ select top 300
       ,s.[股價]
       ,s.[每股淨值]
       ,s.[每股盈餘]
-	  ,CAST((b.{days}日主力買賣超 / a.{days}日成交量) AS nvarchar(30)) AS [Description]
- from (
-	select StockId, [Name], Sum([成交量]) as  {days}日成交量
-	from TOPTEN 
-	where RowNo <=5
-	group by  StockId, [Name])  a 
-join (
-	select StockId, [Name], ([{days}日主力買超張數] - [{days}日主力賣超張數]) as {days}日主力買賣超
-	from TOPTEN 
-	where RowNo = 1
-) b on a.StockId = b.StockId
-join [Stocks] s on a.StockId = s.StockId
-order by  (b.{days}日主力買賣超 / a.{days}日成交量) {desc}";
+	  ,CAST(p.[Close] AS nvarchar(30)) AS [Description]
+from [Prices] p join [Stocks] s on s.StockId = p.StockId 
+where p.[Datetime] = '{datetime}'
+order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p.{strVolumn} {orderby}
+";
         }
 
         async Task<StockeModel> IStockQueries.GetPricesByStockIdAsync(string stockId)
