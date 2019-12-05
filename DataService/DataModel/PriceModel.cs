@@ -9,6 +9,15 @@ namespace DataService.DataModel
     {
         public Stocks Stock { get; set; }
         public PriceModel[] Prices { get; set; }
+        public ThousandModel[] Thousand { get; set; }
+        public MonthData[] MonthData { get; set; }
+    }
+
+    public class ThousandModel 
+    {
+        public string Datetime { get; set; }
+        public decimal P100 { get; set; }
+        public decimal P1000 { get; set; }
     }
     public class PriceModel
     {

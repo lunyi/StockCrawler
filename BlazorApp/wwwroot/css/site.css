@@ -218,3 +218,12 @@ input[type=search] {
 .btnCmoney {
     background-color: orange !important
 }
+
+.topTable {
+    font-size: 10px;
+    border-collapse: collapse;
+}
+
+.topTable td, th {
+    border: 1px solid orange;
+}

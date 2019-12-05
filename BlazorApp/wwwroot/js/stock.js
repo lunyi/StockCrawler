@@ -237,10 +237,13 @@ function setChosenStockTypes(chosenType) {
 function setStocks(data) {
     $("#stockList option").remove();
     for (var i = 0; i < data.length; i++) {
-        var desc = data[i].description === null ? "" : data[i].description
+        var desc = data[i].description === null ? "" : data[i].description;
         var text = data[i].stockId + " - " + data[i].name + " (" + data[i].industry + " " + desc + " )";
         $("#stockList").append($("<option></option>").attr("value", data[i].stockId).text(text));
     }
+    $("#stockList").val(data[0].stockId);
+    currentStockId = data[0].stockId;
+    goToUrl();
 }
 
 function chooseStock() {
