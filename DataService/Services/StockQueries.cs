@@ -57,6 +57,39 @@ namespace DataService.Services
   EXEC sp_executesql  @PivotSQL;";
         }
 
+        private string Get籌碼集中排行榜Sql(string datetime, int days, string orderby = "desc")
+        {
+            string strDays = string.Empty;
+            string strVolumn = "成交量";
+            switch (days)
+            {
+                case 5: 
+                    strDays = "五日";
+                    strVolumn = "VMA5 * 5";
+                    break;
+                case 10: 
+                    strDays = "十日";
+                    strVolumn = "VMA10 * 10";
+                    break;
+                case 20: 
+                    strDays = "二十日";
+                    strVolumn = "VMA20 * 20";
+                    break;
+                case 60: 
+                    strDays = "六十日";
+                    strVolumn = "VMA60 * 60";
+                    break;
+                default: break;
+            }
+            return $@"
+select top 300
+s.*
+from [Prices] p join [Stocks] s on s.StockId = p.StockId 
+where p.[Datetime] = '{datetime}'
+order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p.{strVolumn} {orderby}
+";
+        }
+
         private string Get多日籌碼集中度Sql(string datetime, string days,  bool isDesc = true)
         {
             var desc = isDesc ? "desc" : "asc";
@@ -252,26 +285,21 @@ order by  (b.{days}日主力買賣超 / a.{days}日成交量) {desc}";
                     sql = 真主力連續買超排行榜(datetime, false);
                     break;
                 case (int)ChooseStockType.買方籌碼集中排行榜:
-                    sql = Get籌碼集中排行榜Sql(datetime, "desc");
+                    sql = Get籌碼集中排行榜Sql(datetime, 1, "desc");
                     break;
                 case (int)ChooseStockType.五日買方籌碼集中度排行榜:
-                    sql = Get多日籌碼集中度Sql(datetime, "五");
+                    sql = Get籌碼集中排行榜Sql(datetime, 5, "desc");
                     break;
                 case (int)ChooseStockType.十日買方籌碼集中度排行榜:
-                    sql = Get多日籌碼集中度Sql(datetime, "十");
+                    sql = Get籌碼集中排行榜Sql(datetime, 10, "desc");
                     break;
                 case (int)ChooseStockType.二十日買方籌碼集中度排行榜:
-                    sql = Get多日籌碼集中度Sql(datetime, "二十");
+                    sql = Get籌碼集中排行榜Sql(datetime, 20, "desc");
                     break;
-                case (int)ChooseStockType.五日賣方籌碼集中度排行榜:
-                    sql = Get多日籌碼集中度Sql(datetime, "五", false) ;
+                case (int)ChooseStockType.六十日買方籌碼集中度排行榜:
+                    sql = Get籌碼集中排行榜Sql(datetime, 60, "desc");
                     break;
-                case (int)ChooseStockType.十日賣方籌碼集中度排行榜:
-                    sql = Get多日籌碼集中度Sql(datetime, "十", false);
-                    break;
-                case (int)ChooseStockType.二十日賣方籌碼集中度排行榜:
-                    sql = Get多日籌碼集中度Sql(datetime, "二十", false);
-                    break;
+
                 case (int)ChooseStockType.連續十二月單月年增率成長:
                     sql = 連續十二月單月年增率成長(datetime);
                     break;
@@ -284,7 +312,19 @@ order by  (b.{days}日主力買賣超 / a.{days}日成交量) {desc}";
                     break;
 
                 case (int)ChooseStockType.賣方籌碼集中排行榜:
-                    sql = Get籌碼集中排行榜Sql(datetime);
+                    sql = Get籌碼集中排行榜Sql(datetime, 1, "asc");
+                    break;
+                case (int)ChooseStockType.五日賣方籌碼集中度排行榜:
+                    sql = Get籌碼集中排行榜Sql(datetime, 5, "asc");
+                    break;
+                case (int)ChooseStockType.十日賣方籌碼集中度排行榜:
+                    sql = Get籌碼集中排行榜Sql(datetime, 10, "asc");
+                    break;
+                case (int)ChooseStockType.二十日賣方籌碼集中度排行榜:
+                    sql = Get籌碼集中排行榜Sql(datetime, 20, "asc");
+                    break;
+                case (int)ChooseStockType.六十日賣方籌碼集中度排行榜:
+                    sql = Get籌碼集中排行榜Sql(datetime, 60, "asc");
                     break;
                 case (int)ChooseStockType.半年線附近:
                     sql = Get半年線附近Sql(datetime);
@@ -316,16 +356,7 @@ order by  (b.{days}日主力買賣超 / a.{days}日成交量) {desc}";
             return context.Stocks.FromSqlRaw(sql).ToArrayAsync();
         }
 
-        private string Get籌碼集中排行榜Sql(string datetime, string orderby = "")
-        {
-            return $@"
-select top 100
-s.*
-from [Prices] p join [Stocks] s on s.StockId = p.StockId 
-where p.[Datetime] = '{datetime}'
-order by (p.[主力買超張數] - p.[主力賣超張數]) / p.成交量 {orderby}
-";
-        }
+
 
         private string Get半年線附近Sql(string datetime, string orderby = "")
         {
