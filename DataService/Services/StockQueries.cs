@@ -275,7 +275,10 @@ order by  (b.{days}日主力買賣超 / a.{days}日成交量) {desc}";
                 case (int)ChooseStockType.連續十二月單月年增率成長:
                     sql = 連續十二月單月年增率成長(datetime);
                     break;
-
+                case (int)ChooseStockType.近月營收累積年增率成長:
+                    sql = 近月營收累積年增率成長(datetime);
+                    break;
+                    
                 case (int)ChooseStockType.當月大戶增散戶減投信買:
                     sql = Get當月大戶增散戶減投信買Sql(datetime);
                     break;
@@ -877,6 +880,33 @@ order by  (t1.[PercentOver1000] -  t2.[PercentOver1000]) desc
 ";
         }
 
+        private string 近月營收累積年增率成長(string datetime)
+        {
+            var d = Convert.ToDateTime(datetime).AddMonths(-1).ToString("yyyy-MM-01");
+            return $@"
+ select s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘]
+	  ,CAST(m.[累積年增率] AS nvarchar(30)) AS [Description] 
+  from [MonthData] m
+  join [Stocks] s on s.StockId = m.StockId
+  where m.[Datetime] = '{d}'
+  order by [累積年增率] desc
+";
+        }
         private string 連續十二月單月年增率成長(string datetime)
         {
             return $@"
