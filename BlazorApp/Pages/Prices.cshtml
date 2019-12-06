@@ -23,11 +23,53 @@
         }
     </style>
 
-    <div>營收比重:<span id="income"></span></div>
-    <div>住址:<span id="address"></span></div>
-    <div>股本:<span id="asset"></span>億,&nbsp;&nbsp;每股淨值:<span id="cValue"></span></div>
-    <div><a id="website" href="" target="_blank">網站</a></div>
-    <div id="address"></div>
+    <table>
+        <tr>
+            <td>
+                <div>營收比重:<span id="income"></span></div>
+                <div>住址:<span id="address"></span></div>
+                <div>股本:<span id="asset"></span>億,&nbsp;&nbsp;每股淨值:<span id="cValue"></span></div>
+                <div><a id="website" href="" target="_blank">網站</a></div>
+                <div id="address"></div>
+            </td>
+            <td>
+                <div id="month" class="container">
+                    <table style="font-size: 10px;border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="border: 1px solid orange">日期</th>
+                                <th style="border: 1px solid orange">單月年增率</th>
+                                <th style="border: 1px solid orange">累積年增率</th>
+                            </tr>
+                        </thead>
+                        <tr v-for="month in Months">
+                            <td style="border: 1px solid orange">{{month.datetime}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: month.updownColor}">{{month.單月年增率}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: month.cColor}">{{month.累積年增率}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+            <td>
+                <div id="thousand" class="container">
+                    <table style="font-size: 10px;border-collapse: collapse;">
+                        <thead>
+                            <tr style="border: 1px solid orange">
+                                <th style="border: 1px solid orange">日期</th>
+                                <th style="border: 1px solid orange">散戶比例</th>
+                                <th style="border: 1px solid orange">大戶比例</th>
+                            </tr>
+                        </thead>
+                        <tr v-for="thousand in Thousands">
+                            <td style="border: 1px solid orange">{{thousand.datetime}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: thousand.sColor}">{{thousand.p100}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: thousand.bColor}">{{thousand.p1000}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+    </table>
     <div id="textExample" class="container">
         <table class="table table-bordered responsive-table" style="width:1500px;position:relative;left:-180px;font-size:10px;">
             <thead>

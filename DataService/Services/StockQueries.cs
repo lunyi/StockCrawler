@@ -140,11 +140,42 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                          主力買賣超 = price.主力買超張數 - price.主力賣超張數,
                          籌碼集中度 = 100 * Math.Round(((price.主力買超張數 - price.主力賣超張數) / price.成交量).Value, 5),
                          周轉率 = 100 * Math.Round(((decimal)price.成交量 / price.發行張數).Value, 5)
-                     }).Take(60).ToArrayAsync() ;
+                     }).Take(60).ToArrayAsync();
+
+            var thousands = await context.Thousand
+                .Where(p => p.StockId == stockId)
+                .OrderByDescending(p => p.Datetime)
+                .Take(4).ToArrayAsync();
+
+            var thousand = new List<ThousandModel>();
+            for (int i = 0; i < thousands.Length; i++)
+            {
+                var p = new ThousandModel();
+                p.Datetime = thousands[i].Datetime.Value.ToString("yyyy-MM-dd");
+                p.P100 = thousands[i].P1.Value + 
+                    thousands[i].P5.Value + 
+                    thousands[i].P10.Value + 
+                    thousands[i].P15.Value + 
+                    thousands[i].P20.Value + 
+                    thousands[i].P30.Value + 
+                    thousands[i].P40.Value + 
+                    thousands[i].P50.Value + 
+                    thousands[i].P100.Value;
+                p.P1000 = thousands[i].PercentOver1000.Value;
+                thousand.Add(p);
+            }
+
+            var monthData = await context.MonthData
+                .Where(p => p.StockId == stockId)
+                .OrderByDescending(p => p.Datetime)
+                .Take(4).ToArrayAsync();
+
             return new StockeModel
             {
                 Stock = await context.Stocks.FirstOrDefaultAsync(p=>p.StockId == stockId),
-                Prices = prices
+                Prices = prices,
+                Thousand = thousand.ToArray(),
+                MonthData = monthData
             };
         }
 
@@ -277,8 +308,8 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                     sql = 近月營收累積年增率成長(datetime);
                     break;
                     
-                case (int)ChooseStockType.當月大戶增散戶減投信買:
-                    sql = Get當月大戶增散戶減投信買Sql(datetime);
+                case (int)ChooseStockType.當月大戶增散戶減營收增:
+                    sql = Get當月大戶增散戶減營收增Sql(datetime);
                     break;
 
                 case (int)ChooseStockType.賣方籌碼集中排行榜:
@@ -409,11 +440,9 @@ order by StockId;
 ";
         }
 
-        private string Get當月大戶增散戶減投信買Sql(string datetime)
+        private string Get當月大戶增散戶減營收增Sql(string datetime)
         {
-            var past30Days = Convert.ToDateTime(datetime).AddDays(-30).ToString("yyyy-MM-dd");
             return $@"
-
 WITH TOPTEN1 as (
    SELECT *, ROW_NUMBER() 
     over (
@@ -422,24 +451,7 @@ WITH TOPTEN1 as (
     ) AS RowNo 
     FROM [Thousand] where [Datetime] <= '{datetime}'
 )
-
-select s.[Id]
-      ,s.[StockId]
-      ,s.[Name]
-      ,s.[MarketCategory]
-      ,s.[Industry]
-      ,s.[ListingOn]
-      ,s.[CreatedOn]
-      ,s.[UpdatedOn]
-      ,s.[Status]
-      ,s.[Address]
-      ,s.[Website]
-      ,s.[營收比重]
-      ,s.[股本]
-	  ,s.[Description]
-      ,s.[股價]
-      ,s.[每股淨值]
-      ,s.[每股盈餘]
+select s.*
 into #t2
 from [Stocks]s 
 join TOPTEN1 t1 on s.StockId = t1.StockId
@@ -452,11 +464,10 @@ join TOPTEN1 t7 on t1.StockId = t7.StockId and t1.RowNo + 6 = t7.RowNo
 join TOPTEN1 t8 on t1.StockId = t8.StockId and t1.RowNo + 7 = t8.RowNo
 join TOPTEN1 t9 on t1.StockId = t9.StockId and t1.RowNo + 8 = t9.RowNo
 join TOPTEN1 t10 on t1.StockId = t10.StockId and t1.RowNo + 9 = t10.RowNo
-
 WHERE t1.RowNo=1 and
  (t1.PercentOver1000 > t2.PercentOver1000) 
  group by 
- s.[Id]
+	  s.[Id]
       ,s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
@@ -482,77 +493,26 @@ WITH TOPTEN2 as (
         PARTITION BY [Name] 
        order by [Datetime] desc
     ) AS RowNo 
-    FROM [MonthData] where [Datetime] <= '{datetime}'
+    FROM [MonthData] where [Datetime] <=  '{datetime}'
 )
 
-select s.[Id]
-      ,s.[StockId]
-      ,s.[Name]
-      ,s.[MarketCategory]
-      ,s.[Industry]
-      ,s.[ListingOn]
-      ,s.[CreatedOn]
-      ,s.[UpdatedOn]
-      ,s.[Status]
-      ,s.[Address]
-      ,s.[Website]
-      ,s.[營收比重]
-      ,s.[股本]
-      ,s.[股價]
-      ,s.[每股淨值]
-      ,s.[每股盈餘]
-	  ,s.Description
-into #t3
+select t1.*
+into #t1
 from [Stocks]s 
 join TOPTEN2 t1 on s.StockId = t1.StockId
-join TOPTEN2 t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
-join TOPTEN2 t3 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
-join TOPTEN2 t4 on t1.StockId = t4.StockId and t1.RowNo + 3 = t4.RowNo
-join TOPTEN2 t5 on t1.StockId = t5.StockId and t1.RowNo + 4 = t5.RowNo
-join TOPTEN2 t6 on t1.StockId = t6.StockId and t1.RowNo + 5 = t6.RowNo
-join TOPTEN2 t7 on t1.StockId = t7.StockId and t1.RowNo + 6 = t7.RowNo
-join TOPTEN2 t8 on t1.StockId = t8.StockId and t1.RowNo + 7 = t8.RowNo
-join TOPTEN2 t9 on t1.StockId = t9.StockId and t1.RowNo + 8 = t9.RowNo
-join TOPTEN2 t10 on t1.StockId = t10.StockId and t1.RowNo + 9 = t10.RowNo
-join TOPTEN2 t11 on t1.StockId = t11.StockId and t1.RowNo + 10 = t11.RowNo
-join TOPTEN2 t12 on t1.StockId = t12.StockId and t1.RowNo + 11 = t12.RowNo
-
 WHERE t1.RowNo=1 
-and t1.單月年增率 >= 0;
---and t2.單月年增率 >= 0
---and t3.單月年增率 >= 0
---and t4.單月年增率 >= 0
---and t5.單月年增率 >= 0
---and t6.單月年增率 >= 0
---and t7.單月年增率 > 0
---and t8.單月年增率 > 0
---and t9.單月年增率 > 0
---and t10.單月年增率 > 0
---and t11.單月年增率 > 0
---and t12.單月年增率 > 0
+and (t1.單月年增率 > 0 and t1.累積年增率 > 0);
 
-
-select  p.StockId, p.Name, sum(投信買賣超) as 投信買賣超
-into #t1
-from [Prices] p
-where [Datetime] >= '{past30Days}' and 投信買賣超 != 0
-group by 
- p.StockId, p.Name
- having sum(投信買賣超) > 0
-order by sum(投信買賣超) desc
 
 select s.*
 from #t2 s
 join #t1 on s.StockId = #t1.StockId
-join #t3 on s.StockId = #t3.StockId
-join (SELECT *
-  FROM [StockDb].[dbo].[Prices]
-  where [Datetime] = '{datetime}') t3 on t3.StockId = s.StockId
-order by s.Industry, CONVERT(decimal(10,2), s.Description);
+join (select StockId, [Name] from [Prices]
+where [Datetime] = '{datetime}' and ([五日主力買超張數] - [五日主力賣超張數]) > 0 ) c on c.StockId = s.StockId
+order by s.StockId
 
 
-drop table #t1, #t3 , #t2
-
+drop table #t1, #t2
 ";
         }
         private string 五日漲幅排行榜(string datetime, int days)

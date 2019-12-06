@@ -1,6 +1,8 @@
 ﻿(function () {
 
-    var url = "http://220.133.185.1:8081/stock/" + getUrlParameter('stockId');
+    //var url = "http://220.133.185.1:8081/stock/" + getUrlParameter('stockId');
+    var url = "https://localhost:44368/stock/" + getUrlParameter('stockId');
+
     $.get(url, function (data) {
 
         $("#income").text(data.stock.營收比重);
@@ -9,6 +11,8 @@
         $("#cValue").text(data.stock.每股淨值);
         $("#website").attr("href", data.stock.website);
 
+        //console.log(renewPrices(data.monthData));
+
         var vue = new Vue({
             el: '#textExample',
             data: {
@@ -16,9 +20,70 @@
                 Prices: renewPrices(data.prices)
             }  
         });
+
+        var vue2 = new Vue({
+            el: '#month',
+            data: {
+                Months: renewMonth(data.monthData)
+            }
+        });
+
+        var vueThousand = new Vue({
+            el: '#thousand',
+            data: {
+                Thousands: renewThousand(data.thousand)
+            }
+        });
     });
 })();
 
+
+function renewThousand(thousands) {
+
+    for (var i = 0; i < thousands.length - 1; i++) {
+        if (thousands[i].p100 > thousands[i+1].p100) {
+            thousands[i].p100 = thousands[i].p100 + "↑";
+            thousands[i].sColor = "red";
+        }
+        else {
+            thousands[i].p100 = thousands[i].p100 + "↓";
+            thousands[i].sColor = "green";
+        }
+        if (thousands[i].p1000 > thousands[i + 1].p1000) {
+            thousands[i].p1000 = thousands[i].p1000 + "↑";
+            thousands[i].bColor = "red";
+        }
+        else {
+            thousands[i].p1000 = thousands[i].p1000 + "↓";
+            thousands[i].bColor = "green";
+        }
+    }
+    return thousands;
+}
+
+function renewMonth(months) {
+    for (var i = 0; i < months.length; i++) {
+        if (months[i].單月年增率 > 0) {
+            months[i].單月年增率 = months[i].單月年增率 + "↑";
+            months[i].updownColor = "red";
+        }
+        else {
+            months[i].單月年增率 = months[i].單月年增率 + "↓";
+            months[i].updownColor = "green";
+        }
+
+        if (months[i].累積年增率 > 0) {
+            months[i].累積年增率 = months[i].累積年增率 + "↑";
+            months[i].cColor = "red";
+        }
+        else {
+            months[i].累積年增率 = months[i].累積年增率 + "↓";
+            months[i].cColor = "green";
+        }
+        months[i].datetime = formatDate(months[i].datetime);
+    }
+    return months;
+}
 function renewPrices(prices) {
     for (var i = 0; i < prices.length-2; i++) {
         if (prices[i].close > prices[i + 1].close) {
@@ -103,18 +168,18 @@ function renewPrices(prices) {
     return prices;
 }
 
-function tableCreate(el, data) {
-    var tbl = document.createElement("table");
-    tbl.style.width = "100%";
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
 
-    for (var i = 0; i < data.length; ++i) {
-        var tr = tbl.insertRow();
-        for (var j = 0; j < data[i].length; ++j) {
-            var td = tr.insertCell();
-            td.appendChild(document.createTextNode(data[i][j].toString()));
-        }
-    }
-    el.appendChild(tbl);
+    if (month.length < 2)
+        month = '0' + month;
+    if (day.length < 2)
+        day = '0' + day;
+
+    return [year, month, day].join('-');
 }
 
 function getUrlParameter(sParam) {
