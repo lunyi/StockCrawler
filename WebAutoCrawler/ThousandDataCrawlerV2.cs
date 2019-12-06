@@ -48,24 +48,35 @@ namespace WebAutoCrawler
                         t.Datetime = Convert.ToDateTime(date);
                         t.CreatedOn = DateTime.Now;
 
-                        (t.P1, t.P20, t.P30) = GetPercent(2);
-                        (t.P1, t.P20, t.P30) = GetPercent(3);
-                        (t.P1, t.P20, t.P30) = GetPercent(4);
-                        (t.P1, t.P20, t.P30) = GetPercent(5);
-                        (t.P1, t.P20, t.P30) = GetPercent(6);
-                        (t.P1, t.P20, t.P30) = GetPercent(7);
-                        (t.P1, t.P20, t.P30) = GetPercent(8);
-                        (t.P1, t.P20, t.P30) = GetPercent(9);
-                        (t.P1, t.P20, t.P30) = GetPercent(10);
-                        (t.P1, t.P20, t.P30) = GetPercent(11);
-                        (t.P1, t.P20, t.P30) = GetPercent(12);
-                        (t.P1, t.P20, t.P30) = GetPercent(13);
-                        (t.P1, t.P20, t.P30) = GetPercent(14);
-                        (t.P1, t.P20, t.P30) = GetPercent(15);
-                        (t.P1, t.P20, t.P30) = GetPercent(16);
+                        var p = context.Thousand.FirstOrDefault(p => p.StockId == stock.StockId && p.Datetime == t.Datetime);
+                        if (p != null)
+                        {
+                            continue;
+                        }
 
-                        //context.Thousand.Add(t);
-                        //await context.SaveChangesAsync();
+                        decimal temp = 0;
+                        (t.C1, t.S1, t.P1) = GetPercent(2);
+                        (t.C5, t.S5, t.P5) = GetPercent(3);
+                        (t.C10, t.S10, t.P10) = GetPercent(4);
+                        (t.C15, t.S15, t.P15) = GetPercent(5);
+                        (t.C20, t.S20, t.P20) = GetPercent(6);
+                        (t.C30, t.S30, t.P30) = GetPercent(7);
+                        (t.C40, t.S40, t.P40) = GetPercent(8);
+                        (t.C50, t.S50, t.P50) = GetPercent(9);
+                        (t.C100, t.S100, t.P100) = GetPercent(10);
+                        (t.C200, t.S200, t.P200) = GetPercent(11);
+                        (t.C400, t.S400, t.P400) = GetPercent(12);
+                        (t.C600, t.S600, t.P600) = GetPercent(13);
+                        (t.C800, t.S800, t.P800) = GetPercent(14);
+                        (t.C1000, t.S1000, t.P1000) = GetPercent(15);
+                        (t.COver1000, t.SOver1000, t.POver1000) = GetPercent(16);
+                        (t.TotalCount, t.TotalStock, temp) = GetPercent(17);
+                        t.PUnder100 = t.P1 + t.P5 + t.P10 + t.P15 + t.P20 + t.P30 + t.P40 + t.P50 + t.P100;
+                        t.CUnder100 = t.C1 + t.C5 + t.C10 + t.C15 + t.C20 + t.C30 + t.C40 + t.C50 + t.C100;
+                        t.SUnder100 = t.S1 + t.S5 + t.S10 + t.S15 + t.S20 + t.S30 + t.S40 + t.S50 + t.S100;
+
+                        context.Thousand.Add(t);
+                        await context.SaveChangesAsync();
 
                     }
                     catch (Exception ex)

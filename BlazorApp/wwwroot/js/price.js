@@ -1,7 +1,7 @@
 ﻿(function () {
 
-    //var url = "http://220.133.185.1:8081/stock/" + getUrlParameter('stockId');
-    var url = "https://localhost:44368/stock/" + getUrlParameter('stockId');
+    var url = "http://220.133.185.1:8081/stock/" + getUrlParameter('stockId');
+    //var url = "https://localhost:44368/stock/" + getUrlParameter('stockId');
 
     $.get(url, function (data) {
 

@@ -151,17 +151,17 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
             for (int i = 0; i < thousands.Length; i++)
             {
                 var p = new ThousandModel();
-                p.Datetime = thousands[i].Datetime.Value.ToString("yyyy-MM-dd");
-                p.P100 = thousands[i].P1.Value + 
-                    thousands[i].P5.Value + 
-                    thousands[i].P10.Value + 
-                    thousands[i].P15.Value + 
-                    thousands[i].P20.Value + 
-                    thousands[i].P30.Value + 
-                    thousands[i].P40.Value + 
-                    thousands[i].P50.Value + 
-                    thousands[i].P100.Value;
-                p.P1000 = thousands[i].PercentOver1000.Value;
+                p.Datetime = thousands[i].Datetime.ToString("yyyy-MM-dd");
+                //p.P100 = thousands[i].P1.Value + 
+                //    thousands[i].P5.Value + 
+                //    thousands[i].P10.Value + 
+                //    thousands[i].P15.Value + 
+                //    thousands[i].P20.Value + 
+                //    thousands[i].P30.Value + 
+                //    thousands[i].P40.Value + 
+                //    thousands[i].P50.Value + 
+                //    thousands[i].P100.Value;
+                //p.P1000 = thousands[i].PercentOver1000.Value;
                 thousand.Add(p);
             }
 

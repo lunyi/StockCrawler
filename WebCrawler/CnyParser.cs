@@ -51,13 +51,10 @@ namespace WebCrawler
         private static string GetSql()
         {
             return @$"
-select * from [Stocks]
-where StockId not in (
-SELECT StockId
-  FROM [dbo].[Prices]
-  where [Datetime] = '{DateTime.Today.AddDays(-1).ToString("yyyy/MM/dd")}')
- and [Status] = 1
-  order by StockId";
+  select s.* from [Stocks]  s 
+  left join (select * from [Prices] where [Datetime] = '{DateTime.Today.ToString("yyyy/MM/dd")}') p on s.StockId = p.StockId
+  where  s.Status = 1 and p.Id is null
+  order by s.StockId";
         }
 
         private async Task ExecuteHistoryAsync(CnyParser parser, StockDbContext context, string stockId, string name)

@@ -480,16 +480,48 @@ namespace DataService.Models
 
                 entity.Property(e => e.P800).HasColumnType("decimal(18, 2)");
 
-                entity.Property(e => e.PercentOver1000).HasColumnType("decimal(18, 2)");
+                entity.Property(e => e.POver1000).HasColumnType("decimal(18, 2)");
 
-                entity.Property(e => e.PercentOver400).HasColumnType("decimal(18, 2)");
+                entity.Property(e => e.PUnder100).HasColumnType("decimal(18, 2)");
 
-                entity.Property(e => e.PercentUnder400).HasColumnType("decimal(18, 2)");
+                entity.Property(e => e.S1).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.S10).HasColumnType("decimal(18, 3)");
+
+                entity.Property(e => e.S100).HasColumnType("decimal(18, 3)");
+
+                entity.Property(e => e.S1000).HasColumnType("decimal(18, 3)");
+
+                entity.Property(e => e.S15).HasColumnType("decimal(18, 3)");
+
+                entity.Property(e => e.S20).HasColumnType("decimal(18, 3)");
+
+                entity.Property(e => e.S200).HasColumnType("decimal(18, 3)");
+
+                entity.Property(e => e.S30).HasColumnType("decimal(18, 3)");
+
+                entity.Property(e => e.S40).HasColumnType("decimal(18, 3)");
+
+                entity.Property(e => e.S400).HasColumnType("decimal(18, 3)");
+
+                entity.Property(e => e.S5).HasColumnType("decimal(18, 3)");
+
+                entity.Property(e => e.S50).HasColumnType("decimal(18, 3)");
+
+                entity.Property(e => e.S600).HasColumnType("decimal(18, 3)");
+
+                entity.Property(e => e.S800).HasColumnType("decimal(18, 3)");
+
+                entity.Property(e => e.SOver1000).HasColumnType("decimal(18, 3)");
+
+                entity.Property(e => e.SUnder100).HasColumnType("decimal(18, 3)");
 
                 entity.Property(e => e.StockId)
                     .IsRequired()
                     .HasMaxLength(8)
                     .IsUnicode(false);
+
+                entity.Property(e => e.TotalStock).HasColumnType("decimal(18, 3)");
             });
 
             modelBuilder.Entity<YearData>(entity =>

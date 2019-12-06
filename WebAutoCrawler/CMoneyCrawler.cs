@@ -99,8 +99,8 @@ namespace WebAutoCrawler
                             StockId = stock.StockId,
                             Name = stock.Name,       
                             Datetime = Convert.ToDateTime(titles[i].Text + "/01"),
-                            PercentOver400= Convert.ToDecimal(overFourHundreds[i].Text),                       
-                            PercentUnder400 = Convert.ToDecimal(underFourHundreds[i].Text),
+                            //PercentOver400= Convert.ToDecimal(overFourHundreds[i].Text),                       
+                            //PercentUnder400 = Convert.ToDecimal(underFourHundreds[i].Text),
                             P1 = Convert.ToDecimal(p1[i].Text),
                             P5 = Convert.ToDecimal(p5[i].Text),
                             P10 = Convert.ToDecimal(p10[i].Text),
@@ -115,7 +115,7 @@ namespace WebAutoCrawler
                             P600 = Convert.ToDecimal(p600[i].Text),
                             P800 = Convert.ToDecimal(p800[i].Text),
                             P1000 = Convert.ToDecimal(p1000[i].Text),
-                            PercentOver1000 = Convert.ToDecimal(overThousand[i].Text),
+                            //PercentOver1000 = Convert.ToDecimal(overThousand[i].Text),
                             CreatedOn = DateTime.Now
                         };
 
