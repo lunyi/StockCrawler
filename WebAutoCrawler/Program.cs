@@ -13,8 +13,8 @@ namespace WebCrawler
     {
         static async Task Main(string[] args)
         {
-            var c = new ThousandDataCrawler();
-            await c.ExecuteLatestAsync();
+            var c = new ThousandDataCrawlerV2();
+            await c.ExecuteAsync();
         }
 
         private async Task ParseHistory()
@@ -31,7 +31,6 @@ namespace WebCrawler
             {
                 if (stocks[i].StockId == "2330")
                 {
-
                     var prices = h.Execute(stocks[i].StockId);
 
                     for (int j = 0; j < prices.Count; j++)
