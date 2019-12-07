@@ -17,6 +17,8 @@ namespace DataService.DataModel
     {
         public string Datetime { get; set; }
         public decimal P100 { get; set; }
+        public decimal P400Down { get; set; }
+        public decimal P400Up { get; set; }
         public decimal P1000 { get; set; }
     }
     public class PriceModel

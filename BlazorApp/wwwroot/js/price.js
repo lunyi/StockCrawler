@@ -45,7 +45,7 @@ function renewThousand(thousands) {
             thousands[i].p100 = thousands[i].p100 + "↑";
             thousands[i].sColor = "red";
         }
-        else {
+        else if (thousands[i].p100 < thousands[i + 1].p100) {
             thousands[i].p100 = thousands[i].p100 + "↓";
             thousands[i].sColor = "green";
         }
@@ -53,9 +53,27 @@ function renewThousand(thousands) {
             thousands[i].p1000 = thousands[i].p1000 + "↑";
             thousands[i].bColor = "red";
         }
-        else {
+        else if (thousands[i].p1000 < thousands[i + 1].p1000){
             thousands[i].p1000 = thousands[i].p1000 + "↓";
             thousands[i].bColor = "green";
+        }
+
+        if (thousands[i].p400Up > thousands[i + 1].p400Up) {
+            thousands[i].p400Up = thousands[i].p400Up + "↑";
+            thousands[i].p400UpColor = "red";
+        }
+        else if (thousands[i].p400Up < thousands[i + 1].p400Up) {
+            thousands[i].p400Up = thousands[i].p400Up + "↓";
+            thousands[i].p400UpColor = "green";
+        }
+
+        if (thousands[i].p400Down > thousands[i + 1].p400Down) {
+            thousands[i].p400Down = thousands[i].p400Down + "↑";
+            thousands[i].p400DownColor = "red";
+        }
+        else if (thousands[i].p400Down < thousands[i + 1].p400Down) {
+            thousands[i].p400Down = thousands[i].p400Down + "↓";
+            thousands[i].p400DownColor = "green";
         }
     }
     return thousands;

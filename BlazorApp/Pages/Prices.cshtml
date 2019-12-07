@@ -25,7 +25,7 @@
 
     <table>
         <tr>
-            <td>
+            <td width="400px">
                 <div>營收比重:<span id="income"></span></div>
                 <div>住址:<span id="address"></span></div>
                 <div>股本:<span id="asset"></span>億,&nbsp;&nbsp;每股淨值:<span id="cValue"></span></div>
@@ -56,13 +56,17 @@
                         <thead>
                             <tr style="border: 1px solid orange">
                                 <th style="border: 1px solid orange">日期</th>
-                                <th style="border: 1px solid orange">散戶比例</th>
-                                <th style="border: 1px solid orange">大戶比例</th>
+                                <th style="border: 1px solid orange">100張以下</th>
+                                <th style="border: 1px solid orange">100~400</th>
+                                <th style="border: 1px solid orange">400~1000</th>
+                                <th style="border: 1px solid orange">1000張以上</th>
                             </tr>
                         </thead>
                         <tr v-for="thousand in Thousands">
                             <td style="border: 1px solid orange">{{thousand.datetime}}</td>
                             <td style="border: 1px solid orange" v-bind:style="{ color: thousand.sColor}">{{thousand.p100}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: thousand.p400DownColor}">{{thousand.p400Down}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: thousand.p400UpColor}">{{thousand.p400Up}}</td>
                             <td style="border: 1px solid orange" v-bind:style="{ color: thousand.bColor}">{{thousand.p1000}}</td>
                         </tr>
                     </table>

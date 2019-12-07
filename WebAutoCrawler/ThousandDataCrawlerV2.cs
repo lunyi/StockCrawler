@@ -26,7 +26,7 @@ namespace WebAutoCrawler
 
             foreach (var stock in stocks)
             {
-                for (int k = 0; k < 13; k++)
+                for (int k = 15; k < 50; k++)
                 {
                     try
                     {

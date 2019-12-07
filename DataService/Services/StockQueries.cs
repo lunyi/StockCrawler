@@ -152,16 +152,10 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
             {
                 var p = new ThousandModel();
                 p.Datetime = thousands[i].Datetime.ToString("yyyy-MM-dd");
-                //p.P100 = thousands[i].P1.Value + 
-                //    thousands[i].P5.Value + 
-                //    thousands[i].P10.Value + 
-                //    thousands[i].P15.Value + 
-                //    thousands[i].P20.Value + 
-                //    thousands[i].P30.Value + 
-                //    thousands[i].P40.Value + 
-                //    thousands[i].P50.Value + 
-                //    thousands[i].P100.Value;
-                //p.P1000 = thousands[i].PercentOver1000.Value;
+                p.P100 = thousands[i].PUnder100;
+                p.P400Down = thousands[i].P200 + thousands[i].P400;
+                p.P400Up = thousands[i].P600 + thousands[i].P800 + thousands[i].P1000;
+                p.P1000 = thousands[i].POver1000;
                 thousand.Add(p);
             }
 
@@ -815,29 +809,15 @@ WITH TOPTEN as (
     FROM [Thousand] where [Datetime] <= '{datetime}'
 )
 
-select s.[Id]
-      ,s.[StockId]
-      ,s.[Name]
-      ,s.[MarketCategory]
-      ,s.[Industry]
-      ,s.[ListingOn]
-      ,s.[CreatedOn]
-      ,s.[UpdatedOn]
-      ,s.[Status]
-      ,s.[Address]
-      ,s.[Website]
-      ,s.[營收比重]
-      ,s.[股本]
-      ,s.[股價]
-      ,s.[每股淨值]
-      ,s.[每股盈餘]
-	  ,CAST(t1.[PercentOver1000] -  t2.[PercentOver1000] AS nvarchar(30)) AS [Description]
+select s.*
 from [Stocks]s 
 join TOPTEN t1 on s.StockId = t1.StockId
 join TOPTEN t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
 join TOPTEN t3 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
-WHERE t1.RowNo=1 and (t1.[PercentOver1000] -  t2.[PercentOver1000]) > 2
-order by  (t1.[PercentOver1000] -  t2.[PercentOver1000]) desc
+WHERE t1.RowNo=1 and t1.[POver1000] >  t2.[POver1000] 
+and  t1.[PUnder100] <  t2.[PUnder100]
+and t2.[POver1000] >  t3.[POver1000] 
+and  t2.[PUnder100] <  t3.[PUnder100]
 ";
         }
 
