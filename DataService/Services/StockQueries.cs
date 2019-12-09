@@ -127,13 +127,11 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                          成交量 = price.成交量,
                          本益比 = price.本益比,
                          股價淨值比 = Math.Round(price.Close / stock.每股淨值.Value, 2),
-                         外資持股 = price.外資持股,
-                         投信持股 = price.投信持股,
-                         董監持股 = price.董監持股,
+                         投信持股比例 = 100 * Math.Round(((decimal)price.投信持股 / price.發行張數).Value, 5),
+                         董監持股比例 = 100 * Math.Round(((decimal)price.董監持股 / price.發行張數).Value, 5),
                          外資持股比例 = price.外資持股比例,
                          融資買賣超 = price.融資買進 - price.融資賣出,
                          融資使用率 = price.融資使用率,
-                         外資持股比重 = price.外資持股比例,
                          外資買賣超 = price.外資買進 - price.外資賣出,
                          投信買賣超 = price.投信買進 - price.投信賣出,
                          自營商買賣超 = price.自營商買進 - price.自營商賣出,
@@ -144,8 +142,25 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
 
             var thousands = await context.Thousand
                 .Where(p => p.StockId == stockId)
-                .OrderByDescending(p => p.Datetime)
-                .Take(4).ToArrayAsync();
+                .ToArrayAsync();
+            var pps = await context.Prices.Where(p => p.StockId == stockId).ToArrayAsync();
+
+            var res = from t in thousands
+                      join p in pps on t.Datetime equals p.Datetime
+                      select new ThousandModel
+                      {
+                        Datetime = t.Datetime.ToString("yyyy-MM-dd"),
+                        Close =  p.Close,
+                        P100 = t.PUnder100,
+                        P400Down = t.P200 + t.P400,
+                        P400Up = t.P600 + t.P800 + t.P1000,
+                        P1000 = t.POver1000,
+
+                        S100 = Math.Round(t.SUnder100.Value),
+                        S400Down = Math.Round(t.S200 + t.S400),
+                        S400Up = Math.Round(t.S600 + t.S800 + t.S1000),
+                        S1000 = Math.Round(t.SOver1000),
+                     };
 
             var thousand = new List<ThousandModel>();
             for (int i = 0; i < thousands.Length; i++)
@@ -153,9 +168,15 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                 var p = new ThousandModel();
                 p.Datetime = thousands[i].Datetime.ToString("yyyy-MM-dd");
                 p.P100 = thousands[i].PUnder100;
+                p.P100 = thousands[i].PUnder100;
                 p.P400Down = thousands[i].P200 + thousands[i].P400;
                 p.P400Up = thousands[i].P600 + thousands[i].P800 + thousands[i].P1000;
                 p.P1000 = thousands[i].POver1000;
+
+                p.S100 = Math.Round(thousands[i].SUnder100.Value);
+                p.S400Down = Math.Round(thousands[i].S200 + thousands[i].S400);
+                p.S400Up = Math.Round(thousands[i].S600 + thousands[i].S800 + thousands[i].S1000);
+                p.S1000 = Math.Round(thousands[i].SOver1000);
                 thousand.Add(p);
             }
 
@@ -294,14 +315,13 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                 case (int)ChooseStockType.六十日買方籌碼集中度排行榜:
                     sql = Get籌碼集中排行榜Sql(datetime, 60, "desc");
                     break;
-
                 case (int)ChooseStockType.連續十二月單月年增率成長:
                     sql = 連續十二月單月年增率成長(datetime);
                     break;
                 case (int)ChooseStockType.近月營收累積年增率成長:
                     sql = 近月營收累積年增率成長(datetime);
                     break;
-                    
+                  
                 case (int)ChooseStockType.當月大戶增散戶減營收增:
                     sql = Get當月大戶增散戶減營收增Sql(datetime);
                     break;
@@ -324,7 +344,7 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                 case (int)ChooseStockType.半年線附近:
                     sql = Get半年線附近Sql(datetime);
                     break;
-                case (int)ChooseStockType.大戶增加散戶減少:
+                case (int)ChooseStockType.連續大戶增加散戶減少:
                     sql = Get大戶增加散戶減少Sql(datetime);
                     break;
                 case (int)ChooseStockType.集保庫存排行榜:
@@ -459,7 +479,7 @@ join TOPTEN1 t8 on t1.StockId = t8.StockId and t1.RowNo + 7 = t8.RowNo
 join TOPTEN1 t9 on t1.StockId = t9.StockId and t1.RowNo + 8 = t9.RowNo
 join TOPTEN1 t10 on t1.StockId = t10.StockId and t1.RowNo + 9 = t10.RowNo
 WHERE t1.RowNo=1 and
- (t1.PercentOver1000 > t2.PercentOver1000) 
+ (t1.POver1000 > t2.POver1000) 
  group by 
 	  s.[Id]
       ,s.[StockId]
@@ -479,7 +499,7 @@ WHERE t1.RowNo=1 and
       ,s.[每股淨值]
       ,s.[每股盈餘]
  having
- (sum(t1.P1 + t1.P5+ t1.P10+ t1.P15+ t1.P20+ t1.P30+ t1.P40 + t1.P50 + t1.P100)< sum(t2.P1 + t2.P5+ t2.P10+ t2.P15+ t2.P20+ t2.P30+ t2.P40 + t2.P50 + t2.P100));
+ (sum(t1.PUnder100)< sum(t2.PUnder100));
 
 WITH TOPTEN2 as (
    SELECT *, ROW_NUMBER() 
@@ -818,6 +838,7 @@ WHERE t1.RowNo=1 and t1.[POver1000] >  t2.[POver1000]
 and  t1.[PUnder100] <  t2.[PUnder100]
 and t2.[POver1000] >  t3.[POver1000] 
 and  t2.[PUnder100] <  t3.[PUnder100]
+order by s.Industry
 ";
         }
 

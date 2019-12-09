@@ -1,7 +1,7 @@
 ﻿(function () {
 
-    var url = "http://220.133.185.1:8081/stock/" + getUrlParameter('stockId');
-    //var url = "https://localhost:44368/stock/" + getUrlParameter('stockId');
+    //var url = "http://220.133.185.1:8081/stock/" + getUrlParameter('stockId');
+    var url = "https://localhost:44368/stock/" + getUrlParameter('stockId');
 
     $.get(url, function (data) {
 
@@ -9,6 +9,7 @@
         $("#address").text(data.stock.address);
         $("#asset").text(data.stock.股本);
         $("#cValue").text(data.stock.每股淨值);
+        $("#YValue").text(data.stock.每股盈餘);
         $("#website").attr("href", data.stock.website);
 
         //console.log(renewPrices(data.monthData));
@@ -41,38 +42,43 @@
 function renewThousand(thousands) {
 
     for (var i = 0; i < thousands.length - 1; i++) {
-        if (thousands[i].p100 > thousands[i+1].p100) {
-            thousands[i].p100 = thousands[i].p100 + "↑";
+        var s100 = thousands[i].s100 - thousands[i + 1].s100;
+        var s1000 = thousands[i].s1000 - thousands[i + 1].s1000;
+        var s400Up = thousands[i].s400Up - thousands[i + 1].s400Up;
+        var s400Down = thousands[i].s400Down - thousands[i + 1].s400Down;
+
+        if (thousands[i].p100 > thousands[i + 1].p100) {
+            thousands[i].p100 = thousands[i].p100 + "↑ (" + s100+ ")";
             thousands[i].sColor = "red";
         }
         else if (thousands[i].p100 < thousands[i + 1].p100) {
-            thousands[i].p100 = thousands[i].p100 + "↓";
+            thousands[i].p100 = thousands[i].p100 + "↓ (" + s100 + ")";
             thousands[i].sColor = "green";
         }
         if (thousands[i].p1000 > thousands[i + 1].p1000) {
-            thousands[i].p1000 = thousands[i].p1000 + "↑";
+            thousands[i].p1000 = thousands[i].p1000 + "↑ (" + s1000 + ")";
             thousands[i].bColor = "red";
         }
         else if (thousands[i].p1000 < thousands[i + 1].p1000){
-            thousands[i].p1000 = thousands[i].p1000 + "↓";
+            thousands[i].p1000 = thousands[i].p1000 + "↓ (" + s1000 + ")";
             thousands[i].bColor = "green";
         }
 
         if (thousands[i].p400Up > thousands[i + 1].p400Up) {
-            thousands[i].p400Up = thousands[i].p400Up + "↑";
+            thousands[i].p400Up = thousands[i].p400Up + "↑ (" + s400Up + ")";
             thousands[i].p400UpColor = "red";
         }
         else if (thousands[i].p400Up < thousands[i + 1].p400Up) {
-            thousands[i].p400Up = thousands[i].p400Up + "↓";
+            thousands[i].p400Up = thousands[i].p400Up + "↓ (" + s400Up + ")";
             thousands[i].p400UpColor = "green";
         }
 
         if (thousands[i].p400Down > thousands[i + 1].p400Down) {
-            thousands[i].p400Down = thousands[i].p400Down + "↑";
+            thousands[i].p400Down = thousands[i].p400Down + "↑ (" + s400Down + ")";
             thousands[i].p400DownColor = "red";
         }
         else if (thousands[i].p400Down < thousands[i + 1].p400Down) {
-            thousands[i].p400Down = thousands[i].p400Down + "↓";
+            thousands[i].p400Down = thousands[i].p400Down + "↓ (" + s400Down + ")";
             thousands[i].p400DownColor = "green";
         }
     }

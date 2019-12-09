@@ -20,6 +20,11 @@ namespace DataService.DataModel
         public decimal P400Down { get; set; }
         public decimal P400Up { get; set; }
         public decimal P1000 { get; set; }
+        public decimal S100 { get; set; }
+        public decimal S400Down { get; set; }
+        public decimal S400Up { get; set; }
+        public decimal S1000 { get; set; }
+        public decimal Close { get; set; }
     }
     public class PriceModel
     {
@@ -41,12 +46,8 @@ namespace DataService.DataModel
         public int? 外資買賣超 { get; set; }
         public int? 投信買賣超 { get; set; }
         public int? 自營商買賣超 { get; set; }
-        public decimal? 外資持股比重 { get; set; }
-        public decimal? 三大法人持股比重 { get; set; }
-        public int? 融券買進 { get; set; }
-        public int? 外資持股 { get; set; }
-        public int? 投信持股 { get; set; }
-        public int? 董監持股 { get; set; }
+        public decimal? 投信持股比例 { get; set; }
+        public decimal? 董監持股比例 { get; set; }
         public decimal? 外資持股比例 { get; set; }
         public decimal? 主力買賣超 { get; set; }
         public decimal? 籌碼集中度 { get; set; }

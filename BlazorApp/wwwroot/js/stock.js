@@ -84,7 +84,8 @@ var urls = {
     16: 'https://www.moneydj.com/KMDJ/search/list.aspx?_Query_={0}&_QueryType_=NW',
     17: 'https://statementdog.com/analysis/tpe/{0}/stock-health-check',
     18: 'https://www.fugle.tw/ai/{0}?p=2460385721&perfect=true',
-    19: 'http://www.fortunengine.com.tw/evaluator.aspx?menu=on&scode={0}'
+    19: 'http://www.fortunengine.com.tw/evaluator.aspx?menu=on&scode={0}',
+    20: 'https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm',
 };
 //個股新聞 https://www.moneydj.com/KMDJ/search/list.aspx?_Query_=6449&_QueryType_=NW
 //https://www.moneydj.com/KMDJ/Common/ListNewArticles.aspx?svc=NW&a=X0200000
