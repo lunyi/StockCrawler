@@ -22,7 +22,12 @@ namespace WebAutoCrawler
         {
             var context = new StockDbContext();
             var stocks = context.Stocks.Where(p => p.Status == 1).OrderBy(p => p.StockId).ToArray();
-            var datetimes = context.Thousand.Select(p => p.Datetime).Distinct().Select((p, i) => new TempDatetime
+            var tdatetimes = context.Thousand.Where(p=>p.Datetime >= Convert.ToDateTime("2019-08-30"))
+                .Select(p => p.Datetime)
+                .Distinct()
+                .OrderByDescending(p=>p)
+                .ToArray();
+            var datetimes = tdatetimes.Select((p, i) => new TempDatetime
             { 
                 Datetime = p,
                 Index = i
@@ -32,6 +37,7 @@ namespace WebAutoCrawler
                            join th in context.Thousand on new { s.StockId, d.Datetime } equals new { th.StockId, th.Datetime }
                             into thTmp
                            from t in thTmp.DefaultIfEmpty()
+                           where t == null
                            select new TempThousand
                       {
                           StockId = s.StockId,

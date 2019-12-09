@@ -145,8 +145,9 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                 .ToArrayAsync();
             var pps = await context.Prices.Where(p => p.StockId == stockId).ToArrayAsync();
 
-            var res = from t in thousands
+            var thousand = from t in thousands
                       join p in pps on t.Datetime equals p.Datetime
+                      orderby t.Datetime descending
                       select new ThousandModel
                       {
                         Datetime = t.Datetime.ToString("yyyy-MM-dd"),
@@ -161,24 +162,6 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                         S400Up = Math.Round(t.S600 + t.S800 + t.S1000),
                         S1000 = Math.Round(t.SOver1000),
                      };
-
-            var thousand = new List<ThousandModel>();
-            for (int i = 0; i < thousands.Length; i++)
-            {
-                var p = new ThousandModel();
-                p.Datetime = thousands[i].Datetime.ToString("yyyy-MM-dd");
-                p.P100 = thousands[i].PUnder100;
-                p.P100 = thousands[i].PUnder100;
-                p.P400Down = thousands[i].P200 + thousands[i].P400;
-                p.P400Up = thousands[i].P600 + thousands[i].P800 + thousands[i].P1000;
-                p.P1000 = thousands[i].POver1000;
-
-                p.S100 = Math.Round(thousands[i].SUnder100.Value);
-                p.S400Down = Math.Round(thousands[i].S200 + thousands[i].S400);
-                p.S400Up = Math.Round(thousands[i].S600 + thousands[i].S800 + thousands[i].S1000);
-                p.S1000 = Math.Round(thousands[i].SOver1000);
-                thousand.Add(p);
-            }
 
             var monthData = await context.MonthData
                 .Where(p => p.StockId == stockId)
