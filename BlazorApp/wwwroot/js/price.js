@@ -1,7 +1,7 @@
 ﻿(function () {
 
-    //var url = "http://220.133.185.1:8081/stock/" + getUrlParameter('stockId');
-    var url = "https://localhost:44368/stock/" + getUrlParameter('stockId');
+    var url = "http://220.133.185.1:8081/stock/" + getUrlParameter('stockId');
+    //var url = "https://localhost:44367/stock/" + getUrlParameter('stockId');
 
     $.get(url, function (data) {
 
@@ -46,6 +46,17 @@ function renewThousand(thousands) {
         var s1000 = thousands[i].s1000 - thousands[i + 1].s1000;
         var s400Up = thousands[i].s400Up - thousands[i + 1].s400Up;
         var s400Down = thousands[i].s400Down - thousands[i + 1].s400Down;
+
+        var close = (100 * (thousands[i].close - thousands[i + 1].close) / thousands[i + 1].close).toFixed(2);
+
+        if (thousands[i].close > thousands[i + 1].close) {
+            thousands[i].close = thousands[i].close + "↑ (" + close + "%)";
+            thousands[i].updownColor = "red";
+        }
+        else if (thousands[i].close < thousands[i + 1].close) {
+            thousands[i].close = thousands[i].close + "↓ (" + close + "%)";
+            thousands[i].updownColor = "green";
+        }
 
         if (thousands[i].p100 > thousands[i + 1].p100) {
             thousands[i].p100 = thousands[i].p100 + "↑ (" + s100+ ")";

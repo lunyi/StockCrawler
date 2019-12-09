@@ -64,6 +64,7 @@
                                 <th style="border: 1px solid orange">100~400</th>
                                 <th style="border: 1px solid orange">400~1000</th>
                                 <th style="border: 1px solid orange">1000張以上</th>
+                                <th style="border: 1px solid orange">收盤價</th>
                             </tr>
                         </thead>
                         <tr v-for="thousand in Thousands">
@@ -72,6 +73,7 @@
                             <td style="border: 1px solid orange" v-bind:style="{ color: thousand.p400DownColor}">{{thousand.p400Down}}</td>
                             <td style="border: 1px solid orange" v-bind:style="{ color: thousand.p400UpColor}">{{thousand.p400Up}}</td>
                             <td style="border: 1px solid orange" v-bind:style="{ color: thousand.bColor}">{{thousand.p1000}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: thousand.updownColor}">{{thousand.close}}</td>
                         </tr>
                     </table>
                 </div>
