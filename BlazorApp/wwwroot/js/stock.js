@@ -99,6 +99,7 @@ var urlIndexNewTab = 17;
 
 function onStockChangeAsync(obj) {
     currentStockId = obj.value;
+    currentIndex = obj.selectedIndex;
     goToUrl();
 }
 
@@ -242,8 +243,8 @@ function setStocks(data) {
         var text = data[i].stockId + " - " + data[i].name + " (" + data[i].industry + " " + desc + " )";
         $("#stockList").append($("<option></option>").attr("value", data[i].stockId).text(text));
     }
-    $("#stockList").val(data[0].stockId);
-    currentStockId = data[0].stockId;
+    $("#stockList").val(data[currentIndex].stockId);
+    currentStockId = data[currentIndex].stockId;
     goToUrl();
 }
 
