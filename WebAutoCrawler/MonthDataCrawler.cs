@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DataService.Models;
 using Messages;
+using Microsoft.EntityFrameworkCore;
 using OpenQA.Selenium;
 
 namespace WebAutoCrawler
@@ -19,10 +20,8 @@ namespace WebAutoCrawler
         public override async Task ExecuteAsync()
         {
             var context = new StockDbContext();
-            var stocks = context.Stocks
-                .Where(p => p.Status == 1)
-                .OrderBy(p => p.StockId)
-                .ToList();
+            var date = $@"{DateTime.Today.AddDays(-30).ToString("yyyy-MM-01")}";
+            var stocks = context.Stocks.FromSqlRaw(GetSql(date)).ToList();
 
             var allMonthData = context.MonthData.ToList();
 
@@ -51,6 +50,15 @@ namespace WebAutoCrawler
             }
         }
 
+        private string GetSql(string datetime)
+        {
+            return @$"
+    select s.* from [Stocks]  s 
+  left join (select * from [MonthData] where [Datetime] = '{datetime}') p on s.StockId = p.StockId
+  where  s.Status = 1 and p.Id is null
+  order by s.StockId
+";
+        }
         private MonthData ParserLatest(string url, string stockId, string name, List<MonthData> monthData)
         {
             GoToUrl(url);

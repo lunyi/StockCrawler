@@ -68,7 +68,7 @@ namespace WebAutoCrawler
             {
                 try
                 {
-                    await ParserAsync(context, stock.StockId, stock.Name, 2);
+                    await ParserAsync(context, stock.StockId, stock.Name, 0);
                 }
                 catch (Exception ex)
                 {

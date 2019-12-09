@@ -17,32 +17,25 @@ namespace WebCrawler
     {
         public ConcurrentDictionary<string, string> ErrorStocks { get; set; }
 
-
+        [Obsolete]
         public async Task RunAsync()
         {
-            //await RunMainForceAsync();
             var context = new StockDbContext();
-            //var stocks = context.Stocks
-            //    .Where(p => p.Status == 1 && p.MarketCategory == "上市")
-            //    .OrderBy(p => p.StockId)
-            //    .ToList();
-
             var s = Stopwatch.StartNew();
             s.Start();
 
             var parser = new CnyParser();
-
-            //foreach (var item in stocks)
-            //{
-            //    await ExecuteLastAsync(parser, context, item.StockId, item.Name);
-            //}
-
             var stocks = context.Stocks.FromSqlRaw(GetSql()).ToList();
 
             foreach (var item in stocks)
             {
                 await ExecuteLastAsync(parser, context, item.StockId, item.Name);
             }
+
+            var dd = await context.Prices.Select(p => p.Datetime).Distinct().OrderByDescending(p => p).Take(2).ToArrayAsync();
+
+            context.Database.ExecuteSqlCommand(GetSqlToUpdate發行張數(dd[0].ToString("yyyy-MM-dd"), dd[1].ToString("yyyy-MM-dd")));
+            context.Database.ExecuteSqlCommand(GetSqlToUpdate());
 
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
@@ -94,6 +87,39 @@ namespace WebCrawler
             await context.SaveChangesAsync();
         }
 
+        [Obsolete]
+        private RawSqlString GetSqlToUpdate()
+        {
+            return new RawSqlString(@"
+Update  [Prices] set [投信買賣超] = (投信買進 - 投信賣出), [外資買賣超] = (外資買進 - 外資賣出)
+where ([投信買賣超] != (投信買進 - 投信賣出)) or  ([外資買賣超] != (外資買進 - 外資賣出))
+");
+        }
+
+        [Obsolete]
+        private RawSqlString GetSqlToUpdate發行張數(string firstDatetime, string secondDatetime)
+        {
+            return new RawSqlString(@$"
+ update [Prices] set [發行張數] = c.發行張數2
+ from (
+select 
+  a.stockId, a.Name, 
+  a.[Datetime] as [Datetime1], 
+  a.發行張數 as 發行張數1, 
+  b.Datetime as [Datetime2], 
+  b.發行張數 as 發行張數2 
+from (
+SELECT *
+  FROM [StockDb].[dbo].[Prices]
+  where [Datetime] = '{firstDatetime}' and ([發行張數] is null or [發行張數] = 0))  a 
+  join (SELECT *
+  FROM [StockDb].[dbo].[Prices]
+  where [Datetime] = '{secondDatetime}')  b on a.StockId = b.StockId) c 
+
+   where [Datetime] = '{secondDatetime}' and  ([發行張數] is null or [發行張數] = 0)
+
+");
+        }
         private Prices[] ParserHistory(string stockId, string name)
         {
             try

@@ -13,19 +13,19 @@ namespace WebCrawler
 {
     class WebCrawler
     {
-
+        [Obsolete]
         static async Task Main(string[] args)
         {
 
-            //var ss = new MonthDataParser();
-            //ss.RunAsync
+            var ss = new CnyParser();
+            await ss.RunAsync();
 
 
             //var s = new UpdateStockListParser();
             //await s.RunAsync();
 
-            var s1 = new MoneyDjParser();
-            await s1.RunAsync();
+            //var s1 = new MoneyDjParser();
+            //await s1.RunAsync();
 
             
             //await ss.ParserMarginAsync();
