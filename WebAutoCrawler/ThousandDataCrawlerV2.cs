@@ -91,7 +91,16 @@ namespace WebAutoCrawler
                     (t.C800, t.S800, t.P800) = GetPercent(14);
                     (t.C1000, t.S1000, t.P1000) = GetPercent(15);
                     (t.COver1000, t.SOver1000, t.POver1000) = GetPercent(16);
-                    (t.TotalCount, t.TotalStock, temp) = GetPercent(17);
+
+                    try
+                    {
+                        (t.TotalCount, t.TotalStock, temp) = GetPercent(17);
+                    }
+                    catch (Exception)
+                    {
+                        (t.TotalCount, t.TotalStock, temp) = GetPercent(18);
+                    }
+
                     t.PUnder100 = t.P1 + t.P5 + t.P10 + t.P15 + t.P20 + t.P30 + t.P40 + t.P50 + t.P100;
                     t.CUnder100 = t.C1 + t.C5 + t.C10 + t.C15 + t.C20 + t.C30 + t.C40 + t.C50 + t.C100;
                     t.SUnder100 = t.S1 + t.S5 + t.S10 + t.S15 + t.S20 + t.S30 + t.S40 + t.S50 + t.S100;
