@@ -25,6 +25,7 @@ namespace DataService.Models
         public virtual DbSet<MonthData> MonthData { get; set; }
         public virtual DbSet<Prices> Prices { get; set; }
         public virtual DbSet<SeasonData> SeasonData { get; set; }
+        public virtual DbSet<StockHistory> StockHistory { get; set; }
         public virtual DbSet<Stocks> Stocks { get; set; }
         public virtual DbSet<Thousand> Thousand { get; set; }
         public virtual DbSet<YearData> YearData { get; set; }
@@ -400,6 +401,44 @@ namespace DataService.Models
                 entity.Property(e => e.負債總計).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.資產總計).HasColumnType("decimal(18, 2)");
+            });
+
+            modelBuilder.Entity<StockHistory>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.Address).HasMaxLength(256);
+
+                entity.Property(e => e.Description).HasMaxLength(256);
+
+                entity.Property(e => e.Industry)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.MarketCategory)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.StockId)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Website).HasMaxLength(256);
+
+                entity.Property(e => e.每股淨值).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.每股盈餘).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.營收比重).HasMaxLength(1024);
+
+                entity.Property(e => e.股價).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.股本).HasColumnType("decimal(18, 2)");
             });
 
             modelBuilder.Entity<Stocks>(entity =>

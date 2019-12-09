@@ -62,14 +62,28 @@ namespace WebCrawler
                 {
 
                     Console.WriteLine($"Update Stocks:{stockToUpdate.StockId} {stockToUpdate.Name}=>{stock.Name}");
+
+                    var s1 = new StockHistory
+                    {
+                        Id = Guid.NewGuid(),
+                        StockId = stock.StockId,
+                        Name = stock.Name,
+                        MarketCategory = stock.MarketCategory,
+                        Industry = stock.Industry,
+                        ListingOn = stock.ListingOn,
+                        CreatedOn = DateTime.Now,
+                        UpdatedOn = DateTime.Now,
+                    };
+
                     stockToUpdate.Name = stock.Name;
                     stockToUpdate.MarketCategory = stock.MarketCategory;
                     stockToUpdate.Industry = stock.Industry;
                     stockToUpdate.UpdatedOn = DateTime.Now;
+                    context.StockHistory.Add(s1);
                     context.Entry<Stocks>(stockToUpdate).State = EntityState.Modified;
+                    await context.SaveChangesAsync();
                 }
             }
-            await context.SaveChangesAsync();
         }
 
         private async Task CreateStocksAsync(StockDbContext context, Stocks[] stockToAdd)

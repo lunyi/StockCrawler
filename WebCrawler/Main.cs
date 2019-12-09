@@ -19,8 +19,15 @@ namespace WebCrawler
 
             //var ss = new MonthDataParser();
             //ss.RunAsync
-            var s = new CnyParser();
-            await s.RunAsync();
+
+
+            //var s = new UpdateStockListParser();
+            //await s.RunAsync();
+
+            var s1 = new MoneyDjParser();
+            await s1.RunAsync();
+
+            
             //await ss.ParserMarginAsync();
             //var ss =  s.ParseTrust("2330", "2017-01-01", "2019-10-29");
 
