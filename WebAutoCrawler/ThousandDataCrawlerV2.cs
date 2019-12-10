@@ -102,9 +102,9 @@ namespace WebAutoCrawler
             GoToUrl(BillionUrl);
             Thread.Sleep(300);
             var k = index;
-            var selectElement2 = new SelectElement(FindElement(By.Id("scaDates")));
-            var date = selectElement2.Options[k].Text.Insert(6, "-").Insert(4, "-");
-            selectElement2.SelectByIndex(k);
+            var selectElement = new SelectElement(FindElement(By.Id("scaDates")));
+            var date = selectElement.Options[k].Text.Insert(6, "-").Insert(4, "-");
+            selectElement.SelectByIndex(k);
             FindElement(By.Id("StockNo")).SendKeys(stockId);
             FindElement(By.Name("sub")).Click();
 
