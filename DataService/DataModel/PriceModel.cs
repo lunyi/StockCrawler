@@ -9,23 +9,10 @@ namespace DataService.DataModel
     {
         public Stocks Stock { get; set; }
         public PriceModel[] Prices { get; set; }
-        public ThousandModel[] Thousand { get; set; }
+        public _WeekyChip[] WeeklyChip { get; set; }
         public MonthData[] MonthData { get; set; }
     }
 
-    public class ThousandModel 
-    {
-        public string Datetime { get; set; }
-        public decimal P100 { get; set; }
-        public decimal P400Down { get; set; }
-        public decimal P400Up { get; set; }
-        public decimal P1000 { get; set; }
-        public decimal S100 { get; set; }
-        public decimal S400Down { get; set; }
-        public decimal S400Up { get; set; }
-        public decimal S1000 { get; set; }
-        public decimal Close { get; set; }
-    }
     public class PriceModel
     {
         public string StockId { get; set; }

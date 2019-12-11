@@ -171,7 +171,7 @@ SELECT *
         {
             var context = new StockDbContext();
             var prices = context.Prices.Where(p => p.Datetime == DateTime.Today && p.融券買進 == null)
-                .OrderBy(p => p.StockId)
+                .OrderByDescending(p => p.StockId)
                 .ToList();
 
             for (int i = 0; i < prices.Count; i++)
