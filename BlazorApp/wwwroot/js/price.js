@@ -1,17 +1,21 @@
 ﻿(function () {
 
-    var url = "http://220.133.185.1:8081/stock/" + getUrlParameter('stockId');
-    //var url = "https://localhost:44367/stock/" + getUrlParameter('stockId');
+    var stockId = getUrlParameter('stockId');
+    //var url = "http://220.133.185.1:8081/stock/" + getUrlParameter('stockId');
+    var url = "https://localhost:44367/stock/" + stockId;
+    var kUrl = "https://so.cnyes.com/JavascriptGraphic/chartstudy.aspx?country=tw&market=tw&code=" + stockId + "&divwidth=550&divheight=330";
+
 
     $.get(url, function (data) {
 
+        $("#stockName").text(data.stock.name);
         $("#income").text(data.stock.營收比重);
         $("#address").text(data.stock.address);
         $("#asset").text(data.stock.股本);
         $("#cValue").text(data.stock.每股淨值);
         $("#YValue").text(data.stock.每股盈餘);
         $("#website").attr("href", data.stock.website);
-
+        $("#kChart").attr("src", kUrl);
         //console.log(renewPrices(data.monthData));
 
         var vue = new Vue({
@@ -42,11 +46,6 @@
 function renewWeekChip(weekChips) {
 
     for (var i = 0; i < weekChips.length - 1; i++) {
-        var s100 = weekChips[i].sUnder100 - weekChips[i + 1].sUnder100;
-        var s1000 = weekChips[i].sOver1000 - weekChips[i + 1].sOver1000;
-        var s400Up = weekChips[i].sOver400 - weekChips[i + 1].sOver400;
-        var s400Down = weekChips[i].sUnder400 - weekChips[i + 1].sUnder400;
-
         var close = (100 * (weekChips[i].close - weekChips[i + 1].close) / weekChips[i + 1].close).toFixed(2);
 
         if (weekChips[i].close > weekChips[i + 1].close) {
@@ -59,37 +58,37 @@ function renewWeekChip(weekChips) {
         }
 
         if (weekChips[i].pUnder100 > weekChips[i + 1].pUnder100) {
-            weekChips[i].pUnder100 = weekChips[i].pUnder100 + "↑ (" + s100+ ")";
+            weekChips[i].pUnder100 = weekChips[i].pUnder100 + "↑ (" + weekChips[i].sUnder100 + ")";
             weekChips[i].sColor = "red";
         }
         else if (weekChips[i].pUnder100 < weekChips[i + 1].pUnder100) {
-            weekChips[i].pUnder100 = weekChips[i].pUnder100 + "↓ (" + s100 + ")";
+            weekChips[i].pUnder100 = weekChips[i].pUnder100 + "↓ (" + weekChips[i].sUnder100 + ")";
             weekChips[i].sColor = "green";
         }
         if (weekChips[i].pOver1000 > weekChips[i + 1].pOver1000) {
-            weekChips[i].pOver1000 = weekChips[i].pOver1000 + "↑ (" + s1000 + ")";
+            weekChips[i].pOver1000 = weekChips[i].pOver1000 + "↑ (" + weekChips[i].sOver1000 + ")";
             weekChips[i].bColor = "red";
         }
         else if (weekChips[i].pOver1000 < weekChips[i + 1].pOver1000){
-            weekChips[i].pOver1000 = weekChips[i].pOver1000 + "↓ (" + s1000 + ")";
+            weekChips[i].pOver1000 = weekChips[i].pOver1000 + "↓ (" + weekChips[i].sOver1000 + ")";
             weekChips[i].bColor = "green";
         }
 
         if (weekChips[i].pOver400 > weekChips[i + 1].pOver400) {
-            weekChips[i].pOver400 = weekChips[i].pOver400 + "↑ (" + s400Up + ")";
+            weekChips[i].pOver400 = weekChips[i].pOver400 + "↑ (" + weekChips[i].sOver400 + ")";
             weekChips[i].p400UpColor = "red";
         }
         else if (weekChips[i].pOver400 < weekChips[i + 1].pOver400) {
-            weekChips[i].pOver400 = weekChips[i].pOver400 + "↓ (" + s400Up + ")";
+            weekChips[i].pOver400 = weekChips[i].pOver400 + "↓ (" + weekChips[i].sOver400 + ")";
             weekChips[i].p400UpColor = "green";
         }
 
         if (weekChips[i].pUnder400 > weekChips[i + 1].pUnder400) {
-            weekChips[i].pUnder400 = weekChips[i].pUnder400 + "↑ (" + s400Down + ")";
+            weekChips[i].pUnder400 = weekChips[i].pUnder400 + "↑ (" + weekChips[i].sUnder400 + ")";
             weekChips[i].p400DownColor = "red";
         }
         else if (weekChips[i].pUnder400 < weekChips[i + 1].pUnder400) {
-            weekChips[i].pUnder400 = weekChips[i].pUnder400 + "↓ (" + s400Down + ")";
+            weekChips[i].pUnder400 = weekChips[i].pUnder400 + "↓ (" + weekChips[i].sUnder400 + ")";
             weekChips[i].p400DownColor = "green";
         }
 
