@@ -18,7 +18,7 @@ namespace WebCrawler
         {
 
             var ss = new CnyParser();
-            await ss.RunAsync();
+            //await ss.RunAsync();
 
 
             //var s = new UpdateStockListParser();
@@ -28,7 +28,7 @@ namespace WebCrawler
             //await s1.RunAsync();
 
             
-            //await ss.ParserMarginAsync();
+            await ss.ParserMarginAsync();
             //var ss =  s.ParseTrust("2330", "2017-01-01", "2019-10-29");
 
             Console.ReadLine();

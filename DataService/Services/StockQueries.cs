@@ -156,7 +156,6 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                         P400Down = t.P200 + t.P400,
                         P400Up = t.P600 + t.P800 + t.P1000,
                         P1000 = t.POver1000,
-
                         S100 = Math.Round(t.SUnder100.Value),
                         S400Down = Math.Round(t.S200 + t.S400),
                         S400Up = Math.Round(t.S600 + t.S800 + t.S1000),
@@ -166,7 +165,7 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
             var monthData = await context.MonthData
                 .Where(p => p.StockId == stockId)
                 .OrderByDescending(p => p.Datetime)
-                .Take(4).ToArrayAsync();
+                .Take(11).ToArrayAsync();
 
             return new StockeModel
             {
@@ -821,7 +820,7 @@ WHERE t1.RowNo=1 and t1.[POver1000] >  t2.[POver1000]
 and  t1.[PUnder100] <  t2.[PUnder100]
 and t2.[POver1000] >  t3.[POver1000] 
 and  t2.[PUnder100] <  t3.[PUnder100]
-order by s.Industry
+order by  (t1.[POver1000] -  t2.[POver1000]) desc 
 ";
         }
 
