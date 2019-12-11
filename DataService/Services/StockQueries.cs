@@ -140,43 +140,129 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                          周轉率 = 100 * Math.Round(((decimal)price.成交量 / price.發行張數).Value, 5)
                      }).Take(60).ToArrayAsync();
 
-            var thousands = await context.Thousand
-                .Where(p => p.StockId == stockId)
-                .ToArrayAsync();
+            var weeklyChip = await context._WeekyChip.FromSqlRaw(GetWeekAnalyst(stockId, GetLastFriday())).ToArrayAsync();
             var pps = await context.Prices.Where(p => p.StockId == stockId).ToArrayAsync();
-
-            var thousand = from t in thousands
-                      join p in pps on t.Datetime equals p.Datetime
-                      orderby t.Datetime descending
-                      select new ThousandModel
-                      {
-                        Datetime = t.Datetime.ToString("yyyy-MM-dd"),
-                        Close =  p.Close,
-                        P100 = t.PUnder100,
-                        P400Down = t.P200 + t.P400,
-                        P400Up = t.P600 + t.P800 + t.P1000,
-                        P1000 = t.POver1000,
-
-                        S100 = Math.Round(t.SUnder100.Value),
-                        S400Down = Math.Round(t.S200 + t.S400),
-                        S400Up = Math.Round(t.S600 + t.S800 + t.S1000),
-                        S1000 = Math.Round(t.SOver1000),
-                     };
-
             var monthData = await context.MonthData
                 .Where(p => p.StockId == stockId)
                 .OrderByDescending(p => p.Datetime)
-                .Take(4).ToArrayAsync();
+                .Take(11).ToArrayAsync();
 
             return new StockeModel
             {
                 Stock = await context.Stocks.FirstOrDefaultAsync(p=>p.StockId == stockId),
                 Prices = prices,
-                Thousand = thousand.ToArray(),
+                WeeklyChip = weeklyChip,
                 MonthData = monthData
             };
         }
 
+        private string GetLastFriday()
+        {
+            int days = DateTime.Today.DayOfWeek == DayOfWeek.Saturday ? 1 : 1 * ((int)DateTime.Today.DayOfWeek + 2);
+            return DateTime.Today.AddDays(days*-1).ToString("yyyy-MM-dd");
+        }
+        private string GetWeekAnalyst(string stockId, string datetime)
+        {
+
+            return $@"
+
+DECLARE @MaxDate AS DATETIME = '{datetime}';
+DECLARE @stockid AS nvarchar(10) = '{stockId}';
+
+WITH cte
+AS
+(
+    SELECT
+        [Datetime], 
+		DATEDIFF(DAY,  [Datetime], @MaxDate) AS NoDays,
+        DATEDIFF(DAY,  [Datetime], @MaxDate)/7 AS NoGroup,
+        [外資買賣超],  [投信買賣超] , [自營商買賣超] , ([融資買進] - [融資賣出]) as 融資買賣超
+    FROM [Prices]
+	where StockID = @stockid and [Datetime] <= @MaxDate
+)
+
+
+SELECT  
+    DATEADD(DAY, NoGroup*-7, @MaxDate) AS [Datetime],
+    SUM([外資買賣超]) as [外資買賣超],
+	SUM([投信買賣超]) as [投信買賣超],
+	SUM([自營商買賣超]) as [自營商買賣超],
+	SUM(融資買賣超) as 融資買賣超
+into #t1
+FROM cte 
+GROUP BY NoGroup
+
+
+select 
+	StockId,
+	[Name],
+	[Datetime],
+	[Close],
+	cast([五日主力買超張數]- [五日主力賣超張數] as int)  as [主力買賣超],
+	[董監持股]
+into #t2
+from [Prices]
+where [StockId] = @stockid and [Datetime] <= @MaxDate
+
+select
+	ROW_NUMBER() over (order by [Datetime] desc) as RowNo,
+	StockId,
+	[Name],
+	[Datetime],
+	[PUnder100],
+	[SUnder100],
+	[POver1000],
+	[SOver1000],
+	[P200] + [P400] as [PUnder400],
+	[S200] + [S400] as [SUnder400],
+	[P600] + [P800] + [P1000] as [POver400],
+	[S600] + [S800] + [S1000] as [SOver400]
+into #t3
+from [Thousand] t 
+where [StockId] = @stockid and [Datetime] <= @MaxDate
+
+select 
+	t.[Datetime],
+	t.[PUnder100],
+	cast(t.[SUnder100] - t1.[SUnder100] as int) as [SUnder100],
+	t.[POver1000],
+	cast(t.[SOver1000] - t1.[SOver1000] as int) as [SOver1000],
+	t.[PUnder400],
+	cast(t.[SUnder400] - t1.[SUnder400] as int) as [SUnder400],
+	t.[POver400],
+	cast(t.[SOver400] - t1.[SOver400] as int) as [SOver400]
+into #t4
+from #t3 t 
+join #t3  t1 on t.RowNo +1 = t1.RowNo 
+
+select
+    newid() as Id,
+	#t2.StockId,
+	#t2.[Name],
+    CONVERT(nvarchar,#t1.[Datetime], 23) as [Datetime],
+	#t4.[PUnder100],
+	#t4.[SUnder100],
+	#t4.[POver1000],
+	#t4.[SOver1000],
+	#t4.[PUnder400],
+	#t4.[SUnder400],
+	#t4.[POver400],
+	#t4.[SOver400],
+	#t1.[外資買賣超],
+    #t1.[融資買賣超],
+    #t1.[投信買賣超],
+    #t1.[自營商買賣超],
+    #t2.[主力買賣超],
+    #t2.[Close],
+    #t2.[董監持股]
+from #t1 
+join #t2 on #t1.Datetime = #t2.Datetime
+join #t4 on #t1.Datetime = #t4.Datetime
+order by #t1.Datetime desc
+
+drop table #t1, #t2, #t3, #t4
+";
+        }
         Task<Stocks[]> IStockQueries.GetActiveStocksAsync()
         {
             var context = new StockDbContext();

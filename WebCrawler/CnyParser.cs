@@ -166,11 +166,12 @@ SELECT *
             }
         }
 
+        [Obsolete]
         public async Task ParserMarginAsync()
         {
             var context = new StockDbContext();
             var prices = context.Prices.Where(p => p.Datetime == DateTime.Today && p.融券買進 == null)
-                .OrderBy(p => p.StockId)
+                .OrderByDescending(p => p.StockId)
                 .ToList();
 
             for (int i = 0; i < prices.Count; i++)
@@ -192,6 +193,11 @@ SELECT *
                     Console.WriteLine(stockId + "::" + name + "::" + ex);
                 }
             }
+
+            var dd = await context.Prices.Select(p => p.Datetime).Distinct().OrderByDescending(p => p).Take(2).ToArrayAsync();
+
+            context.Database.ExecuteSqlCommand(GetSqlToUpdate發行張數(dd[0].ToString("yyyy-MM-dd"), dd[1].ToString("yyyy-MM-dd")));
+            context.Database.ExecuteSqlCommand(GetSqlToUpdate());
         }
 
         public CnyParser()

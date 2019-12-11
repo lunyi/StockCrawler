@@ -29,6 +29,7 @@ namespace DataService.Models
         public virtual DbSet<Stocks> Stocks { get; set; }
         public virtual DbSet<Thousand> Thousand { get; set; }
         public virtual DbSet<YearData> YearData { get; set; }
+        public virtual DbSet<_WeekyChip> _WeekyChip { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -603,6 +604,34 @@ namespace DataService.Models
                 entity.Property(e => e.負債總計).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.資產總計).HasColumnType("decimal(18, 2)");
+            });
+
+            modelBuilder.Entity<_WeekyChip>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.Close).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Datetime)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.POver1000).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.POver400).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.PUnder100).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.PUnder400).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.StockId)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
             });
 
             OnModelCreatingPartial(modelBuilder);

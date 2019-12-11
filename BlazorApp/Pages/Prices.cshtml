@@ -55,25 +55,38 @@
                 </div>
             </td>
             <td>
-                <div id="thousand" class="container">
+                <div id="weekChip" class="container">
                     <table style="font-size: 10px;border-collapse: collapse;">
                         <thead>
                             <tr style="border: 1px solid orange">
                                 <th style="border: 1px solid orange">日期</th>
-                                <th style="border: 1px solid orange">100張以下</th>
+                                <th style="border: 1px solid orange">100張↑</th>
                                 <th style="border: 1px solid orange">100~400</th>
                                 <th style="border: 1px solid orange">400~1000</th>
-                                <th style="border: 1px solid orange">1000張以上</th>
+                                <th style="border: 1px solid orange">1000張↓</th>
                                 <th style="border: 1px solid orange">收盤價</th>
+                                <th style="border: 1px solid orange">董監</th>
+                                <th style="border: 1px solid orange">融資</th>
+                                <th style="border: 1px solid orange">外資</th>
+                                <th style="border: 1px solid orange">投信</th>
+                                <th style="border: 1px solid orange">自營商</th>
+                                <th style="border: 1px solid orange">主力</th>
                             </tr>
                         </thead>
-                        <tr v-for="thousand in Thousands">
-                            <td style="border: 1px solid orange">{{thousand.datetime}}</td>
-                            <td style="border: 1px solid orange" v-bind:style="{ color: thousand.sColor}">{{thousand.p100}}</td>
-                            <td style="border: 1px solid orange" v-bind:style="{ color: thousand.p400DownColor}">{{thousand.p400Down}}</td>
-                            <td style="border: 1px solid orange" v-bind:style="{ color: thousand.p400UpColor}">{{thousand.p400Up}}</td>
-                            <td style="border: 1px solid orange" v-bind:style="{ color: thousand.bColor}">{{thousand.p1000}}</td>
-                            <td style="border: 1px solid orange" v-bind:style="{ color: thousand.updownColor}">{{thousand.close}}</td>
+                        <tr v-for="weekChip in WeekChips">
+                            <td style="border: 1px solid orange">{{weekChip.datetime}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.sColor}">{{weekChip.pUnder100}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.p400DownColor}">{{weekChip.pUnder400}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.p400UpColor}">{{weekChip.pOver400}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.bColor}">{{weekChip.pOver1000}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.updownColor}">{{weekChip.close}}</td>
+
+                            <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.doColor}">{{weekChip.董監持股}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.zoColor}">{{weekChip.融資買賣超}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.wiColor}">{{weekChip.外資買賣超}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.toColor}">{{weekChip.投信買賣超}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.ziColor}">{{weekChip.自營商買賣超}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.zuColor}">{{weekChip.主力買賣超}}</td>
                         </tr>
                     </table>
                 </div>

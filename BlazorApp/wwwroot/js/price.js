@@ -30,70 +30,124 @@
         });
 
         var vueThousand = new Vue({
-            el: '#thousand',
+            el: '#weekChip',
             data: {
-                Thousands: renewThousand(data.thousand)
+                WeekChips: renewWeekChip(data.weeklyChip)
             }
         });
     });
 })();
 
 
-function renewThousand(thousands) {
+function renewWeekChip(weekChips) {
 
-    for (var i = 0; i < thousands.length - 1; i++) {
-        var s100 = thousands[i].s100 - thousands[i + 1].s100;
-        var s1000 = thousands[i].s1000 - thousands[i + 1].s1000;
-        var s400Up = thousands[i].s400Up - thousands[i + 1].s400Up;
-        var s400Down = thousands[i].s400Down - thousands[i + 1].s400Down;
+    for (var i = 0; i < weekChips.length - 1; i++) {
+        var s100 = weekChips[i].sUnder100 - weekChips[i + 1].sUnder100;
+        var s1000 = weekChips[i].sOver1000 - weekChips[i + 1].sOver1000;
+        var s400Up = weekChips[i].sOver400 - weekChips[i + 1].sOver400;
+        var s400Down = weekChips[i].sUnder400 - weekChips[i + 1].sUnder400;
 
-        var close = (100 * (thousands[i].close - thousands[i + 1].close) / thousands[i + 1].close).toFixed(2);
+        var close = (100 * (weekChips[i].close - weekChips[i + 1].close) / weekChips[i + 1].close).toFixed(2);
 
-        if (thousands[i].close > thousands[i + 1].close) {
-            thousands[i].close = thousands[i].close + "↑ (" + close + "%)";
-            thousands[i].updownColor = "red";
+        if (weekChips[i].close > weekChips[i + 1].close) {
+            weekChips[i].close = weekChips[i].close + "↑ (" + close + "%)";
+            weekChips[i].updownColor = "red";
         }
-        else if (thousands[i].close < thousands[i + 1].close) {
-            thousands[i].close = thousands[i].close + "↓ (" + close + "%)";
-            thousands[i].updownColor = "green";
-        }
-
-        if (thousands[i].p100 > thousands[i + 1].p100) {
-            thousands[i].p100 = thousands[i].p100 + "↑ (" + s100+ ")";
-            thousands[i].sColor = "red";
-        }
-        else if (thousands[i].p100 < thousands[i + 1].p100) {
-            thousands[i].p100 = thousands[i].p100 + "↓ (" + s100 + ")";
-            thousands[i].sColor = "green";
-        }
-        if (thousands[i].p1000 > thousands[i + 1].p1000) {
-            thousands[i].p1000 = thousands[i].p1000 + "↑ (" + s1000 + ")";
-            thousands[i].bColor = "red";
-        }
-        else if (thousands[i].p1000 < thousands[i + 1].p1000){
-            thousands[i].p1000 = thousands[i].p1000 + "↓ (" + s1000 + ")";
-            thousands[i].bColor = "green";
+        else if (weekChips[i].close < weekChips[i + 1].close) {
+            weekChips[i].close = weekChips[i].close + "↓ (" + close + "%)";
+            weekChips[i].updownColor = "green";
         }
 
-        if (thousands[i].p400Up > thousands[i + 1].p400Up) {
-            thousands[i].p400Up = thousands[i].p400Up + "↑ (" + s400Up + ")";
-            thousands[i].p400UpColor = "red";
+        if (weekChips[i].pUnder100 > weekChips[i + 1].pUnder100) {
+            weekChips[i].pUnder100 = weekChips[i].pUnder100 + "↑ (" + s100+ ")";
+            weekChips[i].sColor = "red";
         }
-        else if (thousands[i].p400Up < thousands[i + 1].p400Up) {
-            thousands[i].p400Up = thousands[i].p400Up + "↓ (" + s400Up + ")";
-            thousands[i].p400UpColor = "green";
+        else if (weekChips[i].pUnder100 < weekChips[i + 1].pUnder100) {
+            weekChips[i].pUnder100 = weekChips[i].pUnder100 + "↓ (" + s100 + ")";
+            weekChips[i].sColor = "green";
+        }
+        if (weekChips[i].pOver1000 > weekChips[i + 1].pOver1000) {
+            weekChips[i].pOver1000 = weekChips[i].pOver1000 + "↑ (" + s1000 + ")";
+            weekChips[i].bColor = "red";
+        }
+        else if (weekChips[i].pOver1000 < weekChips[i + 1].pOver1000){
+            weekChips[i].pOver1000 = weekChips[i].pOver1000 + "↓ (" + s1000 + ")";
+            weekChips[i].bColor = "green";
         }
 
-        if (thousands[i].p400Down > thousands[i + 1].p400Down) {
-            thousands[i].p400Down = thousands[i].p400Down + "↑ (" + s400Down + ")";
-            thousands[i].p400DownColor = "red";
+        if (weekChips[i].pOver400 > weekChips[i + 1].pOver400) {
+            weekChips[i].pOver400 = weekChips[i].pOver400 + "↑ (" + s400Up + ")";
+            weekChips[i].p400UpColor = "red";
         }
-        else if (thousands[i].p400Down < thousands[i + 1].p400Down) {
-            thousands[i].p400Down = thousands[i].p400Down + "↓ (" + s400Down + ")";
-            thousands[i].p400DownColor = "green";
+        else if (weekChips[i].pOver400 < weekChips[i + 1].pOver400) {
+            weekChips[i].pOver400 = weekChips[i].pOver400 + "↓ (" + s400Up + ")";
+            weekChips[i].p400UpColor = "green";
+        }
+
+        if (weekChips[i].pUnder400 > weekChips[i + 1].pUnder400) {
+            weekChips[i].pUnder400 = weekChips[i].pUnder400 + "↑ (" + s400Down + ")";
+            weekChips[i].p400DownColor = "red";
+        }
+        else if (weekChips[i].pUnder400 < weekChips[i + 1].pUnder400) {
+            weekChips[i].pUnder400 = weekChips[i].pUnder400 + "↓ (" + s400Down + ")";
+            weekChips[i].p400DownColor = "green";
+        }
+
+        if (weekChips[i].董監持股 > weekChips[i + 1].董監持股) {
+            weekChips[i].董監持股 = weekChips[i].董監持股 + "↑";
+            weekChips[i].doColor = "red";
+        }
+        else if (weekChips[i].董監持股 < weekChips[i + 1].董監持股) {
+            weekChips[i].董監持股 = weekChips[i].董監持股 + "↓";
+            weekChips[i].doColor = "green";
+        }
+
+        if (weekChips[i].融資買賣超 > 0) {
+            weekChips[i].融資買賣超 = weekChips[i].融資買賣超 + "↑";
+            weekChips[i].zoColor = "red";
+        }
+        else if (weekChips[i].融資買賣超 < 0) {
+            weekChips[i].融資買賣超 = weekChips[i].融資買賣超 + "↓";
+            weekChips[i].zoColor = "green";
+        }
+
+        if (weekChips[i].外資買賣超 > 0) {
+            weekChips[i].外資買賣超 = weekChips[i].外資買賣超 + "↑";
+            weekChips[i].wiColor = "red";
+        }
+        else if (weekChips[i].外資買賣超 < 0) {
+            weekChips[i].外資買賣超 = weekChips[i].外資買賣超 + "↓";
+            weekChips[i].wiColor = "green";
+        }
+
+        if (weekChips[i].投信買賣超 > 0) {
+            weekChips[i].投信買賣超 = weekChips[i].投信買賣超 + "↑";
+            weekChips[i].toColor = "red";
+        }
+        else if (weekChips[i].投信買賣超 < 0) {
+            weekChips[i].投信買賣超 = weekChips[i].投信買賣超 + "↓";
+            weekChips[i].toColor = "green";
+        }
+
+        if (weekChips[i].自營商買賣超 > 0) {
+            weekChips[i].自營商買賣超 = weekChips[i].自營商買賣超 + "↑";
+            weekChips[i].ziColor = "red";
+        }
+        else if (weekChips[i].自營商買賣超 < 0) {
+            weekChips[i].自營商買賣超 = weekChips[i].自營商買賣超 + "↓";
+            weekChips[i].ziColor = "green";
+        }
+
+        if (weekChips[i].主力買賣超 > 0) {
+            weekChips[i].主力買賣超 = weekChips[i].主力買賣超 + "↑";
+            weekChips[i].zuColor = "red";
+        }
+        else if (weekChips[i].主力買賣超 < 0) {
+            weekChips[i].主力買賣超 = weekChips[i].主力買賣超 + "↓";
+            weekChips[i].zuColor = "green";
         }
     }
-    return thousands;
+    return weekChips;
 }
 
 function renewMonth(months) {
