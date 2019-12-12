@@ -136,7 +136,7 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                          投信買賣超 = price.投信買進 - price.投信賣出,
                          自營商買賣超 = price.自營商買進 - price.自營商賣出,
                          主力買賣超 = price.主力買超張數 - price.主力賣超張數,
-                         籌碼集中度 = 100 * Math.Round(((price.主力買超張數 - price.主力賣超張數) / price.成交量).Value, 5),
+                         籌碼集中度 = 100 * Math.Round(((price.主力買超張數 - price.主力賣超張數) / price.成交量).Value, 4),
                          周轉率 = 100 * Math.Round(((decimal)price.成交量 / price.發行張數).Value, 5)
                      }).Take(60).ToArrayAsync();
 
