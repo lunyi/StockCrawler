@@ -16,10 +16,8 @@ namespace WebCrawler
         [Obsolete]
         static async Task Main(string[] args)
         {
-
-            var ss = new CnyParser();
-            //await ss.RunAsync();
-
+            var ss = new RealtimeParser();
+            await ss.RunAsync();
 
             //var s = new UpdateStockListParser();
             //await s.RunAsync();
@@ -27,11 +25,10 @@ namespace WebCrawler
             //var s1 = new MoneyDjParser();
             //await s1.RunAsync();
 
-            
-            await ss.ParserMarginAsync();
+            //await ss.ParserMarginAsync();
             //var ss =  s.ParseTrust("2330", "2017-01-01", "2019-10-29");
 
-            Console.ReadLine();
+            //Console.ReadLine();
         }
     }
 }

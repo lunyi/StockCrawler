@@ -47,6 +47,20 @@ namespace BlazorApp.Shared
         }
 
         [JSInvokable]
+        public static Task<BestStockType[]> GetBestStockTypeAsync()
+        {
+            IStockQueries dataLayer = new StockQueries();
+            return dataLayer.GetBestStockTypeAsync();
+        }
+
+        [JSInvokable]
+        public static Task<Stocks[]> GetStocksByBestStockTypeAsync(string name, string datetime)
+        {
+            IStockQueries dataLayer = new StockQueries();
+            return dataLayer.GetStocksByBestStockTypeAsync(name, datetime);
+        }
+
+        [JSInvokable]
         public static async Task<string[]> GetDateListAsync()
         {
             IStockQueries dataLayer = new StockQueries();

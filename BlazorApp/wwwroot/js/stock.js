@@ -4,6 +4,7 @@
             getDateList();
             getStocksByType(0);
             getChosenStockTypes();
+            getBestStockTypes();
         }, 1000);
     });
 };
@@ -213,6 +214,16 @@ function getChosenStockTypes() {
         });
 }
 
+function getBestStockTypes() {
+    DotNet.invokeMethodAsync('BlazorApp', 'GetBestStockTypeAsync')
+        .then(data => {
+            $("#selectBestType").append($("<option></option>").attr("value", 0).text("----全部----"));
+            for (var i = 0; i < data.length; i++) {
+                $("#selectBestType").append($("<option></option>").attr("value", data[i].value).text(data[i].value));
+            }
+        });
+}
+
 function onGetStocksByDate() {
     $("#selectStockType").val(0);
     var date = $("#selectDateList");
@@ -220,6 +231,19 @@ function onGetStocksByDate() {
 
     if (type.val() !== 0) {
         DotNet.invokeMethodAsync('BlazorApp', 'GetStocksDateAsync', date.val(), parseInt(type.val()))
+            .then(data => {
+                setStocks(data);
+            });
+    }
+}
+
+function onGetStocksByType() {
+    $("#selectStockType").val(0);
+    var date = $("#selectDateList");
+    var type = $("#selectBestType");
+
+    if (type.val() !== 0) {
+        DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByBestStockTypeAsync', type.val(), date.val())
             .then(data => {
                 setStocks(data);
             });

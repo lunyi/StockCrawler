@@ -18,12 +18,14 @@ namespace DataService.Models
         public virtual DbSet<AnaCMoney> AnaCMoney { get; set; }
         public virtual DbSet<AnaFutureEngine> AnaFutureEngine { get; set; }
         public virtual DbSet<AnaStatementDogs> AnaStatementDogs { get; set; }
+        public virtual DbSet<BestStockType> BestStockType { get; set; }
         public virtual DbSet<BestStocks> BestStocks { get; set; }
         public virtual DbSet<Chip> Chip { get; set; }
         public virtual DbSet<HistoryPrice> HistoryPrice { get; set; }
         public virtual DbSet<Infomations> Infomations { get; set; }
         public virtual DbSet<MonthData> MonthData { get; set; }
         public virtual DbSet<Prices> Prices { get; set; }
+        public virtual DbSet<RealtimeBestStocks> RealtimeBestStocks { get; set; }
         public virtual DbSet<SeasonData> SeasonData { get; set; }
         public virtual DbSet<StockHistory> StockHistory { get; set; }
         public virtual DbSet<Stocks> Stocks { get; set; }
@@ -108,6 +110,15 @@ namespace DataService.Models
                 entity.Property(e => e.Type)
                     .IsRequired()
                     .HasMaxLength(512);
+            });
+
+            modelBuilder.Entity<BestStockType>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.Property(e => e.Value)
+                    .IsRequired()
+                    .HasMaxLength(50);
             });
 
             modelBuilder.Entity<BestStocks>(entity =>
@@ -364,6 +375,28 @@ namespace DataService.Models
                 entity.Property(e => e.融資使用率).HasColumnType("numeric(18, 2)");
             });
 
+            modelBuilder.Entity<RealtimeBestStocks>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.Datetime).HasColumnType("datetime");
+
+                entity.Property(e => e.Description).HasMaxLength(50);
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.StockId)
+                    .IsRequired()
+                    .HasMaxLength(10)
+                    .IsFixedLength();
+
+                entity.Property(e => e.Type)
+                    .IsRequired()
+                    .HasMaxLength(50);
+            });
+
             modelBuilder.Entity<SeasonData>(entity =>
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
@@ -521,6 +554,10 @@ namespace DataService.Models
                 entity.Property(e => e.P800).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.POver1000).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.PPOver1000).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.PPUnder100).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.PUnder100).HasColumnType("decimal(18, 2)");
 

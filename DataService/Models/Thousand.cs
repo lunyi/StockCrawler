@@ -10,6 +10,7 @@ namespace DataService.Models
         public string Name { get; set; }
         public DateTime Datetime { get; set; }
         public DateTime CreatedOn { get; set; }
+        public decimal? PPUnder100 { get; set; }
         public decimal PUnder100 { get; set; }
         public decimal P1 { get; set; }
         public decimal P5 { get; set; }
@@ -25,6 +26,7 @@ namespace DataService.Models
         public decimal P600 { get; set; }
         public decimal P800 { get; set; }
         public decimal P1000 { get; set; }
+        public decimal? PPOver1000 { get; set; }
         public decimal POver1000 { get; set; }
         public int C1 { get; set; }
         public int C5 { get; set; }

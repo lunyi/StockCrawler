@@ -29,9 +29,8 @@ namespace WebCrawler
             var newStocks = 上櫃股票.Union(上市股票);
             var newStockIds = newStocks
                 .OrderBy(p => p.StockId)
-                .Select(p => p.StockId)
+                .Select(p => p.StockId.Trim())
                 .ToArray();
-
 
             var stockIdsToRemove = oldStockIds.Except(newStockIds).ToArray();
             await RemoveStocksAsync(context, stockIdsToRemove);
@@ -43,7 +42,6 @@ namespace WebCrawler
             var stockIdsToUpdate = oldStockIds.Except(stockIdsToRemove).ToArray();
             var stocksToUpdate = newStocks.Where(p => stockIdsToUpdate.Contains(p.StockId));
             await UpdateStocksAsync(context, stocksToUpdate.ToArray());
-
 
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
