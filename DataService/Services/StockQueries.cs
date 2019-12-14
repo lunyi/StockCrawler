@@ -391,8 +391,8 @@ drop table #t1, #t2, #t3, #t4
                     sql = 近月營收累積年增率成長(datetime);
                     break;
                   
-                case (int)ChooseStockType.當月大戶增散戶減營收增:
-                    sql = Get當月大戶增散戶減營收增Sql(datetime);
+                case (int)ChooseStockType.當週大戶比例增加:
+                    sql = Get當週大戶比例增加(datetime);
                     break;
 
                 case (int)ChooseStockType.賣方籌碼集中排行榜:
@@ -413,11 +413,11 @@ drop table #t1, #t2, #t3, #t4
                 case (int)ChooseStockType.半年線附近:
                     sql = Get半年線附近Sql(datetime);
                     break;
-                case (int)ChooseStockType.連續大戶增加散戶減少:
+                case (int)ChooseStockType.連續大戶增加:
                     sql = Get大戶增加散戶減少Sql(datetime);
                     break;
-                case (int)ChooseStockType.集保庫存排行榜:
-                    sql = 集保庫存排行榜(datetime);
+                case (int)ChooseStockType.連續兩週大戶增散戶減:
+                    sql = 連續兩週大戶增散戶減(datetime);
                     break;
                 case (int)ChooseStockType.董監買賣超排行榜:
                     sql = GetSqlByChairmanAsync(datetime);
@@ -454,16 +454,28 @@ order by  abs([Close] - [MA120])/[Close]
         private string Get大戶增加散戶減少Sql(string datetime, string orderby = "")
         {
             return $@"
-
-WITH TOPTEN1 as (
+WITH TOPTEN as (
    SELECT *, ROW_NUMBER() 
     over (
         PARTITION BY [Name] 
        order by [Datetime] desc
     ) AS RowNo 
-    FROM [Thousand] where [Datetime] <= '{datetime}'
+    FROM [Thousand] where [Datetime] <= '{datetime}' and [POver1000] <= [PPOver1000]-- and [PUnder100] >= [PPUnder100]
 )
 
+select 
+a.StockId,
+a.Name, 
+count(1) as [Count]
+into #tmp
+from [Thousand] a join (
+	SELECT 	*
+	FROM TOPTEN 
+	WHERE RowNo <= 1) b on a.StockId = b.StockId
+where a.[Datetime] > b.[Datetime] 
+group by a.StockId,a.Name 
+having count(1) >= 4
+order by count(1) desc
 
 select s.[Id]
       ,s.[StockId]
@@ -481,52 +493,19 @@ select s.[Id]
       ,s.[股價]
       ,s.[每股淨值]
       ,s.[每股盈餘]
-	  ,s.[Description]
+	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
 from [Stocks]s 
-join TOPTEN1 t1 on s.StockId = t1.StockId
-join TOPTEN1 t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
-join TOPTEN1 t3 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
---join TOPTEN1 t4 on t1.StockId = t4.StockId and t1.RowNo + 3 = t4.RowNo
---join TOPTEN1 t5 on t1.StockId = t5.StockId and t1.RowNo + 4 = t5.RowNo
---join TOPTEN1 t6 on t1.StockId = t6.StockId and t1.RowNo + 5 = t6.RowNo
-WHERE t1.RowNo=1 and 
-(t1.[PercentOver1000] > t2.[PercentOver1000]) and 
-(t2.[PercentOver1000] > t3.[PercentOver1000]) --and
---(t3.[PercentOver1000] > t4.[PercentOver1000]) and
---(t4.[PercentOver1000] > t5.[PercentOver1000]) and
---(t5.[PercentOver1000] > t6.[PercentOver1000]) 
-group by 
-	s.[Id]
-      ,s.[StockId]
-      ,s.[Name]
-      ,s.[MarketCategory]
-      ,s.[Industry]
-      ,s.[ListingOn]
-      ,s.[CreatedOn]
-      ,s.[UpdatedOn]
-      ,s.[Status]
-      ,s.[Address]
-      ,s.[Website]
-      ,s.[營收比重]
-      ,s.[股本]
-      ,s.[股價]
-      ,s.[每股淨值]
-      ,s.[每股盈餘]
-	  ,s.[Description]
-having
-( sum(t1.P1 + t1.P5 + t1.P10 + t1.P15 + t1.P20 + t1.P30 + t1.P40 + t1.P50 + t1.P100) <   sum(t2.P1 + t2.P5 + t2.P10 + t2.P15 + t2.P20 + t2.P30 + t2.P40 + t2.P50 + t2.P100)) and 
-( sum(t2.P1 + t2.P5 + t2.P10 + t2.P15 + t2.P20 + t2.P30 + t2.P40 + t2.P50 + t2.P100) <  sum(t3.P1 + t3.P5 + t3.P10 + t3.P15 + t3.P20 + t3.P30 + t3.P40 + t3.P50 + t3.P100)) --and
---( sum(t3.P1 + t3.P5 + t3.P10 + t3.P15 + t3.P20 + t3.P30 + t3.P40 + t3.P50 + t3.P100) <  sum(t4.P1 + t4.P5 + t4.P10 + t4.P15 + t4.P20 + t4.P30 + t4.P40 + t4.P50 + t4.P100)) and
---( sum(t4.P1 + t4.P5 + t4.P10 + t4.P15 + t4.P20 + t4.P30 + t4.P40 + t4.P50 + t4.P100) <  sum(t5.P1 + t5.P5 + t5.P10 + t5.P15 + t5.P20 + t5.P30 + t5.P40 + t5.P50 + t5.P100)) and
---( sum(t5.P1 + t5.P5 + t5.P10 + t5.P15 + t5.P20 + t5.P30 + t5.P40 + t5.P50 + t5.P100) <  sum(t6.P1 + t6.P5 + t6.P10 + t6.P15 + t6.P20 + t6.P30 + t6.P40 + t6.P50 + t6.P100)) 
-order by StockId;
+join #tmp t on s.StockId = t.StockId
+order by t.[Count] desc
+
+drop table #tmp
 ";
         }
 
-        private string Get當月大戶增散戶減營收增Sql(string datetime)
+        private string Get當週大戶比例增加(string datetime)
         {
             return $@"
-WITH TOPTEN1 as (
+WITH TOPTEN as (
    SELECT *, ROW_NUMBER() 
     over (
         PARTITION BY [Name] 
@@ -534,23 +513,13 @@ WITH TOPTEN1 as (
     ) AS RowNo 
     FROM [Thousand] where [Datetime] <= '{datetime}'
 )
-select s.*
-into #t2
-from [Stocks]s 
-join TOPTEN1 t1 on s.StockId = t1.StockId
-join TOPTEN1 t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
-join TOPTEN1 t3 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
-join TOPTEN1 t4 on t1.StockId = t4.StockId and t1.RowNo + 3 = t4.RowNo
-join TOPTEN1 t5 on t1.StockId = t5.StockId and t1.RowNo + 4 = t5.RowNo
-join TOPTEN1 t6 on t1.StockId = t6.StockId and t1.RowNo + 5 = t6.RowNo
-join TOPTEN1 t7 on t1.StockId = t7.StockId and t1.RowNo + 6 = t7.RowNo
-join TOPTEN1 t8 on t1.StockId = t8.StockId and t1.RowNo + 7 = t8.RowNo
-join TOPTEN1 t9 on t1.StockId = t9.StockId and t1.RowNo + 8 = t9.RowNo
-join TOPTEN1 t10 on t1.StockId = t10.StockId and t1.RowNo + 9 = t10.RowNo
-WHERE t1.RowNo=1 and
- (t1.POver1000 > t2.POver1000) 
- group by 
-	  s.[Id]
+
+select *, (POver1000 - PPOver1000) as [Percent] 
+into #tmp
+from [TOPTEN]
+where RowNo = 1 and (POver1000 - PPOver1000) > 0.5
+
+select s.[Id]
       ,s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
@@ -563,39 +532,15 @@ WHERE t1.RowNo=1 and
       ,s.[Website]
       ,s.[營收比重]
       ,s.[股本]
-	  ,s.[Description]
       ,s.[股價]
       ,s.[每股淨值]
       ,s.[每股盈餘]
- having
- (sum(t1.PUnder100)< sum(t2.PUnder100));
-
-WITH TOPTEN2 as (
-   SELECT *, ROW_NUMBER() 
-    over (
-        PARTITION BY [Name] 
-       order by [Datetime] desc
-    ) AS RowNo 
-    FROM [MonthData] where [Datetime] <=  '{datetime}'
-)
-
-select t1.*
-into #t1
+	  ,CAST(t.[Percent] AS nvarchar(30)) AS [Description]
 from [Stocks]s 
-join TOPTEN2 t1 on s.StockId = t1.StockId
-WHERE t1.RowNo=1 
-and (t1.單月年增率 > 0 and t1.累積年增率 > 0);
+join #tmp t on s.StockId = t.StockId
+order by  (t.POver1000 - t.PPOver1000) desc
 
-
-select s.*
-from #t2 s
-join #t1 on s.StockId = #t1.StockId
-join (select StockId, [Name] from [Prices]
-where [Datetime] = '{datetime}' and ([五日主力買超張數] - [五日主力賣超張數]) > 0 ) c on c.StockId = s.StockId
-order by s.StockId
-
-
-drop table #t1, #t2
+drop table #tmp
 ";
         }
         private string 五日漲幅排行榜(string datetime, int days)
@@ -886,7 +831,7 @@ order by t.[Count] desc
 drop table #tmp";
         }
 
-        private string 集保庫存排行榜(string datetime)
+        private string 連續兩週大戶增散戶減(string datetime)
         {
             return $@"
 WITH TOPTEN as (

@@ -21,9 +21,10 @@
             <option value="27">六十日買方籌碼集中度排行榜</option>
 
             <option value="16">董監買賣超排行榜</option>
-            <option value="15">集保庫存增加排行榜</option>
-            @*<option value="19">連續大戶增加散戶減少</option>*@
-            <option value="20">當月大戶增散戶減營收增</option>
+            <option value="20">**當週大戶比例增加**</option>
+            <option value="15">**連續兩週大戶增散戶減**</option>
+            <option value="19">**連續大戶增加**</option>
+
             <option value="17">連續十二月單月年增率成長</option>
             <option value="28">近月營收累積年增率成長</option>
             <option value="18">半年線附近</option>
@@ -35,7 +36,7 @@
 
 
             <option value="11">CMoney選股</option>
-            <option value="12">財報狗選股</option>
+            @*<option value="12">財報狗選股</option>*@
 
             <option value="-1">一日跌幅排行</option>
             <option value="-2">五日跌幅排行</option>
@@ -72,12 +73,12 @@
                 <input type="button" value="個股速覽" onclick="onUrlChangeAsync(1)" />
                 <input type="button" value="個股速覽2" onclick="onUrlChangeAsync(20)" />
                 <input type="button" value="每日資訊" onclick="onUrlChangeAsync(2)" />
-                <input type="button" value="基本資料" onclick="onUrlChangeAsync(3)" />
                 <input type="button" value="主力進出" onclick="onUrlChangeAsync(4)" />
                 <input type="button" value="法人持股" onclick="onUrlChangeAsync(5)" />
-                <input type="button" value="CMoney" onclick="onUrlChangeAsync(6)" />
-                <input type="button" value="CMoney法人" onclick="onUrlChangeAsync(7)" />
-                <input type="button" value="CMoney主力" onclick="onUrlChangeAsync(8)" />
+                <input type="button" class="btnCmoney" value="CMoney" onclick="onUrlChangeAsync(6)" />
+                <input type="button" class="btnCmoney" value="CMoney即時" onclick="onUrlChangeAsync(3)" />
+                <input type="button" class="btnCmoney" value="CMoney法人" onclick="onUrlChangeAsync(7)" />
+                <input type="button" class="btnCmoney" value="CMoney主力" onclick="onUrlChangeAsync(8)" />
                 <input type="button" class="btnCmoney" value="籌碼K線" onclick="onUrlChangeAsync(9)" />
                 <input type="button" class="btnCmoney" value="淨值比" onclick="onUrlChangeAsync(10)" />
                 <input type="button" class="btnCmoney" value="資產負債表" onclick="onUrlChangeAsync(11)" />
@@ -87,8 +88,8 @@
                 <input type="button" value="融資融券" onclick="onUrlChangeAsync(15)" />
                 <input type="button" value="個股新聞" onclick="onUrlChangeAsync(16)" />
                 <input type="button" value="財報狗" onclick="onUrlChangeAsync(17)" />
-                <input type="button" value="Fugle" onclick="onUrlChangeAsync(18)" />
-                <input type="button" value="網龍大富翁" onclick="onUrlChangeAsync(19)" />
+                @*<input type="button" value="Fugle" onclick="onUrlChangeAsync(18)" />
+                <input type="button" value="網龍大富翁" onclick="onUrlChangeAsync(19)" />*@
                 <input type="button" value="104" onclick="goTo104Page()" />
                 <input type="button" value="財經百科" onclick="goToWikiPedia()" />
             </div>

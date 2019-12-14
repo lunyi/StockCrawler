@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DataService.Models;
 using Messages;
+using Microsoft.EntityFrameworkCore;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 
@@ -59,10 +60,11 @@ namespace WebAutoCrawler
             }
         }
 
+        [Obsolete]
         public async Task ExecuteLastAsync()
         {
             var context = new StockDbContext();
-            var stocks = context.Stocks.Where(p => p.Status == 1).OrderBy(p => p.StockId).ToArray();
+            var stocks = context.Stocks.FromSqlRaw(GetStockIdbyString(GetLastFriday())).ToArray();
 
             foreach (var stock in stocks)
             {
@@ -75,7 +77,52 @@ namespace WebAutoCrawler
                     Console.WriteLine($"{stock.StockId} {stock.Name} Parser Failed {ex}!");
                 }
             }
+
+            context.Database.ExecuteSqlCommand(GetSqlToUpdate(GetLastFriday()));
+
+            Dispose();
         }
+
+        private string GetStockIdbyString(string datetime)
+        {
+            return $@"
+select s.* from [Stocks] s 
+left join (select * from [Thousand] where [Datetime] = '{datetime}')  a 
+on s.StockId = a.StockId 
+where a.Id is null and s.Status = 1
+order by s.StockId
+";
+        }
+
+        private string GetLastFriday()
+        {
+            int days = DateTime.Today.DayOfWeek == DayOfWeek.Saturday ? 1 : 1 * ((int)DateTime.Today.DayOfWeek + 2);
+            return DateTime.Today.AddDays(days * -1).ToString("yyyy-MM-dd");
+        }
+
+        private string GetSqlToUpdate(string datetime)
+        {
+            return $@"
+WITH TOPTEN1 as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY [Name] 
+       order by [Datetime] desc
+    ) AS RowNo 
+    FROM [Thousand]
+)
+
+update [Thousand] set [PPUnder100] = t1.[PPUnder100], [PPOver1000] = t1.[PPOver1000]
+from [Thousand] t
+join (
+select 
+t.RowNo, t.[StockId], t.[NAme], t.[Datetime], t.[PUnder100], t.[POver1000], t1.[PUnder100] as [PPUnder100], t1.[POver1000] as [PPOver1000]
+from TOPTEN1 t
+join TOPTEN1 t1 on t1.StockId = t.StockId and t.RowNo + 1 = t1.RowNo ) t1 on t.StockId = t1.StockId and t.Datetime = t1.Datetime
+where t.[Datetime] = '{datetime}'
+";
+        }
+
         public override async Task ExecuteAsync()
         {
             var context = new StockDbContext();

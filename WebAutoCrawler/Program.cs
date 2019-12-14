@@ -11,10 +11,11 @@ namespace WebCrawler
 {
     class Program
     {
+        [Obsolete]
         static async Task Main(string[] args)
         {
-            var c = new MonthDataCrawler();
-            await c.ExecuteAsync();
+            var c = new ThousandDataCrawlerV2();
+            await c.ExecuteLastAsync();
         }
 
         private async Task ParseHistory()
