@@ -133,6 +133,7 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                          董監持股比例 = 100 * Math.Round(((decimal)price.董監持股 / price.發行張數).Value, 5),
                          外資持股比例 = price.外資持股比例,
                          融資買賣超 = price.融資買進 - price.融資賣出,
+                         董監持股 = price.董監持股,
                          融資使用率 = price.融資使用率,
                          外資買賣超 = price.外資買進 - price.外資賣出,
                          投信買賣超 = price.投信買進 - price.投信賣出,

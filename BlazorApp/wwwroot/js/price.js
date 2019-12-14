@@ -3,7 +3,7 @@
     var stockId = getUrlParameter('stockId');
     var url = "http://220.133.185.1:8081/stock/" + getUrlParameter('stockId');
     //var url = "https://localhost:44367/stock/" + stockId;
-    var kUrl = "https://so.cnyes.com/JavascriptGraphic/chartstudy.aspx?country=tw&market=tw&code=" + stockId + "&divwidth=650&divheight=330";
+    var kUrl = "https://so.cnyes.com/JavascriptGraphic/chartstudy.aspx?country=tw&market=tw&code=" + stockId + "&divwidth=550&divheight=330";
 
 
     $.get(url, function (data) {
@@ -41,7 +41,6 @@
         });
     });
 })();
-
 
 function renewWeekChip(weekChips) {
 
@@ -183,6 +182,18 @@ function renewPrices(prices) {
             prices[i].updownColor = "green";
         }
 
+        if (prices[i].董監持股 > prices[i + 1].董監持股) {
+            prices[i].董監持股 = (prices[i].董監持股 - prices[i + 1].董監持股) + "↑ (" + prices[i].董監持股比例 + "%)";
+            prices[i].dColor = "red";
+        }
+        else if (prices[i].董監持股 < prices[i + 1].董監持股) {
+            prices[i].董監持股 = (prices[i].董監持股 - prices[i + 1].董監持股) + "↓ (" + prices[i].董監持股比例 + "%)";
+            prices[i].dColor = "green";
+        }
+        else {
+            prices[i].董監持股 = (prices[i].董監持股 - prices[i + 1].董監持股) + " " + prices[i].董監持股比例 + "%)";
+        }
+
         if (prices[i].成交量 > (prices[i + 1].成交量 * 2.5)) {
             prices[i].zfontWeight = "bold";
         }
@@ -205,17 +216,27 @@ function renewPrices(prices) {
         }
 
         if (prices[i].外資買賣超 > 0) {
+            prices[i].外資買賣超 = prices[i].外資買賣超 + "↑ (" + prices[i].外資持股比例 + "%)";
             prices[i].fColor = "red";
         }
         else if (prices[i].外資買賣超 < 0) {
+            prices[i].外資買賣超 = prices[i].外資買賣超 + "↓ (" + prices[i].外資持股比例 + "%)";
             prices[i].fColor = "green";
+        }
+        else {
+            prices[i].外資買賣超 = prices[i].外資買賣超 + " (" + prices[i].外資持股比例 + "%)";
         }
 
         if (prices[i].投信買賣超 > 0) {
+            prices[i].投信買賣超 = prices[i].投信買賣超 + "↑ (" + prices[i].投信持股比例 + "%)";
             prices[i].tColor = "red";
         }
         else if (prices[i].投信買賣超 < 0) {
+            prices[i].投信買賣超 = prices[i].投信買賣超 + "↓ (" + prices[i].投信持股比例 + "%)";
             prices[i].tColor = "green";
+        }
+        else {
+            prices[i].投信買賣超 = prices[i].投信買賣超 + " (" + prices[i].投信持股比例 + "%)";
         }
 
         if (prices[i].自營商買賣超 > 0) {
@@ -246,10 +267,14 @@ function renewPrices(prices) {
             prices[i].fontWeight = "normal";
         }
 
+        prices[i].漲跌 = prices[i].漲跌 + " (" + prices[i].漲跌百分比 + "%)";
+
         if (prices[i].融資買賣超 > 0) {
+            prices[i].融資買賣超 = prices[i].融資買賣超 + "↑ (" + prices[i].融資使用率 + ")";
             prices[i].lColor = "red";
         }
         else if (prices[i].融資買賣超 < 0) {
+            prices[i].融資買賣超 = prices[i].融資買賣超 + "↓ (" + prices[i].融資使用率 + ")";
             prices[i].lColor = "green";
         }
     }

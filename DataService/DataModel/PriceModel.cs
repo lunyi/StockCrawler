@@ -39,5 +39,6 @@ namespace DataService.DataModel
         public decimal? 主力買賣超 { get; set; }
         public decimal? 籌碼集中度 { get; set; }
         public decimal? 周轉率 { get; set; }
+        public int? 董監持股 { get; set; }
     }
 }

@@ -98,17 +98,17 @@
         <table>
             <tr>
                 <td>
-                    <table id="textExample" class="container table table-bordered responsive-table" style="width:850px;font-size:10px;">
+                    <table id="textExample" class="container table table-bordered responsive-table" style="width:950px;font-size:10px;">
                         <thead>
                             <tr>
                                 <th>日期</th>
                                 <th>收盤</th>
                                 <th>量</th>
-                                <th>漲跌</th>
-                                <th>百分比</th>
-                                <th>外資比例</th>
+                                <th>漲跌百分比</th>
+                                @*<th>百分比</th>*@
+                                @*<th>外資比例</th>*@
                                 @*<th>投信比例</th>*@
-                                <th>董監比例</th>
+                                <th>董監增減</th>
                                 <th>融資</th>
                                 <th>外資</th>
                                 <th>投信</th>
@@ -125,10 +125,10 @@
                             <td v-bind:style="{ color: price.updownColor}">{{price.close}}</td>
                             <td v-bind:style="{ fontWeight: price.zfontWeight}">{{price.成交量}}</td>
                             <td v-bind:style="{ color: price.updownColor, fontWeight: price.fontWeight}">{{price.漲跌}}</td>
-                            <td v-bind:style="{ color: price.pColor, fontWeight: price.fontWeight}">{{price.漲跌百分比}}%</td>
-                            <td>{{price.外資持股比例}}%</td>
+                            @*<td v-bind:style="{ color: price.pColor, fontWeight: price.fontWeight}">{{price.漲跌百分比}}%</td>*@
+                            @*<td>{{price.外資持股比例}}%</td>*@
                             @*<td>{{price.投信持股比例}}%</td>*@
-                            <td>{{price.董監持股比例}}%</td>
+                            <td v-bind:style="{ color: price.dColor}">{{price.董監持股}}</td>
                             <td v-bind:style="{ color: price.lColor}">{{price.融資買賣超}}</td>
                             <td v-bind:style="{ color: price.fColor}">{{price.外資買賣超}}</td>
                             <td v-bind:style="{ color: price.tColor}">{{price.投信買賣超}}</td>
@@ -142,7 +142,7 @@
                     </table>
                 </td>
                 <td valign="top" align="right">
-                    <iframe id="kChart" style="z-index:1;" width="700" height="900" scrolling="no" frameborder="0" />
+                    <iframe id="kChart" style="z-index:1;" width="600" height="900" scrolling="no" frameborder="0" />
                 </td>
             </tr>
         </table>
