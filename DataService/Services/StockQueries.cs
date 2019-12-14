@@ -318,15 +318,21 @@ drop table #t1, #t2, #t3, #t4
             }
         }
 
-        Task<string[]> IStockQueries.GetDaysAsync()
+        async Task<string[]> IStockQueries.GetDaysAsync()
         {
             var context = new StockDbContext();
-            return  context.Prices
+            var datetimes = await  context.Prices
                 .GroupBy(p => p.Datetime)
                 .OrderByDescending(p => p.Key)
                 .Take(60)
                 .Select(p=>p.Key.ToString("yyyy-MM-dd"))
-                .ToArrayAsync();
+                .ToListAsync();
+            var today = DateTime.Today.ToString("yyyy-MM-dd");
+            if (datetimes.FirstOrDefault() != today && !(DateTime.Today.DayOfWeek == DayOfWeek.Saturday || DateTime.Today.DayOfWeek == DayOfWeek.Sunday))
+            {
+                datetimes.Insert(0, today);
+            }
+            return datetimes.ToArray();
         }
 
         Task<Stocks[]> IStockQueries.GetBestStocksAsync(int key)
