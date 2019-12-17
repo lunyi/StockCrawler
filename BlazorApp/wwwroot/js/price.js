@@ -8,7 +8,7 @@
 
     $.get(url, function (data) {
 
-        $("#stockName").text(data.stock.name);
+        $("#stockName").text(data.stock.stockId + " "　+ data.stock.name);
         $("#income").text(data.stock.營收比重);
         $("#address").text(data.stock.address);
         $("#asset").text(data.stock.股本);
@@ -191,7 +191,7 @@ function renewPrices(prices) {
             prices[i].dColor = "green";
         }
         else {
-            prices[i].董監持股 = (prices[i].董監持股 - prices[i + 1].董監持股) + " " + prices[i].董監持股比例 + "%)";
+            prices[i].董監持股 = (prices[i].董監持股 - prices[i + 1].董監持股) + " (" + prices[i].董監持股比例 + "%)";
         }
 
         if (prices[i].成交量 > (prices[i + 1].成交量 * 2.5)) {

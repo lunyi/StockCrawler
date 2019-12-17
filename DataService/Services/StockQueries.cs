@@ -101,7 +101,7 @@ select top 300
       ,s.[股價]
       ,s.[每股淨值]
       ,s.[每股盈餘]
-	  ,CAST(p.[Close] AS nvarchar(30)) AS [Description]
+	  ,s.[Description]
 from [Prices] p join [Stocks] s on s.StockId = p.StockId 
 where p.[Datetime] = '{datetime}'
 order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p.{strVolumn} {orderby}
@@ -322,7 +322,7 @@ drop table #t1, #t2, #t3, #t4
         async Task<string[]> IStockQueries.GetDaysAsync()
         {
             var context = new StockDbContext();
-            var datetimes = await  context.Prices
+            var datetimes = await  context.Prices.Where(p=>p.StockId == "1101")
                 .GroupBy(p => p.Datetime)
                 .OrderByDescending(p => p.Key)
                 .Take(60)
@@ -483,7 +483,7 @@ from [Thousand] a join (
 	WHERE RowNo <= 1) b on a.StockId = b.StockId
 where a.[Datetime] > b.[Datetime] 
 group by a.StockId,a.Name 
-having count(1) >= 4
+having count(1) >= 1
 order by count(1) desc
 
 select s.[Id]

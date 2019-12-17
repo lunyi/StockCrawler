@@ -39,41 +39,37 @@ namespace WebCrawler
         }
 
 
-        private async Task InsertAsync(Dictionary<string, Stock[]> s)
+        private async Task InsertAsync(Dictionary<string, Stock[]> newStocks)
         {
             var context = new StockDbContext();
             var stocks = context.Stocks.Where(p => p.Status == 1);
+            var currentBests = context.RealtimeBestStocks.Where(p => p.Datetime == DateTime.Today);
 
-            var bestsToRemove = context.RealtimeBestStocks.Where(p => p.Datetime == DateTime.Today);
-
-            foreach (var item in bestsToRemove)
-            {
-                context.RealtimeBestStocks.Remove(item);
-            }
-
-            await context.SaveChangesAsync();
-
-            foreach (var item in s)
+            foreach (var item in newStocks)
             {
                 var stockids = item.Value.Select(p=>p.StockId).ToArray();
                 var stockList = stocks.Where(s => stockids.Contains(s.StockId)).ToArray();
 
                 foreach (var stock in stockList)
                 {
-                    var realtime = new RealtimeBestStocks
+                    var newBest = currentBests.FirstOrDefault(p=>p.StockId == stock.StockId && p.Type == item.Key);
+                    if (newBest == null)
                     {
-                        Id = Guid.NewGuid(),
-                        StockId = stock.StockId,
-                        Name = stock.Name,
-                        Type = item.Key,
-                        Datetime = DateTime.Today
-                    };
+                        var realtime = new RealtimeBestStocks
+                        {
+                            Id = Guid.NewGuid(),
+                            StockId = stock.StockId,
+                            Name = stock.Name,
+                            Type = item.Key,
+                            Datetime = DateTime.Today
+                        };
 
-                    Console.WriteLine($"{item.Key} {stock.StockId}");
-                    context.RealtimeBestStocks.Add(realtime);
-                }
-                await context.SaveChangesAsync();
+                        Console.WriteLine($"{item.Key} {stock.StockId}");
+                        context.RealtimeBestStocks.Add(realtime);
+                    }
+                }           
             }
+            await context.SaveChangesAsync();
         }
     }
 
