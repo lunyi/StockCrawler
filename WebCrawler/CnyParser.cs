@@ -47,7 +47,7 @@ namespace WebCrawler
   select s.* from [Stocks]  s 
   left join (select * from [Prices] where [Datetime] = '{DateTime.Today.ToString("yyyy/MM/dd")}') p on s.StockId = p.StockId
   where  s.Status = 1 and p.Id is null
-  order by s.StockId";
+  order by s.StockId desc";
         }
 
         private async Task ExecuteHistoryAsync(CnyParser parser, StockDbContext context, string stockId, string name)
@@ -91,8 +91,8 @@ namespace WebCrawler
         private RawSqlString GetSqlToUpdate()
         {
             return new RawSqlString(@"
-Update  [Prices] set [投信買賣超] = (投信買進 - 投信賣出), [外資買賣超] = (外資買進 - 外資賣出)
-where ([投信買賣超] != (投信買進 - 投信賣出)) or  ([外資買賣超] != (外資買進 - 外資賣出))
+Update  [Prices] set [投信買賣超] = (投信買進 - 投信賣出), [外資買賣超] = (外資買進 - 外資賣出),[自營商買賣超] = (自營商買進 - 自營商賣出)
+where ([投信買賣超] != (投信買進 - 投信賣出)) or ([外資買賣超] != (外資買進 - 外資賣出) or ([自營商買賣超] != (自營商買進 - 自營商賣出))
 ");
         }
 
@@ -308,7 +308,8 @@ SELECT *
 
             for (int index = 1; index <= 6; index++)
             {
-                var rootNode = GetRootNoteByUrl($"https://concords.moneydj.com/z/zc/zco/zco_{stockId}_{index}.djhtm", false);
+                //var rootNode = GetRootNoteByUrl($"https://concords.moneydj.com/z/zc/zco/zco_{stockId}_{index}.djhtm", false);
+                var rootNode = GetRootNoteByUrl($"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco_{stockId}_{index}.djhtm", false);
                 var nodes = rootNode.SelectNodes("/html[1]/body[1]/div[1]/table[1]/tr[2]/td[2]/form[1]/table[1]/tr[1]/td[1]/table[1]/tr");
 
                 decimal 主力買超張數 = 0, 主力賣超張數 = 0;
