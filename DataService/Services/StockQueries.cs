@@ -904,20 +904,7 @@ WITH TOPTEN as (
     FROM [MonthData] where [Datetime] <= '{datetime}'
 )
 
-select s.[Id]
-      ,s.[StockId]
-      ,s.[Name]
-      ,s.[MarketCategory]
-      ,s.[Industry]
-      ,s.[ListingOn]
-      ,s.[CreatedOn]
-      ,s.[UpdatedOn]
-      ,s.[Status]
-      ,s.[Address]
-      ,s.[Website]
-      ,s.[營收比重]
-      ,s.[股本]
-	  ,s.Description
+select s.*
 from [Stocks]s 
 join TOPTEN t1 on s.StockId = t1.StockId
 join TOPTEN t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
@@ -945,6 +932,7 @@ and t9.單月年增率 > 0
 and t10.單月年增率 > 0
 and t11.單月年增率 > 0
 and t12.單月年增率 > 0
+order by s.股價 / s.每股淨值
 ";
         }
 
