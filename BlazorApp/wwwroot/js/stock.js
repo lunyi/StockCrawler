@@ -224,26 +224,28 @@ function getBestStockTypes() {
         });
 }
 
-function onGetStocksByDate() {
-    $("#selectStockType").val(0);
-    var date = $("#selectDateList");
-    var type = $("#selectRankType");
-
-    if (type.val() !== 0) {
-        DotNet.invokeMethodAsync('BlazorApp', 'GetStocksDateAsync', date.val(), parseInt(type.val()))
-            .then(data => {
-                setStocks(data);
-            });
-    }
-}
-
-function onGetStocksByType() {
+var _selectGroupType = null;
+function onGetStocksByDate(selectGroupType) {
     $("#selectStockType").val(0);
     var date = $("#selectDateList");
     var type = $("#selectBestType");
 
-    if (type.val() !== 0) {
+    if (selectGroupType !== 0) {
+        _selectGroupType = selectGroupType;
+    }   
+
+    console.log("_selectGroupType=" + _selectGroupType);
+
+    if (type.val() !== 0 && _selectGroupType === 1) {
         DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByBestStockTypeAsync', type.val(), date.val())
+            .then(data => {
+                setStocks(data);
+            });
+    }
+
+    var rank = $("#selectRankType");
+    if (rank.val() !== 0 && _selectGroupType === 2) {
+        DotNet.invokeMethodAsync('BlazorApp', 'GetStocksDateAsync', date.val(), parseInt(rank.val()))
             .then(data => {
                 setStocks(data);
             });
@@ -267,6 +269,10 @@ function setStocks(data) {
         var desc = data[i].description === null ? "" : data[i].description;
         var text = data[i].stockId + " - " + data[i].name + " (" + data[i].industry + " " + desc + " )";
         $("#stockList").append($("<option></option>").attr("value", data[i].stockId).text(text));
+    }
+
+    if (data[currentIndex].stockId=== null) {
+        currentIndex = 0;
     }
     $("#stockList").val(data[currentIndex].stockId);
     currentStockId = data[currentIndex].stockId;

@@ -38,7 +38,6 @@ namespace WebCrawler
             await InsertAsync(s);
         }
 
-
         private async Task InsertAsync(Dictionary<string, Stock[]> newStocks)
         {
             var context = new StockDbContext();
@@ -69,7 +68,46 @@ namespace WebCrawler
                     }
                 }           
             }
+
+            ParseWarnStock(context, currentBests);
             await context.SaveChangesAsync();
+        }
+
+        private void ParseWarnStock(StockDbContext context, IQueryable<RealtimeBestStocks> current)
+        {
+            string type = "警示股";
+            var url = $"http://5850web.moneydj.com/z/ze/zew/zew.djhtm";
+            var rootNode = GetRootNoteByUrl(url, false);
+            var nodes = rootNode.SelectNodes("//*[@id='SysJustIFRAMEDIV']/table/tr[2]/td[2]/table/tr/td/table/tr");
+
+            var list = new List<RealtimeBestStocks>();
+
+            for (int i = 3; i < nodes.Count; i++)
+            {
+                var sIndex = nodes[i].ChildNodes[3].InnerHtml.IndexOf("'AS");
+
+                if (sIndex > 0)
+                {
+                    var stockId = nodes[i].ChildNodes[3].InnerHtml.Substring(sIndex + 3, 4);
+                    var temp = nodes[i].ChildNodes[3].InnerHtml.Substring(sIndex + 10, 8);
+                    var name = temp.Substring(0, temp.IndexOf("'"));
+                    var newBest = current.FirstOrDefault(p => p.StockId == stockId && p.Type == type);
+
+                    if (newBest == null)
+                    {
+                        list.Add(new RealtimeBestStocks
+                        {
+                            Id = Guid.NewGuid(),
+                            StockId = stockId,
+                            Name = name,
+                            Type = type,
+                            Datetime = DateTime.Today
+                        });
+                    }
+                }
+            }
+
+            context.RealtimeBestStocks.AddRange(list);
         }
     }
 
