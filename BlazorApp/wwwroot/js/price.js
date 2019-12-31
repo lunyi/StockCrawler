@@ -1,8 +1,13 @@
 ﻿(function () {
 
     var stockId = getUrlParameter('stockId');
+<<<<<<< HEAD
     //var url = "http://" + window.location.hostname + ":8081/stock/" + getUrlParameter('stockId');
     var url = "https://localhost:44367/stock/" + stockId;
+=======
+    var url = "http://" + window.location.hostname+":8081/stock/" + getUrlParameter('stockId');
+    //var url = "https://localhost:44367/stock/" + stockId;
+>>>>>>> dde2c5f6f628f2ebf0f5cd3181bd27d701185157
     var kUrl = "https://so.cnyes.com/JavascriptGraphic/chartstudy.aspx?country=tw&market=tw&code=" + stockId + "&divwidth=550&divheight=330";
 
 

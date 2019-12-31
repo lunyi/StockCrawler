@@ -3,9 +3,9 @@
 <div class="row">
     <div id="columnLeft" class="column">
         <select id="selectStockType" onchange="onSelectTypeChange()"></select>
-        <select id="selectDateList" onchange="onGetStocksByDate()"></select>
-        <select id="selectBestType" onchange="onGetStocksByType()"></select>
-        <select id="selectRankType" onchange="onGetStocksByDate()">
+        <select id="selectDateList" onchange="onGetStocksByDate(0)"></select>
+        <select id="selectBestType" onchange="onGetStocksByDate(1)"></select>
+        <select id="selectRankType" onchange="onGetStocksByDate(2)">
             <option value="0">----選股----</option>
             <option value="1">一日漲幅排行</option>
             <option value="2">五日漲幅排行</option>

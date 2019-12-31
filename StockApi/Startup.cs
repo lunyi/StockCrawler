@@ -23,6 +23,9 @@ namespace StockApi
             Configuration = configuration;
         }
 
+        string[] allowedUrls = new[] { "http://220.133.185.1",
+                                        "https://localhost:44326",
+                                        "http://twstock.gq"};
         public IConfiguration Configuration { get; }
 
         //readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -39,8 +42,7 @@ namespace StockApi
                 options.AddDefaultPolicy(
                 builder =>
                 {
-                    builder.WithOrigins("http://220.133.185.1",
-                                        "https://localhost:44326")
+                    builder.WithOrigins(allowedUrls)
                                 .AllowAnyHeader()
                                 .AllowAnyMethod(); ;
                 });
