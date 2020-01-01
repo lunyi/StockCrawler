@@ -133,6 +133,8 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                          董監持股比例 = 100 * Math.Round(((decimal)price.董監持股 / price.發行張數).Value, 5),
                          外資持股比例 = price.外資持股比例,
                          融資買賣超 = price.融資買進 - price.融資賣出,
+                         融券買賣超 = price.融券買進 - price.融券賣出,
+                         融券餘額 = price.融券餘額,
                          董監持股 = price.董監持股,
                          融資使用率 = price.融資使用率,
                          外資買賣超 = price.外資買進 - price.外資賣出,
@@ -148,6 +150,7 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
             var monthData = await context.MonthData
                 .Where(p => p.StockId == stockId)
                 .OrderByDescending(p => p.Datetime)
+                .Take(12)
                 .ToArrayAsync();
 
             return new StockeModel
@@ -903,20 +906,7 @@ WITH TOPTEN as (
     FROM [MonthData] where [Datetime] <= '{datetime}'
 )
 
-select s.[Id]
-      ,s.[StockId]
-      ,s.[Name]
-      ,s.[MarketCategory]
-      ,s.[Industry]
-      ,s.[ListingOn]
-      ,s.[CreatedOn]
-      ,s.[UpdatedOn]
-      ,s.[Status]
-      ,s.[Address]
-      ,s.[Website]
-      ,s.[營收比重]
-      ,s.[股本]
-	  ,s.Description
+select s.*
 from [Stocks]s 
 join TOPTEN t1 on s.StockId = t1.StockId
 join TOPTEN t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
@@ -944,6 +934,7 @@ and t9.單月年增率 > 0
 and t10.單月年增率 > 0
 and t11.單月年增率 > 0
 and t12.單月年增率 > 0
+order by s.[Description] / s.每股淨值
 ";
         }
 

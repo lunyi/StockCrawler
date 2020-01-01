@@ -1,7 +1,13 @@
 ﻿(function () {
 
     var stockId = getUrlParameter('stockId');
-    var url = "http://" + window.location.hostname+":8081/stock/" + getUrlParameter('stockId');
+
+    var url = "http://" + window.location.hostname + ":8081/stock/" + stockId;
+
+    if (window.location.hostname === "localhost") {
+        url = "https://localhost:44367/stock/" + stockId;
+    }
+    
     //var url = "https://localhost:44367/stock/" + stockId;
     var kUrl = "https://so.cnyes.com/JavascriptGraphic/chartstudy.aspx?country=tw&market=tw&code=" + stockId + "&divwidth=550&divheight=330";
 
@@ -276,6 +282,19 @@ function renewPrices(prices) {
         else if (prices[i].融資買賣超 < 0) {
             prices[i].融資買賣超 = prices[i].融資買賣超 + "↓ (" + prices[i].融資使用率 + ")";
             prices[i].lColor = "green";
+        } else {
+            prices[i].融資買賣超 = prices[i].融資買賣超 + " (" + prices[i].融資使用率 + ")";
+        }
+
+        if (prices[i].融券買賣超 > 0) {
+            prices[i].融券買賣超 = prices[i].融券買賣超 + "↑ (" + prices[i].融券餘額 + ")";
+            prices[i].chColor = "red";
+        }
+        else if (prices[i].融券買賣超 < 0) {
+            prices[i].融券買賣超 = prices[i].融券買賣超 + "↓ (" + prices[i].融券餘額 + ")";
+            prices[i].chColor = "green";
+        } else {
+            prices[i].融券買賣超 = prices[i].融券買賣超 + " (" + prices[i].融券餘額 + ")";
         }
     }
     return prices;

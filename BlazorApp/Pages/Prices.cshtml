@@ -61,10 +61,10 @@
                         <thead>
                             <tr style="border: 1px solid orange">
                                 <th style="border: 1px solid orange">日期</th>
-                                <th style="border: 1px solid orange">100張↑</th>
+                                <th style="border: 1px solid orange">100張↓</th>
                                 <th style="border: 1px solid orange">100~400</th>
                                 <th style="border: 1px solid orange">400~1000</th>
-                                <th style="border: 1px solid orange">1000張↓</th>
+                                <th style="border: 1px solid orange">1000張↑</th>
                                 <th style="border: 1px solid orange">收盤價</th>
                                 <th style="border: 1px solid orange">董監</th>
                                 <th style="border: 1px solid orange">融資</th>
@@ -110,9 +110,10 @@
                                 @*<th>投信比例</th>*@
                                 <th>董監增減</th>
                                 <th>融資</th>
+                                <th>融券</th>
                                 <th>外資</th>
                                 <th>投信</th>
-                                <th>自營</th>
+                                @*<th>自營</th>*@
                                 <th>主力</th>
                                 @*<th>本益比</th>*@
                                 @*<th>淨值比</th>*@
@@ -130,9 +131,10 @@
                             @*<td>{{price.投信持股比例}}%</td>*@
                             <td v-bind:style="{ color: price.dColor}">{{price.董監持股}}</td>
                             <td v-bind:style="{ color: price.lColor}">{{price.融資買賣超}}</td>
+                            <td v-bind:style="{ color: price.chColor}">{{price.融券買賣超}}</td>
                             <td v-bind:style="{ color: price.fColor}">{{price.外資買賣超}}</td>
                             <td v-bind:style="{ color: price.tColor}">{{price.投信買賣超}}</td>
-                            <td v-bind:style="{ color: price.zColor}">{{price.自營商買賣超}}</td>
+                            @*<td v-bind:style="{ color: price.zColor}">{{price.自營商買賣超}}</td>*@
                             <td v-bind:style="{ color: price.mColor}">{{price.主力買賣超}}</td>
                             @*<td>{{price.本益比}}</td>*@
                             @*<td>{{price.股價淨值比}}</td>*@

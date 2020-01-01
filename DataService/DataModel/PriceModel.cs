@@ -28,6 +28,8 @@ namespace DataService.DataModel
         public decimal 本益比 { get; set; }
         public decimal 股價淨值比 { get; set; }
         public int? 融資買賣超 { get; set; }
+        public int? 融券買賣超 { get; set; }
+        public int? 融券餘額 { get; set; }
         public decimal? 融資使用率 { get; set; }
 
         public int? 外資買賣超 { get; set; }
