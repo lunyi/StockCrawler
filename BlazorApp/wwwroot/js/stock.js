@@ -224,26 +224,36 @@ function getBestStockTypes() {
         });
 }
 
-function onGetStocksByDate() {
+var currentType = 1;
+
+function onGetStocksByDate(val) {
     $("#selectStockType").val(0);
     var date = $("#selectDateList");
-    var type = $("#selectRankType");
+    var bestType = $("#selectBestType");
+    var rankType = $("#selectRankType");
 
-    if (type.val() !== 0) {
-        DotNet.invokeMethodAsync('BlazorApp', 'GetStocksDateAsync', date.val(), parseInt(type.val()))
+    if (val !== 0) {
+        currentType = val;
+    } else {
+        if (currentUrlIndex === 4) {
+
+            var _url = "https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco.djhtm?a=" + currentStockId + "&e=" + date.val() + "&f=" + date.val();
+            console.log(_url);
+            $("#StockPage").attr("src", _url);
+            return;
+        }
+    } 
+
+
+    console.log("val=" + val + ", currentType=" + currentType);
+
+    if (currentType === 1 && bestType.val() !== 0) {
+        DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByBestStockTypeAsync', bestType.val(), date.val())
             .then(data => {
                 setStocks(data);
             });
-    }
-}
-
-function onGetStocksByType() {
-    $("#selectStockType").val(0);
-    var date = $("#selectDateList");
-    var type = $("#selectBestType");
-
-    if (type.val() !== 0) {
-        DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByBestStockTypeAsync', type.val(), date.val())
+    } else if (currentType=== 2 && rankType.val() !== 0) {
+        DotNet.invokeMethodAsync('BlazorApp', 'GetStocksDateAsync', date.val(), parseInt(rankType.val()))
             .then(data => {
                 setStocks(data);
             });
@@ -268,8 +278,11 @@ function setStocks(data) {
         var text = data[i].stockId + " - " + data[i].name + " (" + data[i].industry + " " + desc + " )";
         $("#stockList").append($("<option></option>").attr("value", data[i].stockId).text(text));
     }
-    $("#stockList").val(data[currentIndex].stockId);
-    currentStockId = data[currentIndex].stockId;
+
+    if (data.length > 0) {
+        $("#stockList").val(data[currentIndex].stockId);
+        currentStockId = data[currentIndex].stockId;
+    }
     goToUrl();
 }
 

@@ -20,9 +20,9 @@ namespace DataService.Models
         public virtual DbSet<AnaStatementDogs> AnaStatementDogs { get; set; }
         public virtual DbSet<BestStockType> BestStockType { get; set; }
         public virtual DbSet<BestStocks> BestStocks { get; set; }
+        public virtual DbSet<BrokerTransaction> BrokerTransaction { get; set; }
         public virtual DbSet<Chip> Chip { get; set; }
         public virtual DbSet<HistoryPrice> HistoryPrice { get; set; }
-        public virtual DbSet<Infomations> Infomations { get; set; }
         public virtual DbSet<MonthData> MonthData { get; set; }
         public virtual DbSet<Prices> Prices { get; set; }
         public virtual DbSet<RealtimeBestStocks> RealtimeBestStocks { get; set; }
@@ -30,6 +30,7 @@ namespace DataService.Models
         public virtual DbSet<StockHistory> StockHistory { get; set; }
         public virtual DbSet<Stocks> Stocks { get; set; }
         public virtual DbSet<Thousand> Thousand { get; set; }
+        public virtual DbSet<TwStock> TwStock { get; set; }
         public virtual DbSet<YearData> YearData { get; set; }
         public virtual DbSet<_WeekyChip> _WeekyChip { get; set; }
 
@@ -143,6 +144,33 @@ namespace DataService.Models
                     .HasMaxLength(50);
             });
 
+            modelBuilder.Entity<BrokerTransaction>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.BrokerName)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Buy).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Datetime).HasColumnType("datetime");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(12);
+
+                entity.Property(e => e.Percent).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Sell).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.StockId)
+                    .IsRequired()
+                    .HasMaxLength(10);
+
+                entity.Property(e => e.買賣超).HasColumnType("decimal(18, 2)");
+            });
+
             modelBuilder.Entity<Chip>(entity =>
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
@@ -228,30 +256,6 @@ namespace DataService.Models
                 entity.Property(e => e.融資使用率).HasColumnType("numeric(18, 2)");
             });
 
-            modelBuilder.Entity<Infomations>(entity =>
-            {
-                entity.HasNoKey();
-
-                entity.Property(e => e.CreatedOn).HasColumnType("datetime");
-
-                entity.Property(e => e.EarningsPerShare).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.PriceBookRatio).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.PriceEarningRatio).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.StockId)
-                    .IsRequired()
-                    .HasMaxLength(8)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Time)
-                    .HasMaxLength(8)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.UpdatedOn).HasColumnType("datetime");
-            });
-
             modelBuilder.Entity<MonthData>(entity =>
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
@@ -288,6 +292,24 @@ namespace DataService.Models
             {
                 entity.HasIndex(e => e.StockId)
                     .HasName("IX_Prices");
+
+                entity.HasIndex(e => new { e.StockId, e.Datetime, e.外資買賣超, e.投信買賣超 })
+                    .HasName("Prices_ITrust_Index");
+
+                entity.HasIndex(e => new { e.StockId, e.Close, e.VMA10, e.十日主力買超張數, e.十日主力賣超張數, e.Datetime })
+                    .HasName("Prices_10days_Index");
+
+                entity.HasIndex(e => new { e.StockId, e.Close, e.VMA20, e.二十日主力買超張數, e.二十日主力賣超張數, e.Datetime })
+                    .HasName("Prices_20days_Index");
+
+                entity.HasIndex(e => new { e.StockId, e.Close, e.VMA5, e.五日主力買超張數, e.五日主力賣超張數, e.Datetime })
+                    .HasName("Prices_5days_Index");
+
+                entity.HasIndex(e => new { e.StockId, e.Close, e.VMA60, e.六十日主力買超張數, e.六十日主力賣超張數, e.Datetime })
+                    .HasName("Prices_60days_Index");
+
+                entity.HasIndex(e => new { e.StockId, e.投信買賣超, e.主力買超張數, e.主力賣超張數, e.Datetime, e.外資買賣超 })
+                    .HasName("Prices_MainForce_Index");
 
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
@@ -477,6 +499,9 @@ namespace DataService.Models
 
             modelBuilder.Entity<Stocks>(entity =>
             {
+                entity.HasIndex(e => new { e.Name, e.MarketCategory, e.Industry, e.ListingOn, e.CreatedOn, e.UpdatedOn, e.Status, e.Address, e.Website, e.營收比重, e.股本, e.股價, e.每股淨值, e.每股盈餘, e.StockId })
+                    .HasName("Stocks_Index");
+
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.Address).HasMaxLength(256);
@@ -515,6 +540,9 @@ namespace DataService.Models
 
             modelBuilder.Entity<Thousand>(entity =>
             {
+                entity.HasIndex(e => new { e.Name, e.PUnder100, e.P200, e.P400, e.S600, e.S800, e.S1000, e.SOver1000, e.SUnder100, e.P600, e.P800, e.P1000, e.POver1000, e.S200, e.S400, e.StockId, e.Datetime })
+                    .HasName("Thousand_Index");
+
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.CreatedOn).HasColumnType("datetime");
@@ -599,6 +627,65 @@ namespace DataService.Models
                     .IsUnicode(false);
 
                 entity.Property(e => e.TotalStock).HasColumnType("decimal(18, 3)");
+            });
+
+            modelBuilder.Entity<TwStock>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.Property(e => e.Datetime).HasColumnType("datetime");
+
+                entity.Property(e => e.交易口數PC比)
+                    .HasMaxLength(10)
+                    .IsFixedLength();
+
+                entity.Property(e => e.前五大).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.前五特).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.前十大).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.前十特).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.外資未平倉).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.外資買賣超).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.成交量).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.投信未平倉).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.投信買賣超).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.收盤價).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.未平倉口數PC比)
+                    .HasMaxLength(10)
+                    .IsFixedLength();
+
+                entity.Property(e => e.漲跌).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.漲跌百分比).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.總計).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.總計未平倉).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.自營未平倉).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.自營總).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.自營自買).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.自營避險).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.融券增加).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.融券餘額).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.融資增加).HasColumnType("decimal(5, 2)");
+
+                entity.Property(e => e.融資餘額).HasColumnType("decimal(5, 2)");
             });
 
             modelBuilder.Entity<YearData>(entity =>

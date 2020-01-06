@@ -16,8 +16,9 @@ namespace WebCrawler
         [Obsolete]
         static async Task Main(string[] args)
         {
-            var ss = new CnyParser();
-            await ss.ParserMarginAsync();
+            var ss = new HiStockParser();
+            await ss.RunAsync();
+            //await ss.ParserMarginAsync();
 
             //var s = new UpdateStockListParser();
             //await s.RunAsync();
