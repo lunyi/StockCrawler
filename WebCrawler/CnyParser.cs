@@ -146,7 +146,7 @@ SELECT *
   FROM [StockDb].[dbo].[Prices]
   where [Datetime] = '{secondDatetime}')  b on a.StockId = b.StockId) c 
 
-   where [Datetime] = '{secondDatetime}' and  ([發行張數] is null or [發行張數] = 0)
+   where [Datetime] = '{firstDatetime}' and  ([發行張數] is null or [發行張數] = 0)
 
 ");
         }
