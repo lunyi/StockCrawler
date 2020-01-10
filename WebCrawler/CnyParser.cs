@@ -41,6 +41,36 @@ namespace WebCrawler
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
         }
 
+        [Obsolete]
+        public async Task RunMainForce()
+        {
+            var context = new StockDbContext();
+            var s = Stopwatch.StartNew();
+            s.Start();
+
+            var parser = new CnyParser();
+            var stocks = context.Stocks.Where(p=>p.Status==1).OrderByDescending(p=>p.StockId).ToList();
+
+            foreach (var item in stocks)
+            {
+                for (int i = 0; i < 120; i++)
+                {
+                    var datetime = DateTime.Now.AddDays(i * -1 - 1).ToString("yyyy-MM-dd");
+                    try
+                    {
+                        await ParseMainForce(context, item.StockId, item.Name, datetime);
+                    }
+                    catch (Exception ex)
+                    { 
+                        Log($"{item.StockId}, {item.Name}, {datetime}, {ex.Message}");
+                    }
+                }
+            }
+
+            s.Stop();
+            Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
+        }
+
         private static string GetSql()
         {
             return @$"
@@ -116,7 +146,7 @@ SELECT *
   FROM [StockDb].[dbo].[Prices]
   where [Datetime] = '{secondDatetime}')  b on a.StockId = b.StockId) c 
 
-   where [Datetime] = '{secondDatetime}' and  ([發行張數] is null or [發行張數] = 0)
+   where [Datetime] = '{firstDatetime}' and  ([發行張數] is null or [發行張數] = 0)
 
 ");
         }
@@ -346,6 +376,72 @@ SELECT *
 
             s.Stop();
             Console.WriteLine("主力買賣超：" + s.Elapsed.TotalSeconds);
+        }
+
+        private async Task ParseMainForce(StockDbContext context, string stockId, string name, string datetime)
+        {
+            var s = Stopwatch.StartNew();
+            s.Start();
+
+            var url = $"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco.djhtm?a={stockId}&e={datetime}&f={datetime}";
+            var rootNode = GetRootNoteByUrl(url, false);
+            var nodes = rootNode.SelectNodes("/html[1]/body[1]/div[1]/table[1]/tr[2]/td[2]/form[1]/table[1]/tr[1]/td[1]/table[1]/tr");
+
+            if (nodes.Count < 8)
+            {
+                return;
+            }
+            var divide = 1;
+            if (nodes[nodes.Count - 3].ChildNodes[1].InnerHtml == "合計買超股數")
+            {
+                divide = 1000;
+            }
+            var list = new List<BrokerTransaction>();
+
+            var datetime1 = Convert.ToDateTime(datetime);
+            for (int i = 6; i <= nodes.Count - 4; i++)
+            {
+                var node = nodes[i];
+                var brokerName = node.ChildNodes[1].ChildNodes[0].InnerHtml;
+                var broker = await context.BrokerTransaction.FirstOrDefaultAsync(p => p.Datetime == datetime1 && p.StockId == stockId && p.BrokerName == brokerName);
+                if (brokerName != "&nbsp;" && broker != null)
+                {
+                    var brokerBuy = new BrokerTransaction();
+                    brokerBuy.Id = Guid.NewGuid();
+                    brokerBuy.StockId = stockId;
+                    brokerBuy.Name = name;
+                    brokerBuy.Datetime = datetime1;
+                    brokerBuy.BrokerName = node.ChildNodes[1].ChildNodes[0].InnerHtml;
+                    brokerBuy.Buy = Convert.ToDecimal(node.ChildNodes[3].InnerHtml.Replace(",", "")) / divide;
+                    brokerBuy.Sell = Convert.ToDecimal(node.ChildNodes[5].InnerHtml.Replace(",", "")) / divide;
+                    brokerBuy.買賣超 = Convert.ToDecimal(node.ChildNodes[7].InnerHtml.Replace(",", "")) / divide;
+                    brokerBuy.Percent = Convert.ToDecimal(node.ChildNodes[9].InnerHtml.Replace("%", ""));
+                    list.Add(brokerBuy);
+                }
+
+                brokerName = node.ChildNodes[11].ChildNodes[0].InnerHtml;
+                broker = await context.BrokerTransaction.FirstOrDefaultAsync(p => p.Datetime == datetime1 && p.StockId == stockId && p.BrokerName == brokerName);
+
+                if (brokerName != "&nbsp;" && broker != null)
+                {
+                    var brokerSell = new BrokerTransaction();
+                    brokerSell.Id = Guid.NewGuid();
+                    brokerSell.StockId = stockId;
+                    brokerSell.Name = name;
+                    brokerSell.Datetime = datetime1;
+                    brokerSell.BrokerName = node.ChildNodes[11].ChildNodes[0].InnerHtml;
+                    brokerSell.Buy = Convert.ToDecimal(node.ChildNodes[13].InnerHtml.Replace(",", "")) / divide;
+                    brokerSell.Sell = Convert.ToDecimal(node.ChildNodes[15].InnerHtml.Replace(",", "")) / divide;
+                    brokerSell.買賣超 = Convert.ToDecimal(node.ChildNodes[17].InnerHtml.Replace(",", "")) / divide;
+                    brokerSell.Percent = Convert.ToDecimal(node.ChildNodes[19].InnerHtml.Replace("%", ""));
+
+                    list.Add(brokerSell);
+                }
+            }
+            context.BrokerTransaction.AddRange(list);
+            await context.SaveChangesAsync();
+            s.Stop();
+            Console.WriteLine($"{stockId}, {name}, {datetime}：" + s.Elapsed.TotalSeconds);
         }
 
         private void ParseTech(string stockId, Prices price)

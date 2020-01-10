@@ -18,6 +18,7 @@ namespace WebCrawler
         {
             var ss = new CnyParser();
             await ss.ParserMarginAsync();
+            //await ss.ParserMarginAsync();
 
             //var s = new UpdateStockListParser();
             //await s.RunAsync();

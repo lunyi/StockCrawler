@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using HtmlAgilityPack;
 
@@ -20,6 +21,13 @@ namespace WebCrawler
             web.OverrideEncoding = isUtf8 ? Encoding.GetEncoding(65001) : Encoding.GetEncoding("big5");
             var res = web.Load(url).DocumentNode;
             return res;
+        }
+
+        protected void Log(string message)
+        {
+            StreamWriter w = new StreamWriter($"D:\\Code\\{DateTime.Today.ToString("yyyy-MM-dd")}.txt", true, Encoding.UTF8);
+            w.WriteLine(message);
+            w.Close();
         }
     }
 }

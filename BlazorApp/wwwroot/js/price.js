@@ -290,7 +290,10 @@ function renewPrices(prices) {
             prices[i].融資買賣超 = prices[i].融資買賣超 + " (" + prices[i].融資使用率 + ")";
         }
 
-        if (prices[i].融券買賣超 > 0) {
+        if (prices[i].融券買賣超 === undefined) {
+            prices[i].融券買賣超 = null;
+        }
+        else if (prices[i].融券買賣超 > 0) {
             prices[i].融券買賣超 = prices[i].融券買賣超 + "↑ (" + prices[i].融券餘額 + ")";
             prices[i].chColor = "red";
         }
