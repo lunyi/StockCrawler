@@ -182,7 +182,7 @@ AS
         [Datetime], 
 		DATEDIFF(DAY,  [Datetime], @MaxDate) AS NoDays,
         DATEDIFF(DAY,  [Datetime], @MaxDate)/7 AS NoGroup,
-        [外資買賣超],  [投信買賣超] , [自營商買賣超] , ([融資買進] - [融資賣出]) as 融資買賣超
+        [外資買賣超],  [投信買賣超] , [自營商買賣超] , ([融資買進] - [融資賣出]) as 融資買賣超, 成交量
     FROM [Prices]
 	where StockID = @stockid and [Datetime] <= @MaxDate
 )
@@ -193,7 +193,8 @@ SELECT
     SUM([外資買賣超]) as [外資買賣超],
 	SUM([投信買賣超]) as [投信買賣超],
 	SUM([自營商買賣超]) as [自營商買賣超],
-	SUM(融資買賣超) as 融資買賣超
+	SUM(融資買賣超) as 融資買賣超,
+    SUM(成交量) as 成交量
 into #t1
 FROM cte 
 GROUP BY NoGroup
@@ -260,7 +261,8 @@ select
     #t1.[自營商買賣超],
     #t2.[主力買賣超],
     #t2.[Close],
-    #t2.[董監持股]
+    #t2.[董監持股],
+    #t1.[成交量]
 from #t1 
 join #t2 on #t1.Datetime = #t2.Datetime
 join #t4 on #t1.Datetime = #t4.Datetime
