@@ -61,6 +61,11 @@ function renewWeekChip(weekChips) {
             weekChips[i].updownColor = "green";
         }
 
+        if (weekChips[i].成交量 > 2 * weekChips[i + 1].成交量) {
+            weekChips[i].成交量 = weekChips[i].成交量 + "↑";
+            weekChips[i].vColor = "red";
+        }
+
         if (weekChips[i].pUnder100 > weekChips[i + 1].pUnder100) {
             weekChips[i].pUnder100 = weekChips[i].pUnder100 + "↑ (" + weekChips[i].sUnder100 + ")";
             weekChips[i].sColor = "red";

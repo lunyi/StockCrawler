@@ -24,5 +24,6 @@ namespace DataService.Models
         public int? 自營商買賣超 { get; set; }
         public int? 主力買賣超 { get; set; }
         public int? 董監持股 { get; set; }
+        public int? 成交量 { get; set; }
     }
 }
