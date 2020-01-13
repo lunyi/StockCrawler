@@ -520,6 +520,10 @@ namespace DataService.Models
                     .IsRequired()
                     .HasMaxLength(50);
 
+                entity.Property(e => e.ROA).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.ROE).HasColumnType("decimal(18, 2)");
+
                 entity.Property(e => e.StockId)
                     .IsRequired()
                     .HasMaxLength(8)
