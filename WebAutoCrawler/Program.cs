@@ -14,8 +14,11 @@ namespace WebCrawler
         [Obsolete]
         static async Task Main(string[] args)
         {
-            var c = new ThousandDataCrawlerV2();
-            await c.ExecuteLastAsync();
+            //var c = new ThousandDataCrawlerV2();
+            //await c.ExecuteLastAsync();
+
+            var c = new MonthDataCrawler();
+            await c.ExecuteAsync();
         }
 
         private async Task ParseHistory()

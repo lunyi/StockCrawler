@@ -167,6 +167,15 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
             int days = DateTime.Today.DayOfWeek == DayOfWeek.Saturday ? 1 : 1 * ((int)DateTime.Today.DayOfWeek + 2);
             return DateTime.Today.AddDays(days*-1).ToString("yyyy-MM-dd");
         }
+
+        private string GetLastFriday(string datetime)
+        {
+            var today = Convert.ToDateTime(datetime);
+            int days = today.DayOfWeek == DayOfWeek.Saturday ? 1 : 1 * ((int)today.DayOfWeek + 2);
+            days = days == 7 ? 0 : days;
+            return today.AddDays(days * -1).ToString("yyyy-MM-dd");
+        }
+
         private string GetWeekAnalyst(string stockId, string datetime)
         {
 
@@ -362,6 +371,12 @@ drop table #t1, #t2, #t3, #t4
                 case (int)ChooseStockType.二十日漲幅排行:
                     sql = 五日漲幅排行榜(datetime, 20);
                     break;
+                case (int)ChooseStockType.四十日漲幅排行:
+                    sql = 五日漲幅排行榜(datetime, 40);
+                    break;
+                case (int)ChooseStockType.六十日漲幅排行:
+                    sql = 五日漲幅排行榜(datetime, 60);
+                    break;
                 case (int)ChooseStockType.五日跌幅排行榜:
                     sql = 五日跌幅排行榜(datetime, 5);
                     break;
@@ -376,6 +391,12 @@ drop table #t1, #t2, #t3, #t4
                     break;
                 case (int)ChooseStockType.外資連續賣超排行榜:
                     sql = 連續賣超排行榜(datetime, "外資買賣超");
+                    break;
+                case (int)ChooseStockType.融資連續買超排行榜:
+                    sql = 融資連續買超排行榜(datetime,true);
+                    break;
+                case (int)ChooseStockType.融資連續賣超排行榜:
+                    sql = 融資連續買超排行榜(datetime, false);
                     break;
                 case (int)ChooseStockType.主力連續買超排行榜:
                     sql = 真主力連續買超排行榜(datetime);
@@ -403,12 +424,10 @@ drop table #t1, #t2, #t3, #t4
                     break;
                 case (int)ChooseStockType.近月營收累積年增率成長:
                     sql = 近月營收累積年增率成長(datetime);
-                    break;
-                  
+                    break;              
                 case (int)ChooseStockType.當週大戶比例增加:
                     sql = Get當週大戶比例增加(datetime);
                     break;
-
                 case (int)ChooseStockType.賣方籌碼集中排行榜:
                     sql = Get籌碼集中排行榜Sql(datetime, 1, "asc");
                     break;
@@ -435,6 +454,9 @@ drop table #t1, #t2, #t3, #t4
                     break;
                 case (int)ChooseStockType.董監買賣超排行榜:
                     sql = GetSqlByChairmanAsync(datetime);
+                    break;
+                case (int)ChooseStockType.每周成交量增長排行榜:
+                    sql = 每周成交量增長排行榜(GetLastFriday(datetime));
                     break;
                 case (int)ChooseStockType.CMoney選股:
                     sql = GetCMoneyStocksSql();
@@ -692,7 +714,58 @@ order by t.[Count] desc
 drop table #tmp";
         }
 
+        private string 每周成交量增長排行榜(string datetime)
+        {
+            return $@"
+DECLARE @MaxDate AS DATETIME = '{datetime}';
 
+WITH cte
+AS
+(
+    SELECT
+	    StockId, [Name],
+        [Datetime], 
+		DATEDIFF(DAY,  [Datetime], @MaxDate) AS NoDays,
+        DATEDIFF(DAY,  [Datetime], @MaxDate)/7 AS NoGroup,
+        [外資買賣超],  [投信買賣超] , [自營商買賣超] , 
+		([融資買進] - [融資賣出]) as 融資買賣超,
+		[主力買超張數] - [主力賣超張數] as [主力買賣超],
+		成交量
+    FROM [Prices]
+	where [Datetime] <= @MaxDate
+)
+
+SELECT  
+	c1.StockId, c1.[Name],
+    DATEADD(DAY, c1.NoGroup*-7, @MaxDate) AS [Datetime],
+    SUM(c1.[外資買賣超]) as [外資買賣超],
+	SUM(c1.[投信買賣超]) as [投信買賣超],
+	SUM(c1.[自營商買賣超]) as [自營商買賣超],
+	SUM(c1.[主力買賣超]) as [主力買賣超],
+	SUM(c1.融資買賣超) as 融資買賣超,
+    SUM(c1.成交量) as c1成交量,
+	SUM(c2.成交量) as c2成交量,
+	SUM(c1.成交量) / cast(SUM(c2.成交量) as decimal) as 買超比例
+	into #t1
+FROM cte c1
+join cte c2  on c1.StockId = c2.StockId and c1.NoGroup + 1 = c2.NoGroup
+join [Stocks] s  on s.StockId = c1.StockId 
+where c1.NoGroup = 0 
+GROUP BY c1.NoGroup, c1.StockId, c1.[Name]
+having 
+ SUM(c1.成交量) > SUM(c2.成交量) * 1.5
+ and (SUM(c1.[主力買賣超]) > 0 or SUM(c1.[融資買賣超]) > 0 or SUM(c1.[外資買賣超]) > 0)
+ order by 
+  SUM(c1.成交量) / SUM(c2.成交量) desc
+
+select s.* 
+from [Stocks] s
+join #t1 t1 on t1.StockId = s.StockId
+order by t1.買超比例 desc
+
+drop table #t1
+";
+        }
 
         private string 真主力連續買超排行榜(string datetime, bool 買超 = true)
         {
@@ -705,6 +778,57 @@ WITH TOPTEN as (
        order by [Datetime] desc
     ) AS RowNo 
     FROM [Prices] where [Datetime] <= '{datetime}' and ([主力買超張數] - [主力賣超張數]) {key}=0
+)
+
+select 
+a.StockId,
+a.Name, 
+count(1) as [Count]
+into #tmp
+from Prices a join (
+	SELECT 	*
+	FROM TOPTEN 
+	WHERE RowNo <= 1) b on a.StockId = b.StockId
+where a.[Datetime] > b.[Datetime]  and a.[Datetime] <= '{datetime}'
+group by a.StockId,a.Name 
+having count(1) >= 2
+order by count(1) desc
+
+select s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘]
+	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
+from [Stocks]s 
+join #tmp t on s.StockId = t.StockId
+order by t.[Count] desc
+
+drop table #tmp";
+        }
+
+        private string 融資連續買超排行榜(string datetime, bool 買超 = true)
+        {
+            var key = 買超 ? "<" : ">";
+            return @$"
+WITH TOPTEN as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY  StockId, Name 
+       order by [Datetime] desc
+    ) AS RowNo 
+    FROM [Prices] where [Datetime] <= '{datetime}' and ([融資買進] - [融資賣出]) {key}=0
 )
 
 select 

@@ -17,6 +17,10 @@
         $("#income").text(data.stock.營收比重);
         $("#address").text(data.stock.address);
         $("#asset").text(data.stock.股本);
+
+        $("#roe").text(data.stock.rOE);
+        $("#roa").text(data.stock.rOA);
+
         $("#cValue").text(data.stock.每股淨值);
         $("#YValue").text(data.stock.每股盈餘);
         $("#website").attr("href", data.stock.website);
