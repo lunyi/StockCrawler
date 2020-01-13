@@ -17,6 +17,7 @@ namespace WebCrawler
         private string threeMgUrl = "https://histock.tw/stock/three.aspx?m=mg";
         private string indicatorUrl = "https://histock.tw/stock/indicator.aspx";
         private string optionthreeUrl = "https://histock.tw/stock/optionthree.aspx";
+        private string roeUrl = "https://histock.tw/stock/financial.aspx?no={0}&t=3&st=2&q=2";
 
         public async Task RunAsync()
         {
@@ -57,9 +58,32 @@ namespace WebCrawler
             }
         }
 
-        private async Task ParserThreeAsync(StockDbContext context, Stocks stock)
+        public async Task ParserRoeAsync()
         {
-         
+            var context = new StockDbContext();
+            var stocks = context.Stocks.Where(p => p.Status == 1).OrderBy(p=>p.StockId).ToArray();
+
+            for (int i = 0; i < stocks.Length; i++)
+            {
+                try
+                {
+                    var rootNode = GetRootNoteByUrl($@"https://histock.tw/stock/financial.aspx?no={stocks[i].StockId}&t=3&st=2&q=2");
+
+                    var roeNode = rootNode.SelectNodes("/html/body/form/div[4]/div[4]/div/div[1]/div[2]/div/div[4]/div[2]/div/div/table/tr[2]");
+
+                    var season = roeNode[0].ChildNodes[1].InnerHtml;
+                    stocks[i].ROE = Convert.ToDecimal(roeNode[0].ChildNodes[2].InnerHtml.Replace("%",""));
+                    stocks[i].ROA = Convert.ToDecimal(roeNode[0].ChildNodes[3].InnerHtml.Replace("%", ""));
+
+                    await context.SaveChangesAsync();
+                    Console.WriteLine($"{stocks[i].StockId} OK!");
+
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"{ex}");
+                }
+            }
         }
     }
 }
