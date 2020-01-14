@@ -39,7 +39,6 @@ namespace DataService.Services
         private string GetMainForceSql(string mainForce)
         {
             return @$"
-
   DECLARE @ColumnGroup NVARCHAR(MAX), @PivotSQL NVARCHAR(MAX) 
 
   SELECT @ColumnGroup = COALESCE(@ColumnGroup + ',' ,'' ) + QUOTENAME([NAme])
@@ -175,7 +174,16 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
             days = days == 7 ? 0 : days;
             return today.AddDays(days * -1).ToString("yyyy-MM-dd");
         }
-
+        private string ROE大於15且股價小於50(string datetime)
+        {
+            return $@"
+SELECT s.*
+  FROM [StockDb].[dbo].[Stocks] s
+  join (select * from Prices where [Datetime] = '{datetime}') a on a.StockId = s.StockId
+  where ROE>15 and a.[Close] < 50 and ROE /ROA <3
+  order by a.[Close] 
+";
+        }
         private string GetWeekAnalyst(string stockId, string datetime)
         {
 
@@ -397,6 +405,9 @@ drop table #t1, #t2, #t3, #t4
                     break;
                 case (int)ChooseStockType.融資連續賣超排行榜:
                     sql = 融資連續買超排行榜(datetime, false);
+                    break;
+                case (int)ChooseStockType.ROE大於15且股價小於50:
+                    sql = ROE大於15且股價小於50(datetime);
                     break;
                 case (int)ChooseStockType.主力連續買超排行榜:
                     sql = 真主力連續買超排行榜(datetime);

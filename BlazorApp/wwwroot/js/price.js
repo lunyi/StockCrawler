@@ -18,8 +18,8 @@
         $("#address").text(data.stock.address);
         $("#asset").text(data.stock.股本);
 
-        $("#roe").text(data.stock.rOE);
-        $("#roa").text(data.stock.rOA);
+        $("#roe").text(data.stock.roe);
+        $("#roa").text(data.stock.roa);
 
         $("#cValue").text(data.stock.每股淨值);
         $("#YValue").text(data.stock.每股盈餘);
