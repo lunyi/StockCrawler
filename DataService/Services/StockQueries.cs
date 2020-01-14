@@ -99,7 +99,7 @@ select top 300
       ,s.[股本]
       ,s.[股價]
       ,s.[每股淨值]
-      ,s.[每股盈餘]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,s.[Description]
 from [Prices] p join [Stocks] s on s.StockId = p.StockId 
 where p.[Datetime] = '{datetime}'
@@ -535,7 +535,7 @@ select s.[Id]
       ,s.[股本]
       ,s.[股價]
       ,s.[每股淨值]
-      ,s.[每股盈餘]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
 from [Stocks]s 
 join #tmp t on s.StockId = t.StockId
@@ -577,7 +577,7 @@ select s.[Id]
       ,s.[股本]
       ,s.[股價]
       ,s.[每股淨值]
-      ,s.[每股盈餘]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,CAST(t.[Percent] AS nvarchar(30)) AS [Description]
 from [Stocks]s 
 join #tmp t on s.StockId = t.StockId
@@ -592,7 +592,7 @@ drop table #tmp
 WITH TOPTEN as (
    SELECT *, ROW_NUMBER() 
     over (
-        PARTITION BY [Name] 
+        PARTITION BY [Name]
        order by [CreatedOn] desc
     ) AS RowNo 
     FROM [Prices] where [Datetime] <= '{datetime}'
@@ -620,7 +620,7 @@ select s.[Id]
       ,s.[股本]
       ,s.[股價]
       ,s.[每股淨值]
-      ,s.[每股盈餘]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
       ,CAST(t.[Description] AS nvarchar(30)) AS [Description]
 from Stocks s 
 join #tmp t on t.StockId = s.StockId
@@ -663,7 +663,7 @@ select s.[Id]
       ,s.[股本]
       ,s.[股價]
       ,s.[每股淨值]
-      ,s.[每股盈餘]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
       ,CAST(t.[Description] AS nvarchar(30)) AS [Description]
 from Stocks s 
 join #tmp t on t.StockId = s.StockId
@@ -712,7 +712,7 @@ select s.[Id]
       ,s.[股本]
       ,s.[股價]
       ,s.[每股淨值]
-      ,s.[每股盈餘]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
 from [Stocks]s 
 join #tmp t on s.StockId = t.StockId
@@ -816,7 +816,7 @@ select s.[Id]
       ,s.[股本]
       ,s.[股價]
       ,s.[每股淨值]
-      ,s.[每股盈餘]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
 from [Stocks]s 
 join #tmp t on s.StockId = t.StockId
@@ -867,7 +867,7 @@ select s.[Id]
       ,s.[股本]
       ,s.[股價]
       ,s.[每股淨值]
-      ,s.[每股盈餘]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
 from [Stocks]s 
 join #tmp t on s.StockId = t.StockId
@@ -917,7 +917,7 @@ select s.[Id]
       ,s.[股本]
       ,s.[股價]
       ,s.[每股淨值]
-      ,s.[每股盈餘]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
 from [Stocks]s 
 join #tmp t on s.StockId = t.StockId
@@ -967,7 +967,7 @@ select s.[Id]
       ,s.[股本]
       ,s.[股價]
       ,s.[每股淨值]
-      ,s.[每股盈餘]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
 from [Stocks]s 
 join #tmp t on s.StockId = t.StockId
@@ -1020,7 +1020,7 @@ order by  (t1.[POver1000] -  t2.[POver1000]) desc
       ,s.[股本]
       ,s.[股價]
       ,s.[每股淨值]
-      ,s.[每股盈餘]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,CAST(m.[累積年增率] AS nvarchar(30)) AS [Description] 
   from [MonthData] m
   join [Stocks] s on s.StockId = m.StockId
@@ -1371,7 +1371,7 @@ select s.[Id]
       ,s.[股本]
       ,s.[股價]
       ,s.[每股淨值]
-      ,s.[每股盈餘]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,CAST(b.買超 AS nvarchar(30)) AS [Description]
 
 from [Stocks] s join (
