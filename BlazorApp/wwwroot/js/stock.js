@@ -10,10 +10,20 @@
 };
 
 document.onkeydown = function () {
-    console.log("event.keyCode=" + event.keyCode);
+   
     var dateIndex = $("#selectDateList").prop("selectedIndex");
     var stockLength = $('#stockList').children('option').length;
     if (event.keyCode === 37) {
+        if (dateIndex >= $('#selectDateList').children('option').length) {
+            dateIndex = $('#selectDateList').children('option').length - 1;
+        } else if (dateIndex < 0) {
+            dateIndex = 0;
+        }
+        else {
+            dateIndex = dateIndex + 1;
+        }
+    } else if (event.keyCode === 39) {
+
         if (dateIndex < 0) {
             dateIndex = 0;
         } else if (dateIndex >= $('#selectDateList').children('option').length) {
@@ -21,20 +31,20 @@ document.onkeydown = function () {
         } else {
             dateIndex = dateIndex - 1;
         }
-    }  else if (event.keyCode === 39) {
-        if (dateIndex < 0) {
-            dateIndex = 0;
-        } else if (dateIndex >= $('#selectDateList').children('option').length) {
-            dateIndex = $('#selectDateList').children('option').length - 1;
-        }
-        else {
-            dateIndex = dateIndex + 1;
-        }
     }
 
     if (event.keyCode === 37 || event.keyCode === 39) {
-        var newDate = $("#selectDateList").eq(dateIndex).val();
+        var newDate = $("#selectDateList option").eq(dateIndex).val();
+        console.log("newDate=" + newDate);
         $("#selectDateList").val(newDate);
+        onGetStocksByDate(0);
+    }
+
+    if (event.keyCode === 16) {
+        onUrlChangeAsync(2);
+    }
+    if (event.keyCode === 17) {
+        onUrlChangeAsync(9);
     }
 };
 

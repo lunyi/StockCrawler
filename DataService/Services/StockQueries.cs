@@ -176,7 +176,7 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
 SELECT s.*
   FROM [StockDb].[dbo].[Stocks] s
   join (select * from Prices where [Datetime] = '{datetime}') a on a.StockId = s.StockId
-  where ROE>15 and a.[Close] < 50 and ROE /ROA <3
+  where ROE>15 and a.[Close] < 100 and ROE /ROA <3
   order by a.[Close] 
 ";
         }
