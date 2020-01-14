@@ -32,6 +32,7 @@ namespace DataService.Models
         public virtual DbSet<Thousand> Thousand { get; set; }
         public virtual DbSet<TwStock> TwStock { get; set; }
         public virtual DbSet<YearData> YearData { get; set; }
+        public virtual DbSet<_MonthData> _MonthData { get; set; }
         public virtual DbSet<_WeekyChip> _WeekyChip { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -732,6 +733,34 @@ namespace DataService.Models
                 entity.Property(e => e.負債總計).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.資產總計).HasColumnType("decimal(18, 2)");
+            });
+
+            modelBuilder.Entity<_MonthData>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.Property(e => e.Datetime)
+                    .IsRequired()
+                    .HasMaxLength(10);
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.ROA).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.ROE).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.StockId)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.單月年增率).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.單月月增率).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.累積年增率).HasColumnType("decimal(18, 2)");
             });
 
             modelBuilder.Entity<_WeekyChip>(entity =>

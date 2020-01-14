@@ -10,7 +10,7 @@ namespace DataService.DataModel
         public Stocks Stock { get; set; }
         public PriceModel[] Prices { get; set; }
         public _WeekyChip[] WeeklyChip { get; set; }
-        public MonthData[] MonthData { get; set; }
+        public _MonthData[] MonthData { get; set; }
     }
 
     public class PriceModel

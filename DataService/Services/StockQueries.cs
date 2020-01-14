@@ -146,11 +146,7 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
 
             var weeklyChip = await context._WeekyChip.FromSqlRaw(GetWeekAnalyst(stockId, GetLastFriday())).ToArrayAsync();
             var pps = await context.Prices.Where(p => p.StockId == stockId).ToArrayAsync();
-            var monthData = await context.MonthData
-                .Where(p => p.StockId == stockId)
-                .OrderByDescending(p => p.Datetime)
-                .Take(12)
-                .ToArrayAsync();
+            var monthData = await context._MonthData.FromSqlRaw("exec [usp_GetMonthData] {0}", stockId).ToArrayAsync();
 
             return new StockeModel
             {

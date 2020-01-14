@@ -48,12 +48,16 @@
                                 <th style="border: 1px solid orange">日期</th>
                                 <th style="border: 1px solid orange">單月年增率</th>
                                 <th style="border: 1px solid orange">累積年增率</th>
+                                <th style="border: 1px solid orange">ROE</th>
+                                <th style="border: 1px solid orange">ROA</th>
                             </tr>
                         </thead>
                         <tr v-for="month in Months">
                             <td style="border: 1px solid orange">{{month.datetime}}</td>
                             <td style="border: 1px solid orange" v-bind:style="{ color: month.updownColor}">{{month.單月年增率}}</td>
                             <td style="border: 1px solid orange" v-bind:style="{ color: month.cColor}">{{month.累積年增率}}</td>
+                            <td style="border: 1px solid orange">{{month.roe}}</td>
+                            <td style="border: 1px solid orange">{{month.roa}}</td>
                         </tr>
                     </table>
                 </div>
