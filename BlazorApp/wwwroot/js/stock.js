@@ -5,12 +5,20 @@
             getStocksByType(0);
             getChosenStockTypes();
             getBestStockTypes();
+
+            var stockId = getUrlParameter('stockId');
+            var url = getUrlParameter('url');
+
+            if (stockId !== null && url !== null) {
+                currentStockId = stockId;
+                onUrlChangeAsync(url);
+            }
         }, 1000);
     });
 };
 
 document.onkeydown = function () {
-   
+    console.log("event.keyCode=" + event.keyCode);
     var dateIndex = $("#selectDateList").prop("selectedIndex");
     var stockLength = $('#stockList').children('option').length;
     if (event.keyCode === 37) {
@@ -40,11 +48,16 @@ document.onkeydown = function () {
         onGetStocksByDate(0);
     }
 
-    if (event.keyCode === 16) {
-        onUrlChangeAsync(2);
-    }
     if (event.keyCode === 17) {
         onUrlChangeAsync(9);
+    } else if (event.keyCode === 16) {
+        onUrlChangeAsync(6);
+    } else if (event.keyCode === 13) {
+        onUrlChangeAsync(3);
+    } else if (event.keyCode === 220) {
+        onUrlChangeAsync(1);
+    } else if (event.keyCode === 46) {
+        onUrlChangeAsync(2);
     }
 };
 
@@ -283,9 +296,6 @@ function onGetStocksByDate(val) {
         }
     } 
 
-
-    console.log("val=" + val + ", currentType=" + currentType);
-
     if (currentType === 1 && bestType.val() !== 0) {
         DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByBestStockTypeAsync', bestType.val(), date.val())
             .then(data => {
@@ -319,8 +329,12 @@ function setStocks(data) {
     }
 
     if (data.length > 0) {
-        $("#stockList").val(data[currentIndex].stockId);
-        currentStockId = data[currentIndex].stockId;
+        if (currentStockId === null) {
+            $("#stockList").val(data[currentIndex].stockId);
+            currentStockId = data[currentIndex].stockId;
+        } else {
+            $("#stockList").val(currentStockId);
+        }
     }
     goToUrl();
 }
@@ -343,5 +357,19 @@ function removeStock() {
                 console.log(data);
                 getStocksByBestStockType($("#txtChosenStockType").val());
             });    
+    }
+}
+
+function getUrlParameter(sParam) {
+    var sPageURL = window.location.search.substring(1),
+        sURLVariables = sPageURL.split('&'),
+        sParameterName,
+        i;
+    for (i = 0; i < sURLVariables.length; i++) {
+        sParameterName = sURLVariables[i].split('=');
+
+        if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+        }
     }
 }
