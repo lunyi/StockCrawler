@@ -158,6 +158,8 @@ function onStockChangeAsync(obj) {
 }
 
 function onUrlChangeAsync(index) {
+
+    currentStockId = currentStockId || "1101";
     var url = urls[index].replace('{0}', currentStockId);
 
     if (index >= urlIndexNewTab) {

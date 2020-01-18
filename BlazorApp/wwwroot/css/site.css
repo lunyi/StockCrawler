@@ -228,7 +228,11 @@ input[type=search] {
 .topTable td, th {
     border: 1px solid orange;
 }
-
-#textExample td, th {
-    padding:0.5px,0.5px !important
-}
+/*#textExample {
+    font-size: 10px !important;
+    position: relative !important;
+    left: -200px !important;
+}*/
+/*#textExample td, th {
+    padding: 0.5px,0.5px !important;
+}*/

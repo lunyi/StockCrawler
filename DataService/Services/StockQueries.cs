@@ -141,6 +141,10 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                          自營商買賣超 = price.自營商買進 - price.自營商賣出,
                          主力買賣超 = price.主力買超張數 - price.主力賣超張數,
                          籌碼集中度 = 100 * Math.Round(((price.主力買超張數 - price.主力賣超張數) / price.成交量).Value, 4),
+                         五日籌碼集中度 = 100 * Math.Round(((price.五日主力買超張數 - price.五日主力賣超張數) / (5 * price.VMA5)).Value, 4),
+                         十日籌碼集中度 = 100 * Math.Round(((price.十日主力買超張數 - price.十日主力賣超張數) / (10 *price.VMA10)).Value, 4),
+                         二十日籌碼集中度 = 100 * Math.Round(((price.二十日主力買超張數 - price.二十日主力賣超張數) / (20 * price.VMA20)).Value, 4),
+                         六十日籌碼集中度 = 100 * Math.Round(((price.六十日主力買超張數 - price.六十日主力賣超張數) / (60 * price.VMA60)).Value, 4),
                          周轉率 = 100 * Math.Round(((decimal)price.成交量 / price.發行張數).Value, 5)
                      }).ToArrayAsync();
 
@@ -435,6 +439,10 @@ drop table #t1, #t2, #t3, #t4
                 case (int)ChooseStockType.當週大戶比例增加:
                     sql = Get當週大戶比例增加(datetime);
                     break;
+                case (int)ChooseStockType.Get淨值比小於2AndROE大於10:
+                    sql = Get淨值比小於2AndROE大於10();
+                    break;
+                    
                 case (int)ChooseStockType.賣方籌碼集中排行榜:
                     sql = Get籌碼集中排行榜Sql(datetime, 1, "asc");
                     break;
@@ -483,7 +491,15 @@ drop table #t1, #t2, #t3, #t4
             return context.Stocks.FromSqlRaw(sql).ToArrayAsync();
         }
 
-
+        private string Get淨值比小於2AndROE大於10()
+        {
+            return $@"
+select * from [Stocks] 
+where [股價] / [ROE] < 2 and  [股價] / [每股淨值]  <2
+and [每股淨值] > 0 and ROE>=10 
+order by [股價]
+";
+        }
 
         private string Get半年線附近Sql(string datetime, string orderby = "")
         {

@@ -1,14 +1,13 @@
 ﻿(function () {
 
     var stockId = getUrlParameter('stockId');
-
     var url = "http://" + window.location.hostname + ":8081/stock/" + stockId;
 
     if (window.location.hostname === "localhost") {
         url = "https://localhost:44367/stock/" + stockId;
     }
     
-    var kUrl = "https://so.cnyes.com/JavascriptGraphic/chartstudy.aspx?country=tw&market=tw&code=" + stockId + "&divwidth=550&divheight=330";
+    //var kUrl = "https://so.cnyes.com/JavascriptGraphic/chartstudy.aspx?country=tw&market=tw&code=" + stockId + "&divwidth=550&divheight=330";
 
 
     $.get(url, function (data) {
@@ -24,7 +23,7 @@
         $("#cValue").text(data.stock.每股淨值);
         $("#YValue").text(data.stock.每股盈餘);
         $("#website").attr("href", data.stock.website);
-        $("#kChart").attr("src", kUrl);
+        //$("#kChart").attr("src", kUrl);
         //console.log(renewPrices(data.monthData));
 
         var vue = new Vue({
@@ -281,7 +280,7 @@ function renewPrices(prices) {
             prices[i].fontWeight = "normal";
         }
 
-        prices[i].漲跌 = prices[i].漲跌 + " (" + prices[i].漲跌百分比 + "%)";
+        //prices[i].漲跌 = prices[i].漲跌 + " (" + prices[i].漲跌百分比 + "%)";
 
         if (prices[i].融資買賣超 > 0) {
             prices[i].融資買賣超 = prices[i].融資買賣超 + "↑ (" + prices[i].融資使用率 + ")";

@@ -14,6 +14,8 @@
             <option value="31">六十日漲幅排行</option>
             <option value="29">每周成交量增長排行榜</option>
             <option value="33">ROE大於15且股價小於50</option>
+            <option value="33">淨值比小於2且ROE大於10</option>
+           
             <option value="3">外資投信同步買超排行</option>
             <option value="21">外資主力同步買超排行</option>
             <option value="13">外資連續買超排行榜</option>
@@ -75,7 +77,6 @@
     </div>
     <div id="columnRight" class="column">
         <div>
-            <LoginDisplay />
             <div>
                 <input type="button" value="個股速覽" onclick="onUrlChangeAsync(1)" />
                 <input type="button" value="個股速覽2" onclick="onUrlChangeAsync(20)" />
@@ -96,8 +97,6 @@
                 <input type="button" value="個股新聞" onclick="onUrlChangeAsync(16)" />
                 <input type="button" value="股利政策" onclick="onUrlChangeAsync(17)" />
                 <input type="button" value="財報狗" onclick="onUrlChangeAsync(18)" />
-                @*<input type="button" value="Fugle" onclick="onUrlChangeAsync(18)" />
-        <input type="button" value="網龍大富翁" onclick="onUrlChangeAsync(19)" />*@
                 <input type="button" value="104" onclick="goTo104Page()" />
                 <input type="button" value="財經百科" onclick="goToWikiPedia()" />
             </div>
