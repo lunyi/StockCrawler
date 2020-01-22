@@ -17,7 +17,7 @@ namespace WebCrawler
         static async Task Main(string[] args)
         {
             var ss = new HiStockParser();
-            await ss.ParserRoeAsync();
+            await ss.RunSingleAsync();
             //await ss.ParserMarginAsync();
 
             //var s = new UpdateStockListParser();
@@ -29,7 +29,7 @@ namespace WebCrawler
             //await ss.ParserMarginAsync();
             //var ss =  s.ParseTrust("2330", "2017-01-01", "2019-10-29");
 
-            //Console.ReadLine();
+            Console.ReadLine();
         }
     }
 }

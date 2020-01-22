@@ -29,15 +29,15 @@ namespace DataService.Models
         public decimal 融券餘額 { get; set; }
         public decimal 融資增加 { get; set; }
         public decimal 融券增加 { get; set; }
-        public short? 漲停家數 { get; set; }
-        public short? 跌停家數 { get; set; }
-        public short? 紅K { get; set; }
-        public short? 黑K { get; set; }
-        public short? 自營選擇權交易口數 { get; set; }
-        public short? 自營選擇權未平倉口數 { get; set; }
-        public short? 外資選擇權交易口數 { get; set; }
-        public short? 外資選擇權未平倉口數 { get; set; }
-        public string 交易口數PC比 { get; set; }
-        public string 未平倉口數PC比 { get; set; }
+        public int? 漲停家數 { get; set; }
+        public int? 跌停家數 { get; set; }
+        public int? 上漲家數 { get; set; }
+        public int? 下跌家數 { get; set; }
+        public int? 自營選擇權交易口數 { get; set; }
+        public int? 自營選擇權未平倉口數 { get; set; }
+        public int? 外資選擇權交易口數 { get; set; }
+        public int? 外資選擇權未平倉口數 { get; set; }
+        public decimal? 交易口數PC比 { get; set; }
+        public decimal? 未平倉口數PC比 { get; set; }
     }
 }
