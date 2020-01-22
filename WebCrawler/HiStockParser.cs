@@ -39,19 +39,20 @@ namespace WebCrawler
 
                     var datetime = $"{year}/{threeNode.ChildNodes[0].ChildNodes[0].InnerHtml}";
 
-                    Console.WriteLine($"{datetime} OK");
+                    if (datetime == DateTime.Now.ToString("yyyy/MM/dd"))
+                    {
+                        var twStock = new TwStock();
+                        twStock.Id = Guid.NewGuid();
+                        twStock.Datetime = Convert.ToDateTime(datetime);
 
-                    var twStock = new TwStock();
-                    twStock.Id = Guid.NewGuid();
-                    twStock.Datetime = Convert.ToDateTime(datetime);
+                        ParserITrust(threeNode, futureNode, tenNode, twStock);
+                        ParserMargin(datetime, twStock);
+                        ParserOption(datetime, twStock);
+                        ParserUpDownCount(twStock);
 
-                    ParserITrust(threeNode, futureNode, tenNode, twStock);
-                    ParserMargin(datetime, twStock);
-                    ParserOption(datetime, twStock);
-                    ParserUpDownCount(twStock);
-
-                    context.TwStock.Add(twStock);
-                    await context.SaveChangesAsync();
+                        context.TwStock.Add(twStock);
+                        await context.SaveChangesAsync();
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -71,22 +72,16 @@ namespace WebCrawler
 
             try
             {
-                var threeNode = threeNodes[1];
-                var futureNode = futureNodes[1];
-                var tenNode = tenNodes[1];
+                var datetime = $"{DateTime.Now.Year}/{threeNodes[1].ChildNodes[0].ChildNodes[0].InnerHtml}";
+                Console.WriteLine($"{datetime} OK");
 
-                var datetime = $"{DateTime.Now.Year}/{threeNode.ChildNodes[0].ChildNodes[0].InnerHtml}";
-
-                //if (datetime == DateTime.Now.ToString("yyyy/MM/dd"))
-                if (datetime == "2020/01/20")
+                if (datetime == DateTime.Now.ToString("yyyy/MM/dd"))
                 {
-                    Console.WriteLine($"{datetime} OK");
-
                     var twStock = new TwStock();
                     twStock.Id = Guid.NewGuid();
                     twStock.Datetime = Convert.ToDateTime(datetime);
 
-                    ParserITrust(threeNode, futureNode, tenNode, twStock);
+                    ParserITrust(threeNodes[1], futureNodes[1], tenNodes[1], twStock);
                     ParserMargin(datetime, twStock);
                     ParserOption(datetime, twStock);
                     ParserUpDownCount(twStock);
@@ -94,7 +89,6 @@ namespace WebCrawler
                     context.TwStock.Add(twStock);
                     await context.SaveChangesAsync();
                 }
-
             }
             catch (Exception ex)
             {
