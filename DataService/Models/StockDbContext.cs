@@ -636,61 +636,57 @@ namespace DataService.Models
 
             modelBuilder.Entity<TwStock>(entity =>
             {
-                entity.HasNoKey();
+                entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.Datetime).HasColumnType("datetime");
 
-                entity.Property(e => e.交易口數PC比)
-                    .HasMaxLength(10)
-                    .IsFixedLength();
+                entity.Property(e => e.交易口數PC比).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.前五大).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.前五大).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.前五特).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.前五特).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.前十大).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.前十大).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.前十特).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.前十特).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.外資未平倉).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.外資未平倉).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.外資買賣超).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.外資買賣超).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.成交量).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.成交量).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.投信未平倉).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.投信未平倉).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.投信買賣超).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.投信買賣超).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.收盤價).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.收盤價).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.未平倉口數PC比)
-                    .HasMaxLength(10)
-                    .IsFixedLength();
+                entity.Property(e => e.未平倉口數PC比).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.漲跌).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.漲跌).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.漲跌百分比).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.漲跌百分比).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.總計).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.總計).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.總計未平倉).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.總計未平倉).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.自營未平倉).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.自營未平倉).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.自營總).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.自營總).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.自營自買).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.自營自買).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.自營避險).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.自營避險).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.融券增加).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.融券增加).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.融券餘額).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.融券餘額).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.融資增加).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.融資增加).HasColumnType("decimal(17, 2)");
 
-                entity.Property(e => e.融資餘額).HasColumnType("decimal(5, 2)");
+                entity.Property(e => e.融資餘額).HasColumnType("decimal(17, 2)");
             });
 
             modelBuilder.Entity<YearData>(entity =>
