@@ -128,8 +128,8 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                          成交量 = price.成交量,
                          本益比 = price.本益比,
                          股價淨值比 = Math.Round(price.Close / stock.每股淨值.Value, 2),
-                         投信持股比例 = 100 * Math.Round(((decimal)price.投信持股 / price.發行張數).Value, 5),
-                         董監持股比例 = 100 * Math.Round(((decimal)price.董監持股 / price.發行張數).Value, 5),
+                         投信持股比例 = 100 * Math.Round(((decimal)price.投信持股 / price.發行張數).Value, 3),
+                         董監持股比例 = 100 * Math.Round(((decimal)price.董監持股 / price.發行張數).Value, 3),
                          外資持股比例 = price.外資持股比例,
                          融資買賣超 = price.融資買進 - price.融資賣出,
                          融券買賣超 = price.融券買進 - price.融券賣出,
@@ -442,7 +442,9 @@ drop table #t1, #t2, #t3, #t4
                 case (int)ChooseStockType.Get淨值比小於2AndROE大於10:
                     sql = Get淨值比小於2AndROE大於10();
                     break;
-                    
+                case (int)ChooseStockType.投信突然加入買方:
+                    sql = Get投信突然加入買方Sql(datetime);
+                    break;  
                 case (int)ChooseStockType.賣方籌碼集中排行榜:
                     sql = Get籌碼集中排行榜Sql(datetime, 1, "asc");
                     break;
@@ -498,6 +500,56 @@ select * from [Stocks]
 where [股價] / [ROE] < 2 and  [股價] / [每股淨值]  <2
 and [每股淨值] > 0 and ROE>=10 
 order by [股價]
+";
+        }
+
+        private string Get投信突然加入買方Sql(string datetime, string orderby = "")
+        {
+            return $@"
+
+  WITH TOPTEN as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY [Name] 
+       order by [Datetime] desc
+    ) AS RowNo 
+    FROM [Prices] where [Datetime] <= '{datetime}'
+)
+
+select s.*
+from [Stocks]s 
+join TOPTEN t1 on s.StockId = t1.StockId
+join TOPTEN t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
+join TOPTEN t3 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
+join TOPTEN t4 on t1.StockId = t4.StockId and t1.RowNo + 3 = t4.RowNo
+join TOPTEN t5 on t1.StockId = t5.StockId and t1.RowNo + 4 = t5.RowNo
+join TOPTEN t6 on t1.StockId = t6.StockId and t1.RowNo + 5 = t6.RowNo
+join TOPTEN t7 on t1.StockId = t7.StockId and t1.RowNo + 6 = t7.RowNo
+join TOPTEN t8 on t1.StockId = t8.StockId and t1.RowNo + 7 = t8.RowNo
+join TOPTEN t9 on t1.StockId = t9.StockId and t1.RowNo + 8 = t9.RowNo
+join TOPTEN t10 on t1.StockId = t10.StockId and t1.RowNo + 9 = t10.RowNo
+--join TOPTEN t11 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
+--join TOPTEN t12 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
+--join TOPTEN t13 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
+--join TOPTEN t14 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
+--join TOPTEN t15 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
+--join TOPTEN t16 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
+--join TOPTEN t17 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
+--join TOPTEN t18 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
+--join TOPTEN t19 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
+--join TOPTEN t20 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
+WHERE t1.RowNo=1 and 
+t1.[投信買賣超] > 0 and 
+t2.[投信買賣超] = 0 and
+t3.[投信買賣超] = 0 and
+t4.[投信買賣超] = 0 and
+t5.[投信買賣超] = 0 and
+t6.[投信買賣超] = 0 and
+t7.[投信買賣超] = 0 and
+t8.[投信買賣超]= 0 and
+t9.[投信買賣超]= 0 and
+t10.[投信買賣超]= 0
+order by t1.[Close]  
 ";
         }
 
