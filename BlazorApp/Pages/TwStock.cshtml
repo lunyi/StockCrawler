@@ -1,0 +1,72 @@
+﻿@page "/TwStock"
+@namespace BlazorApp.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>個股速覽</title>
+    <base href="~/" />
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+</head>
+<body>
+    @*<link href="css/table.css" rel="stylesheet" />*@
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.16.0/polyfill.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/data-transformer/0.1.12/data-transformer-browser.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.3/vue.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/locale/zh-tw.js"></script>
+    <script src="~/js/twstock.js"></script>
+    <style>
+        .container tr:hover td {
+            background-color: yellow;
+        }
+    </style>
+    <div>
+        <table id="textExample" class="table table-bordered responsive-table" style="font-size:10px;position:relative;">
+            <thead>
+                <tr>
+                    <th>日期</th>
+                    <th>收盤</th>
+                    <th>成交量</th>
+                    <th>漲跌</th>
+                    <th>百分比</th>
+                    <th>融資增減</th>
+                    <th>融券增減</th>
+                    <th>外資</th>
+                    <th>投信</th>
+                    <th>自營</th>
+                    <th>總計</th>
+                    <th>外資未平倉</th>
+                    <th>投信未平倉</th>
+                    <th>自營未平倉</th>
+                    <th>總計未平倉</th>
+                    <th>外資選擇權交易</th>
+                    <th>外資選擇權未平倉</th>
+                </tr>
+            </thead>
+            <tr v-for="price in Prices">
+                <td>{{price.datetime}}</td>
+                <td v-bind:style="{ color: price.updownColor}">{{price.收盤價}}</td>
+                <td v-bind:style="{ fontWeight: price.zfontWeight}">{{price.成交量}}</td>
+                <td v-bind:style="{ color: price.updownColor, fontWeight: price.fontWeight}">{{price.漲跌}}</td>
+                <td v-bind:style="{ color: price.pColor, fontWeight: price.fontWeight}">{{price.漲跌百分比}}%</td>
+                <td v-bind:style="{ color: price.dColor}">{{price.融資增加}}</td>
+                <td v-bind:style="{ color: price.lColor}">{{price.融券增加}}</td>
+                <td v-bind:style="{ color: price.fColor}">{{price.外資買賣超}}</td>
+                <td v-bind:style="{ color: price.tColor}">{{price.投信買賣超}}</td>
+                <td v-bind:style="{ color: price.zColor}">{{price.自營總}}</td>
+                <td v-bind:style="{ color: price.mColor}">{{price.總計}}</td>
+                <td>{{price.外資未平倉}}</td>
+                <td>{{price.投信未平倉}}</td>
+                <td>{{price.自營未平倉}}</td>
+                <td>{{price.總計未平倉}}</td>
+                <td>{{price.外資選擇權交易口數}}</td>
+                <td>{{price.外資選擇權未平倉口數}}</td>
+            </tr>
+        </table>
+    </div>
+</body>
+</html>

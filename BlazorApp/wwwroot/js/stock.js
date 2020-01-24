@@ -121,6 +121,7 @@ var urls = {
     //4: 'https://concords.moneydj.com/z/zc/zcl/zcl_{0}.djhtm',
     1: 'https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm',
     2: 'Prices?stockId={0}',
+    0: 'TwStock',
     //3: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zca_{0}.djhtm',
     4: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zca/zco_{0}.djhtm',
     5: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcl/zcl_{0}.djhtm',
@@ -159,6 +160,8 @@ function onStockChangeAsync(obj) {
 
 function onUrlChangeAsync(index) {
 
+    if (index == undefined)
+        return;
     currentStockId = currentStockId || "1101";
     var url = urls[index].replace('{0}', currentStockId);
 

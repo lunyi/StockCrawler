@@ -22,6 +22,7 @@ namespace DataService.Services
         Task<Stocks[]> GetStocksByTypeAsync(string type);
         Task<BestStockType[]> GetBestStockTypeAsync();
         Task<Stocks[]> GetStocksByBestStockTypeAsync(string name, string datetime);
+        Task<TwStock[]> GetTwStocksAsync();
     }
     public class StockQueries : IStockQueries
     {
@@ -159,6 +160,11 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                 WeeklyChip = weeklyChip,
                 MonthData = monthData
             };
+        }
+        Task<TwStock[]> IStockQueries.GetTwStocksAsync()
+        {
+            var context = new StockDbContext();
+            return context.TwStock.OrderByDescending(p=>p.Datetime).ToArrayAsync();
         }
 
         private string GetLastFriday()
