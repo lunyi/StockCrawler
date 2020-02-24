@@ -39,7 +39,9 @@ namespace WebCrawler
 
                     var datetime = $"{year}/{threeNode.ChildNodes[0].ChildNodes[0].InnerHtml}";
 
-                    if (datetime == DateTime.Now.ToString("yyyy/MM/dd"))
+                    var dd = context.TwStock.FirstOrDefault(p => p.Datetime == Convert.ToDateTime(datetime));
+                    if (dd == null)
+                    //if (datetime == DateTime.Now.ToString("yyyy/MM/dd"))
                     {
                         var twStock = new TwStock();
                         twStock.Id = Guid.NewGuid();
@@ -51,6 +53,15 @@ namespace WebCrawler
                         ParserUpDownCount(twStock);
 
                         context.TwStock.Add(twStock);
+                        await context.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        var twStock = dd;
+                        ParserITrust(threeNode, futureNode, tenNode, twStock);
+                        ParserMargin(datetime, twStock);
+                        ParserOption(datetime, twStock);
+                        ParserUpDownCount(twStock);
                         await context.SaveChangesAsync();
                     }
                 }
