@@ -17,7 +17,7 @@ namespace WebCrawler
         static async Task Main(string[] args)
         {
             var ss = new HiStockParser();
-            await ss.RunSingleAsync();
+            await ss.RunAsync();
             //await ss.ParserMarginAsync();
 
             //var s = new UpdateStockListParser();

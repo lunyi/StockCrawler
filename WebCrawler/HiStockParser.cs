@@ -35,8 +35,9 @@ namespace WebCrawler
                     var threeNode = threeNodes[i];
                     var futureNode = futureNodes[i];
                     var tenNode = tenNodes[i];
-                    int year = threeNode.ChildNodes[0].InnerHtml.Contains("01/") ? DateTime.Now.Year : DateTime.Now.Year - 1;
+                    //nt year = threeNode.ChildNodes[0].InnerHtml.Contains("01/") ? DateTime.Now.Year : DateTime.Now.Year - 1;
 
+                    int year = DateTime.Now.Year ;
                     var datetime = $"{year}/{threeNode.ChildNodes[0].ChildNodes[0].InnerHtml}";
 
                     var dd = context.TwStock.FirstOrDefault(p => p.Datetime == Convert.ToDateTime(datetime));
@@ -136,7 +137,8 @@ namespace WebCrawler
             {
                 var mgNode = mgNodes[i];
 
-                int year = mgNode.ChildNodes[0].InnerHtml.Contains("01/") ? DateTime.Now.Year : DateTime.Now.Year - 1;
+                //int year = mgNode.ChildNodes[0].InnerHtml.Contains("01/") ? DateTime.Now.Year : DateTime.Now.Year - 1;
+                int year = DateTime.Now.Year;
                 var _datetime = $"{year}/{mgNode.ChildNodes[0].ChildNodes[0].InnerHtml}";
 
                 if (_datetime == datetime)
@@ -160,11 +162,13 @@ namespace WebCrawler
             for (int i = 2; i < optionNodes.Count; i++)
             {
                 var optionNode = optionNodes[i];
-                int year = optionNode.ChildNodes[0].InnerHtml.Contains("01/") ? DateTime.Now.Year : DateTime.Now.Year - 1;
+                //int year = optionNode.ChildNodes[0].InnerHtml.Contains("01/") ? DateTime.Now.Year : DateTime.Now.Year - 1;
+                int year = DateTime.Now.Year;
                 var _datetime = $"{year}/{optionNode.ChildNodes[0].ChildNodes[0].InnerHtml}";
 
                 if (_datetime == datetime)
                 {
+                    twStock.收盤價 = Convert.ToDecimal(optionNode.ChildNodes[1].ChildNodes[0].InnerHtml.Replace(",", ""));
                     twStock.漲跌 = Convert.ToDecimal(optionNode.ChildNodes[2].ChildNodes[0].InnerHtml.Replace(",", ""));
                     twStock.漲跌百分比 = Convert.ToDecimal(optionNode.ChildNodes[3].ChildNodes[0].InnerHtml.Replace("▲", "").Replace("▼", ""));
                     twStock.外資選擇權交易口數 = Convert.ToInt32(optionNode.ChildNodes[4].ChildNodes[0].InnerHtml.Replace(",", ""));
