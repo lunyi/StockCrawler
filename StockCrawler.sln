@@ -18,7 +18,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorApp", "BlazorApp\BlazorApp.csproj", "{9A9036FD-03B7-4792-864B-344E1D20D53A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockApi", "StockApi\StockApi.csproj", "{F6E4D955-B698-4C72-A0E2-0CE8B397B513}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StockApi", "StockApi\StockApi.csproj", "{F6E4D955-B698-4C72-A0E2-0CE8B397B513}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LexLibrary.Line.NotifyBot", "..\LexLibrary.Line.NotifyBot\src\LexLibrary.Line.NotifyBot.csproj", "{0A8AC606-757F-4872-8456-EA1E9503B661}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LexLibrary.Line.NotifyBot.Sample", "..\LexLibrary.Line.NotifyBot.Sample\src\LexLibrary.Line.NotifyBot.Sample.csproj", "{9A820537-8F71-4033-BAD8-BD85E48E851F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LineBotApi", "LineBotApi\LineBotApi.csproj", "{13174787-208F-4B74-A6DF-32F19C5BCBB9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,6 +56,18 @@ Global
 		{F6E4D955-B698-4C72-A0E2-0CE8B397B513}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F6E4D955-B698-4C72-A0E2-0CE8B397B513}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F6E4D955-B698-4C72-A0E2-0CE8B397B513}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0A8AC606-757F-4872-8456-EA1E9503B661}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0A8AC606-757F-4872-8456-EA1E9503B661}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0A8AC606-757F-4872-8456-EA1E9503B661}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0A8AC606-757F-4872-8456-EA1E9503B661}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9A820537-8F71-4033-BAD8-BD85E48E851F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9A820537-8F71-4033-BAD8-BD85E48E851F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9A820537-8F71-4033-BAD8-BD85E48E851F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9A820537-8F71-4033-BAD8-BD85E48E851F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13174787-208F-4B74-A6DF-32F19C5BCBB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13174787-208F-4B74-A6DF-32F19C5BCBB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13174787-208F-4B74-A6DF-32F19C5BCBB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13174787-208F-4B74-A6DF-32F19C5BCBB9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
