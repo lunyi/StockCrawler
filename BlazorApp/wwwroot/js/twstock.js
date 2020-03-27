@@ -1,5 +1,5 @@
 ﻿(function () {
-    var url = "https://localhost:44367/stock/";
+    var url = "http://" + window.location.hostname + ":8081/stock";
 
     $.get(url, function (data) {
         var vue = new Vue({

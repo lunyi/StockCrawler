@@ -228,7 +228,7 @@ select
 	[Name],
 	[Datetime],
 	[Close],
-	cast([五日主力買超張數]- [五日主力賣超張數] as int)  as [主力買賣超],
+	cast([五日主力買超張數]-[五日主力賣超張數] as int)  as [主力買賣超],
 	[董監持股]
 into #t2
 from [Prices]

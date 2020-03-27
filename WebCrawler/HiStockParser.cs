@@ -136,10 +136,7 @@ namespace WebCrawler
             for (int i = 1; i < mgNodes.Count; i++)
             {
                 var mgNode = mgNodes[i];
-
-                //int year = mgNode.ChildNodes[0].InnerHtml.Contains("01/") ? DateTime.Now.Year : DateTime.Now.Year - 1;
-                int year = DateTime.Now.Year;
-                var _datetime = $"{year}/{mgNode.ChildNodes[0].ChildNodes[0].InnerHtml}";
+                var _datetime = $"{DateTime.Now.Year}/{mgNode.ChildNodes[0].ChildNodes[0].InnerHtml}";
 
                 if (_datetime == datetime)
                 {
@@ -162,9 +159,7 @@ namespace WebCrawler
             for (int i = 2; i < optionNodes.Count; i++)
             {
                 var optionNode = optionNodes[i];
-                //int year = optionNode.ChildNodes[0].InnerHtml.Contains("01/") ? DateTime.Now.Year : DateTime.Now.Year - 1;
-                int year = DateTime.Now.Year;
-                var _datetime = $"{year}/{optionNode.ChildNodes[0].ChildNodes[0].InnerHtml}";
+                var _datetime = $"{DateTime.Now.Year}/{optionNode.ChildNodes[0].ChildNodes[0].InnerHtml}";
 
                 if (_datetime == datetime)
                 {
