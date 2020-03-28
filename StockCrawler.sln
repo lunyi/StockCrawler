@@ -24,8 +24,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LexLibrary.Line.NotifyBot",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LexLibrary.Line.NotifyBot.Sample", "..\LexLibrary.Line.NotifyBot.Sample\src\LexLibrary.Line.NotifyBot.Sample.csproj", "{9A820537-8F71-4033-BAD8-BD85E48E851F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LineBotApi", "LineBotApi\LineBotApi.csproj", "{13174787-208F-4B74-A6DF-32F19C5BCBB9}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -64,10 +62,6 @@ Global
 		{9A820537-8F71-4033-BAD8-BD85E48E851F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9A820537-8F71-4033-BAD8-BD85E48E851F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9A820537-8F71-4033-BAD8-BD85E48E851F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{13174787-208F-4B74-A6DF-32F19C5BCBB9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{13174787-208F-4B74-A6DF-32F19C5BCBB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{13174787-208F-4B74-A6DF-32F19C5BCBB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{13174787-208F-4B74-A6DF-32F19C5BCBB9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
