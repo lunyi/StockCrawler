@@ -23,6 +23,7 @@ namespace DataService.Services
         Task<BestStockType[]> GetBestStockTypeAsync();
         Task<Stocks[]> GetStocksByBestStockTypeAsync(string name, string datetime);
         Task<TwStock[]> GetTwStocksAsync();
+        Task<string> GetTokenAsync();
     }
     public class StockQueries : IStockQueries
     {
@@ -1479,6 +1480,12 @@ order by b.買超 desc
             where best.Datetime == date && best.Type == name
             orderby s.StockId
             select s).ToArrayAsync();
+        }
+
+        Task<string> IStockQueries.GetTokenAsync()
+        {
+            var context = new StockDbContext();
+            return context.Token.Select(p=>p.LineToken).FirstOrDefaultAsync();
         }
         #endregion
     }

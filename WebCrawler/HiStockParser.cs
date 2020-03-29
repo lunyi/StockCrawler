@@ -18,7 +18,6 @@ namespace WebCrawler
         private string indicatorUrl = "https://histock.tw/stock/indicator.aspx";
         private string optionUrl = "https://histock.tw/stock/optionthree.aspx";
 
-
         public async Task RunAsync()
         {
             var context = new StockDbContext();
@@ -185,8 +184,6 @@ namespace WebCrawler
             twStock.上漲家數 = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id='CPHB1_ctl00_fv_raiseK']").ChildNodes[0].InnerHtml);
             twStock.下跌家數 = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id='CPHB1_ctl00_fv_fallK']").ChildNodes[0].InnerHtml);
         }
-
-
 
         public async Task ParserRoeAsync()
         {

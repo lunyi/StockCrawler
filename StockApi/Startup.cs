@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using DataService.Models;
 using DataService.Services;
+using LineBotLibrary;
+using LineBotLibrary.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -46,6 +48,18 @@ namespace StockApi
                                 .AllowAnyHeader()
                                 .AllowAnyMethod(); ;
                 });
+            });
+
+
+            services.AddLineNotifyBot(new LineNotifyBotSetting
+            {
+                ClientID = "BCHYbMmFT9Tgz4ckkSNPsX",
+                ClientSecret = "SIhnxiIzgcu9UQBHseTm2N6XsZs6nuDyGKmVkHdJL9x",
+                AuthorizeApi = "https://notify-bot.line.me/oauth/authorize",
+                TokenApi = "https://notify-bot.line.me/oauth/token",
+                NotifyApi = "https://notify-api.line.me/api/notify",
+                StatusApi = "https://notify-api.line.me/api/status",
+                RevokeApi = "https://notify-api.line.me/api/revoke"
             });
         }
 

@@ -6,6 +6,8 @@ using System.Web.Http.Cors;
 using DataService.DataModel;
 using DataService.Models;
 using DataService.Services;
+using LineBotLibrary;
+using LineBotLibrary.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -16,17 +18,28 @@ namespace StockApi.Controllers
     [Route("[controller]")]
     public class StockController : ControllerBase
     {
-        IStockQueries _stockQueries;
+        private readonly IStockQueries _stockQueries;
+        private readonly LineNotifyBotApi _lineNotifyBotApi;
 
-        public StockController(IStockQueries stockQueries)
+        public StockController(IStockQueries stockQueries, LineNotifyBotApi lineNotifyBotApi)
         {
             _stockQueries = stockQueries;
+            _lineNotifyBotApi = lineNotifyBotApi;
         }
 
         [HttpGet, Route("{stockId}")]
-        public Task<StockeModel> Get(string stockId)
+        public async Task<StockeModel> Get(string stockId)
         {
-            return _stockQueries.GetPricesByStockIdAsync(stockId);
+            var token = await _stockQueries.GetTokenAsync();
+            var res = await _stockQueries.GetPricesByStockIdAsync(stockId);
+
+            await _lineNotifyBotApi.Notify(new NotifyRequestDTO
+            {
+                AccessToken = token,
+                Message = $"{stockId} {res.Stock.Name}"
+            });
+
+            return res;
         }
 
         [HttpGet, Route("")]

@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataService\DataService.csproj" />
+    <ProjectReference Include="..\LineBotLibrary\src\LineBotLibrary.csproj" />
   </ItemGroup>
 
 </Project>

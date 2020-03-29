@@ -30,6 +30,7 @@ namespace DataService.Models
         public virtual DbSet<StockHistory> StockHistory { get; set; }
         public virtual DbSet<Stocks> Stocks { get; set; }
         public virtual DbSet<Thousand> Thousand { get; set; }
+        public virtual DbSet<Token> Token { get; set; }
         public virtual DbSet<TwStock> TwStock { get; set; }
         public virtual DbSet<YearData> YearData { get; set; }
         public virtual DbSet<_MonthData> _MonthData { get; set; }
@@ -259,6 +260,9 @@ namespace DataService.Models
 
             modelBuilder.Entity<MonthData>(entity =>
             {
+                entity.HasIndex(e => new { e.StockId, e.Name, e.單月年增率, e.Datetime })
+                    .HasName("MonthData_StockId_Name");
+
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.CreatedOn).HasColumnType("datetime");
@@ -632,6 +636,13 @@ namespace DataService.Models
                     .IsUnicode(false);
 
                 entity.Property(e => e.TotalStock).HasColumnType("decimal(18, 3)");
+            });
+
+            modelBuilder.Entity<Token>(entity =>
+            {
+                entity.HasKey(e => e.LineToken);
+
+                entity.Property(e => e.LineToken).HasMaxLength(64);
             });
 
             modelBuilder.Entity<TwStock>(entity =>

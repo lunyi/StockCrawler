@@ -4,11 +4,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DataService.Models;
+using LineBotLibrary;
+using LineBotLibrary.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebCrawler
 {
     public class RealtimeParser : BaseParser
     {
+        private readonly LineNotifyBotApi _lineNotifyBotApi;
+        private string Token;
+
+        public RealtimeParser(LineNotifyBotApi lineNotifyBotApi)
+        { 
+            _lineNotifyBotApi = lineNotifyBotApi;
+        }
+
         public async Task RunAsync()
         {
             var url = $"https://histock.tw/app/table.aspx";
@@ -71,6 +82,40 @@ namespace WebCrawler
 
             ParseWarnStock(context, currentBests);
             await context.SaveChangesAsync();
+
+            Token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
+            await NotifyBotApiAsync(context, "突破整理區間");
+            await NotifyBotApiAsync(context, "多頭吞噬");
+            await NotifyBotApiAsync(context, "突破季線");
+        }
+
+        private async Task NotifyBotApiAsync(StockDbContext context, string type)
+        {
+            var stocks = context.RealtimeBestStocks
+                .Where(p => p.Datetime == DateTime.Today && p.Type == type)
+                .OrderBy(p=>p.StockId).ToArray();
+
+            if (stocks.Any())
+            {
+                var s = new StringBuilder();
+                s.AppendLine($@"{DateTime.Now.ToString("yyyy-MM-dd HH:ms:ss")} {type}");
+
+                foreach (var stock in stocks)
+                {
+                    s.AppendLine($@"{stock.StockId} {stock.Name}");
+                }
+
+                await NotifyBotApiAsync(s.ToString());
+            }
+        }
+
+        private async Task NotifyBotApiAsync(string message)
+        {
+            await _lineNotifyBotApi.Notify(new NotifyRequestDTO
+            {
+                AccessToken = Token,
+                Message = message
+            });
         }
 
         private void ParseWarnStock(StockDbContext context, IQueryable<RealtimeBestStocks> current)
