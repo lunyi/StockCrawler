@@ -178,10 +178,10 @@ SELECT *
             {
                 Console.WriteLine($"{stockId} : Thread ID: {Thread.CurrentThread.ManagedThreadId}");
                 var price = ParseSingleHistoryPrice(stockId, name);
-                ParseSingleNode(3, $"https://www.cnyes.com/twstock/Margin/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[2]/table", price, (htmlNode, p) => SetMargin(htmlNode, p));
-                ParseSingleNode(5, $"https://www.cnyes.com/twstock/QFII/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[3]/table", price, (htmlNode, p) => SetForeign(htmlNode, p));
-                ParseSingleNode(3, $"https://www.cnyes.com/twstock/itrust/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[4]/table", price, (htmlNode, p) => SetItrust(htmlNode, p));
-                ParseSingleNode(3, $"https://www.cnyes.com/twstock/dealer/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[4]/table", price, (htmlNode, p) => SetDealer(htmlNode, p));
+                ParseSingleNode(3, $"https://www.cnyes.com/twstock/Margin/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[2]/table", price, (htmlNode, p) => SetMargin(htmlNode, p));
+                ParseSingleNode(5, $"https://www.cnyes.com/twstock/QFII/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[3]/table", price, (htmlNode, p) => SetForeign(htmlNode, p));
+                ParseSingleNode(3, $"https://www.cnyes.com/twstock/itrust/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[4]/table", price, (htmlNode, p) => SetItrust(htmlNode, p));
+                ParseSingleNode(3, $"https://www.cnyes.com/twstock/dealer/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[4]/table", price, (htmlNode, p) => SetDealer(htmlNode, p));
                 ParseTech(stockId, price);
                 ParseMainForce(stockId, DateTime.Today.ToString("yyyy/MM/dd"), price);
                 ParseTrust(stockId, price);
@@ -201,7 +201,7 @@ SELECT *
         {
             var context = new StockDbContext();
             var prices = context.Prices.Where(p => p.Datetime == DateTime.Today && p.融券買進 == null)
-                .OrderByDescending(p => p.StockId)
+                .OrderBy(p => p.StockId)
                 .ToList();
 
             for (int i = 0; i < prices.Count; i++)
@@ -211,10 +211,10 @@ SELECT *
 
                 try
                 {
-                    ParseSingleNode(3, $"https://www.cnyes.com/twstock/Margin/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[2]/table", prices[i], (htmlNode, p) => SetMargin(htmlNode, p));
-                    ParseSingleNode(5, $"https://www.cnyes.com/twstock/QFII/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[3]/table", prices[i], (htmlNode, p) => SetForeign(htmlNode, p));
-                    ParseSingleNode(3, $"https://www.cnyes.com/twstock/itrust/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[4]/table", prices[i], (htmlNode, p) => SetItrust(htmlNode, p));
-                    ParseSingleNode(3, $"https://www.cnyes.com/twstock/dealer/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[3]/div[5]/div[4]/table", prices[i], (htmlNode, p) => SetDealer(htmlNode, p));
+                    ParseSingleNode(3, $"https://www.cnyes.com/twstock/Margin/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[2]/table", prices[i], (htmlNode, p) => SetMargin(htmlNode, p));
+                    ParseSingleNode(5, $"https://www.cnyes.com/twstock/QFII/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[3]/table", prices[i], (htmlNode, p) => SetForeign(htmlNode, p));
+                    ParseSingleNode(3, $"https://www.cnyes.com/twstock/itrust/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[4]/table", prices[i], (htmlNode, p) => SetItrust(htmlNode, p));
+                    ParseSingleNode(3, $"https://www.cnyes.com/twstock/dealer/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[4]/table", prices[i], (htmlNode, p) => SetDealer(htmlNode, p));
                     await context.SaveChangesAsync();
                     Console.WriteLine(stockId + "::" + name);
                 }
