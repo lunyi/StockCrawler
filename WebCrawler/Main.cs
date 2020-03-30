@@ -33,7 +33,7 @@ namespace WebCrawler
             //await s1.RunAsync();
 
             var s1 = new CnyParser();
-            await s1.RunAsync();
+            await s1.ParserMarginAsync();
 
 
             //await ss.ParserMarginAsync();
