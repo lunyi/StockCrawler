@@ -499,14 +499,14 @@ SELECT *
             return SetPrice(node.ChildNodes[3], stockId, name);
         }
 
-        private void ParseSingleNode(int startIndex, string url, string xPzth, Prices price, Action<HtmlNode, Prices> action)
+        private void ParseSingleNode(int startIndex, string url, string xPath, Prices price, Action<HtmlNode, Prices> action)
         {
             var s = Stopwatch.StartNew();
             s.Start();
             var rootNode = GetRootNoteByUrl(url);
-            var node = rootNode.SelectSingleNode(xPzth);
+            var node = rootNode.SelectSingleNode(xPath);
 
-            if (node.ChildNodes.Count > startIndex)
+            if (node != null && node.ChildNodes.Count > startIndex)
             {
                 var datetime = Convert.ToDateTime(node.ChildNodes[startIndex].ChildNodes[0].InnerText);
                 if (price.Datetime == datetime)
