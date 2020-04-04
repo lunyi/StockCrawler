@@ -98,7 +98,7 @@ namespace WebCrawler
             if (stocks.Any())
             {
                 var s = new StringBuilder();
-                s.AppendLine($@"{DateTime.Now.ToString("yyyy-MM-dd HH:ms:ss")} {type}");
+                s.AppendLine($@"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {type}");
 
                 foreach (var stock in stocks)
                 {
