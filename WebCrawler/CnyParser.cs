@@ -201,7 +201,7 @@ SELECT *
         {
             var context = new StockDbContext();
             var prices = context.Prices.Where(p => p.Datetime == DateTime.Today && p.融券買進 == null)
-                .OrderBy(p => p.StockId)
+                .OrderByDescending(p => p.StockId)
                 .ToList();
 
             for (int i = 0; i < prices.Count; i++)
@@ -494,9 +494,26 @@ SELECT *
 
         private Prices ParseSingleHistoryPrice(string stockId, string name)
         {
-            var rootNode = GetRootNoteByUrl($"https://www.cnyes.com/twstock/ps_historyprice/{stockId}.htm");
-            var node = rootNode.SelectSingleNode("/html/body/div[5]/div[1]/form/div[3]/div[5]/div[3]/table");
-            return SetPrice(node.ChildNodes[3], stockId, name);
+            var rootNode = GetRootNoteByUrl($"https://invest.cnyes.com/twstock/tws/{stockId}/history");
+            var node = rootNode.SelectSingleNode("//*[@id=\"_historyDataTable\"]/div[2]/div[2]/table/tr[1]");
+
+            return new Prices
+            {
+                Id = Guid.NewGuid(),
+                StockId = stockId,
+                Name = name,
+                CreatedOn = DateTime.Now,
+                //Datetime = Convert.ToDateTime(htmlNode.ChildNodes[0].InnerText),
+                //Open = Convert.ToDecimal(htmlNode.ChildNodes[1].InnerText),
+                //High = Convert.ToDecimal(htmlNode.ChildNodes[2].InnerText),
+                //Low = Convert.ToDecimal(htmlNode.ChildNodes[3].InnerText),
+                //Close = Convert.ToDecimal(htmlNode.ChildNodes[4].InnerText),
+                //漲跌 = Convert.ToDecimal(htmlNode.ChildNodes[5].InnerText),
+                //漲跌百分比 = Convert.ToDecimal(htmlNode.ChildNodes[6].InnerText.Replace("%", "")),
+                //成交量 = Convert.ToInt32(htmlNode.ChildNodes[7].InnerText.Replace(",", "")),
+                //成交金額 = Convert.ToInt32(htmlNode.ChildNodes[8].InnerText.Replace(",", "")),
+                //本益比 = Convert.ToDecimal(htmlNode.ChildNodes[9].InnerText)
+            };
         }
 
         private void ParseSingleNode(int startIndex, string url, string xPath, Prices price, Action<HtmlNode, Prices> action)
