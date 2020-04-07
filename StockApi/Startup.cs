@@ -50,7 +50,6 @@ namespace StockApi
                 });
             });
 
-
             services.AddLineNotifyBot(new LineNotifyBotSetting
             {
                 ClientID = "BCHYbMmFT9Tgz4ckkSNPsX",

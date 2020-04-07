@@ -53,7 +53,7 @@ namespace WebAutoCrawler
             var 公告每股淨值 = FindElements(By.XPath("//*[@id='MainContent']/ul/li/article/div[2]/div/table/tbody/tr[18]/td"));
 
             var seasonData = new List<SeasonData>();
-            for (int i = 1; i < season.Count; i++)
+            for (var i = 1; i < season.Count; i++)
             {
                 var q = Convert.ToInt32(season[i].Text.Substring(5, 1)) * 3;
                 var datetime = Convert.ToDateTime(season[i].Text.Substring(0, 4) + "-" + q.ToString("00") + "-01"); 

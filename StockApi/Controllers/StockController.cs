@@ -28,18 +28,9 @@ namespace StockApi.Controllers
         }
 
         [HttpGet, Route("{stockId}")]
-        public async Task<StockeModel> Get(string stockId)
+        public Task<StockeModel> Get(string stockId)
         {
-            var token = await _stockQueries.GetTokenAsync();
-            var res = await _stockQueries.GetPricesByStockIdAsync(stockId);
-
-            await _lineNotifyBotApi.Notify(new NotifyRequestDTO
-            {
-                AccessToken = token,
-                Message = $"{stockId} {res.Stock.Name}"
-            });
-
-            return res;
+            return _stockQueries.GetPricesByStockIdAsync(stockId);
         }
 
         [HttpGet, Route("")]
