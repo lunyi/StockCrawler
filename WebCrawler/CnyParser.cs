@@ -42,7 +42,7 @@ namespace WebCrawler
         }
 
         [Obsolete]
-        public async Task RunMainForce()
+        public async Task RunMainForceAsync()
         {
             var context = new StockDbContext();
             var s = Stopwatch.StartNew();
@@ -494,23 +494,24 @@ SELECT *
 
         private Prices ParseSingleHistoryPrice(string stockId, string name)
         {
-            var rootNode = GetRootNoteByUrl($"https://invest.cnyes.com/twstock/tws/{stockId}/history");
-            var node = rootNode.SelectSingleNode("//*[@id=\"_historyDataTable\"]/div[2]/div[2]/table/tr[1]");
-
+            var rootNode = GetRootNoteByUrl($"https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{stockId}.djhtm");
+            var htmlNode = rootNode.SelectSingleNode("//*[@id=\"_historyDataTable\"]/div[2]/div[2]/table/tbody/tr[1]/td[1]");
+            var dateNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tbody/tr[2]/td[2]/table/tbody/tr/td/table[1]/tbody/tr/td/table[2]/tbody/tr[1]/td/font/div");
+            var date = dateNode.InnerText.Replace("最近交易日:", "").Replace("市值單位:百萬", "");
             return new Prices
             {
                 Id = Guid.NewGuid(),
                 StockId = stockId,
                 Name = name,
                 CreatedOn = DateTime.Now,
-                //Datetime = Convert.ToDateTime(htmlNode.ChildNodes[0].InnerText),
-                //Open = Convert.ToDecimal(htmlNode.ChildNodes[1].InnerText),
-                //High = Convert.ToDecimal(htmlNode.ChildNodes[2].InnerText),
-                //Low = Convert.ToDecimal(htmlNode.ChildNodes[3].InnerText),
-                //Close = Convert.ToDecimal(htmlNode.ChildNodes[4].InnerText),
-                //漲跌 = Convert.ToDecimal(htmlNode.ChildNodes[5].InnerText),
-                //漲跌百分比 = Convert.ToDecimal(htmlNode.ChildNodes[6].InnerText.Replace("%", "")),
-                //成交量 = Convert.ToInt32(htmlNode.ChildNodes[7].InnerText.Replace(",", "")),
+                Datetime = Convert.ToDateTime(htmlNode.ChildNodes[0].InnerText),
+                Open = Convert.ToDecimal(htmlNode.ChildNodes[1].InnerText),
+                High = Convert.ToDecimal(htmlNode.ChildNodes[2].InnerText),
+                Low = Convert.ToDecimal(htmlNode.ChildNodes[3].InnerText),
+                Close = Convert.ToDecimal(htmlNode.ChildNodes[4].InnerText),
+                漲跌 = Convert.ToDecimal(htmlNode.ChildNodes[5].InnerText),
+                漲跌百分比 = Convert.ToDecimal(htmlNode.ChildNodes[6].InnerText.Replace("%", "")),
+                成交量 = Convert.ToInt32(htmlNode.ChildNodes[7].InnerText.Replace(",", "")),
                 //成交金額 = Convert.ToInt32(htmlNode.ChildNodes[8].InnerText.Replace(",", "")),
                 //本益比 = Convert.ToDecimal(htmlNode.ChildNodes[9].InnerText)
             };
