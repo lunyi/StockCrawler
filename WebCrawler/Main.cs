@@ -34,6 +34,8 @@ namespace WebCrawler
 
             var s1 = new CnyParser();
             await s1.RunAsync();
+            //s1.ParserLastDay("1333", "恩得利");
+
 
 
             //await ss.ParserMarginAsync();

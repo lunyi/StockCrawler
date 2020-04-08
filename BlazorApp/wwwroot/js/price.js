@@ -196,15 +196,15 @@ function renewPrices(prices) {
         }
 
         if (prices[i].董監持股 > prices[i + 1].董監持股) {
-            prices[i].董監持股 = (prices[i].董監持股 - prices[i + 1].董監持股) + "↑ (" + prices[i].董監持股比例 + "%)";
+            prices[i].董監持股 = (prices[i].董監持股 - prices[i + 1].董監持股) + "↑";
             prices[i].dColor = "red";
         }
         else if (prices[i].董監持股 < prices[i + 1].董監持股) {
-            prices[i].董監持股 = (prices[i].董監持股 - prices[i + 1].董監持股) + "↓ (" + prices[i].董監持股比例 + "%)";
+            prices[i].董監持股 = (prices[i].董監持股 - prices[i + 1].董監持股) + "↓";
             prices[i].dColor = "green";
         }
         else {
-            prices[i].董監持股 = (prices[i].董監持股 - prices[i + 1].董監持股) + " (" + prices[i].董監持股比例 + "%)";
+            prices[i].董監持股 = (prices[i].董監持股 - prices[i + 1].董監持股);
         }
 
         if (prices[i].成交量 > (prices[i + 1].成交量 * 2.5)) {
@@ -241,15 +241,15 @@ function renewPrices(prices) {
         }
 
         if (prices[i].投信買賣超 > 0) {
-            prices[i].投信買賣超 = prices[i].投信買賣超 + "↑ (" + prices[i].投信持股比例 + "%)";
+            prices[i].投信買賣超 = prices[i].投信買賣超 + "↑";
             prices[i].tColor = "red";
         }
         else if (prices[i].投信買賣超 < 0) {
-            prices[i].投信買賣超 = prices[i].投信買賣超 + "↓ (" + prices[i].投信持股比例 + "%)";
+            prices[i].投信買賣超 = prices[i].投信買賣超 + "↓";
             prices[i].tColor = "green";
         }
         else {
-            prices[i].投信買賣超 = prices[i].投信買賣超 + " (" + prices[i].投信持股比例 + "%)";
+            prices[i].投信買賣超 = prices[i].投信買賣超 ;
         }
 
         if (prices[i].自營商買賣超 > 0) {

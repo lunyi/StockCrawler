@@ -172,17 +172,14 @@ SELECT *
             }
         }
 
-        private Prices ParserLastDay(string stockId, string name)
+        public Prices ParserLastDay(string stockId, string name)
         {
             try
             {
                 Console.WriteLine($"{stockId} : Thread ID: {Thread.CurrentThread.ManagedThreadId}");
                 var price = ParseSingleHistoryPrice(stockId, name);
-                ParseSingleNode(3, $"https://www.cnyes.com/twstock/Margin/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[2]/table", price, (htmlNode, p) => SetMargin(htmlNode, p));
-                ParseSingleNode(5, $"https://www.cnyes.com/twstock/QFII/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[3]/table", price, (htmlNode, p) => SetForeign(htmlNode, p));
-                ParseSingleNode(3, $"https://www.cnyes.com/twstock/itrust/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[4]/table", price, (htmlNode, p) => SetItrust(htmlNode, p));
-                ParseSingleNode(3, $"https://www.cnyes.com/twstock/dealer/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[4]/table", price, (htmlNode, p) => SetDealer(htmlNode, p));
-                ParseTech(stockId, price);
+                ParseMargin(stockId, price);
+                ParseInst(stockId, price);
                 ParseMainForce(stockId, DateTime.Today.ToString("yyyy/MM/dd"), price);
                 ParseTrust(stockId, price);
                 return price;
@@ -196,6 +193,51 @@ SELECT *
             }
         }
 
+        private void ParseMargin(string stockId, Prices price)
+        {
+            var rootNode = GetRootNoteByUrl($"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcn/zcn_{stockId}.djhtm", false);
+            var htmlNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/form/table/tr/td/table/tr[8]");
+
+            if (htmlNode == null)
+                return;
+
+            var dateArray = htmlNode.ChildNodes[1].InnerHtml.Split(new[] {'/'});
+            var date = new DateTime(Convert.ToInt32(dateArray[0]) + 1911, Convert.ToInt32(dateArray[1]), Convert.ToInt32(dateArray[2]));
+
+            if (date == price.Datetime)
+            {
+                price.融資買進 = Convert.ToInt32(htmlNode.ChildNodes[3].InnerText.Replace(",", ""));
+                price.融資賣出 = Convert.ToInt32(htmlNode.ChildNodes[5].InnerText.Replace(",", ""));
+                price.融資現償 = Convert.ToInt32(htmlNode.ChildNodes[7].InnerText.Replace(",", ""));
+                price.融資餘額 = Convert.ToInt32(htmlNode.ChildNodes[9].InnerText.Replace(",", ""));
+                var used = htmlNode.ChildNodes[15].InnerText.Replace("%", "");
+                price.融資使用率 = used == "" ? 0 : Convert.ToDecimal(used);
+                price.融券賣出 = Convert.ToInt32(htmlNode.ChildNodes[17].InnerText.Replace(",", ""));
+                price.融券買進 = Convert.ToInt32(htmlNode.ChildNodes[19].InnerText.Replace(",", ""));
+                price.融券餘額 = Convert.ToInt32(htmlNode.ChildNodes[23].InnerText.Replace(",", ""));
+                price.資券相抵 = Convert.ToInt32(htmlNode.ChildNodes[29].InnerText.Replace(",", ""));
+            }
+        }
+
+        private void ParseInst(string stockId, Prices price)
+        {
+            var rootNode = GetRootNoteByUrl($"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcl/zcl_{stockId}.djhtm", false);
+            var htmlNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/form/table/tr/td/table/tr[8]");
+            var dateArray = htmlNode.ChildNodes[1].InnerHtml.Split(new[] { '/' });
+            var date = new DateTime(Convert.ToInt32(dateArray[0]) + 1911, Convert.ToInt32(dateArray[1]), Convert.ToInt32(dateArray[2]));
+
+            if (date == price.Datetime)
+            {
+                price.外資買賣超 = htmlNode.ChildNodes[3].InnerText.Trim() == "--" ? 0 : Convert.ToInt32(htmlNode.ChildNodes[3].InnerText.Replace(",", ""));
+                price.投信買賣超 = htmlNode.ChildNodes[5].InnerText.Trim() == "--" ? 0 : Convert.ToInt32(htmlNode.ChildNodes[5].InnerText.Replace(",", ""));
+                price.自營商買賣超 = htmlNode.ChildNodes[7].InnerText.Trim() == "--" ? 0 : Convert.ToInt32(htmlNode.ChildNodes[7].InnerText.Replace(",", ""));
+                price.外資持股 = htmlNode.ChildNodes[11].InnerText.Trim() == "--" ? 0 : Convert.ToInt32(htmlNode.ChildNodes[11].InnerText.Replace(",", ""));
+                price.投信持股 = htmlNode.ChildNodes[13].InnerText.Trim() == "--" ? 0 : Convert.ToInt32(htmlNode.ChildNodes[13].InnerText.Replace(",", ""));
+                price.自營商持股 = htmlNode.ChildNodes[15].InnerText.Trim() == "--" ? 0 : Convert.ToInt32(htmlNode.ChildNodes[15].InnerText.Replace(",", ""));
+                price.外資持股比例 = htmlNode.ChildNodes[19].InnerText.Trim() == "--" ? 0 : Convert.ToDecimal(htmlNode.ChildNodes[19].InnerText.Replace("%", ""));
+            }
+        }
+
         [Obsolete]
         public async Task ParserMarginAsync()
         {
@@ -204,17 +246,17 @@ SELECT *
                 .OrderByDescending(p => p.StockId)
                 .ToList();
 
-            for (int i = 0; i < prices.Count; i++)
+            foreach (var price in prices)
             {
-                var stockId = prices[i].StockId;
-                var name = prices[i].Name;
+                var stockId = price.StockId;
+                var name = price.Name;
 
                 try
                 {
-                    ParseSingleNode(3, $"https://www.cnyes.com/twstock/Margin/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[2]/table", prices[i], (htmlNode, p) => SetMargin(htmlNode, p));
-                    ParseSingleNode(5, $"https://www.cnyes.com/twstock/QFII/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[3]/table", prices[i], (htmlNode, p) => SetForeign(htmlNode, p));
-                    ParseSingleNode(3, $"https://www.cnyes.com/twstock/itrust/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[4]/table", prices[i], (htmlNode, p) => SetItrust(htmlNode, p));
-                    ParseSingleNode(3, $"https://www.cnyes.com/twstock/dealer/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[4]/table", prices[i], (htmlNode, p) => SetDealer(htmlNode, p));
+                    ParseSingleNode(3, $"https://www.cnyes.com/twstock/Margin/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[2]/table", price, (htmlNode, p) => SetMargin(htmlNode, p));
+                    ParseSingleNode(5, $"https://www.cnyes.com/twstock/QFII/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[3]/table", price, (htmlNode, p) => SetForeign(htmlNode, p));
+                    ParseSingleNode(3, $"https://www.cnyes.com/twstock/itrust/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[4]/table", price, (htmlNode, p) => SetItrust(htmlNode, p));
+                    ParseSingleNode(3, $"https://www.cnyes.com/twstock/dealer/{stockId}.htm", "/html/body/div[5]/div[1]/form/div[2]/div[5]/div[4]/table", price, (htmlNode, p) => SetDealer(htmlNode, p));
                     await context.SaveChangesAsync();
                     Console.WriteLine(stockId + "::" + name);
                 }
@@ -347,15 +389,18 @@ SELECT *
                 {
                     var node = nodes[i];
 
-                    if (node.ChildNodes[1].InnerHtml == "合計買超張數")
+                    if (node.ChildNodes.Count>1)
                     {
-                        主力買超張數 = Convert.ToDecimal(node.ChildNodes[3].InnerHtml.Replace(",", ""));
-                        主力賣超張數 = Convert.ToDecimal(node.ChildNodes[7].InnerHtml.Replace(",", ""));
-                    }
-                    else if (node.ChildNodes[1].InnerHtml == "合計買超股數")
-                    {
-                        主力買超張數 = Convert.ToDecimal(node.ChildNodes[3].InnerHtml.Replace(",", "")) / 1000;
-                        主力賣超張數 = Convert.ToDecimal(node.ChildNodes[7].InnerHtml.Replace(",", "")) / 1000;
+                        if (node.ChildNodes[1].InnerHtml == "合計買超張數")
+                        {
+                            主力買超張數 = Convert.ToDecimal(node.ChildNodes[3].InnerHtml.Replace(",", ""));
+                            主力賣超張數 = Convert.ToDecimal(node.ChildNodes[7].InnerHtml.Replace(",", ""));
+                        }
+                        else if (node.ChildNodes[1].InnerHtml == "合計買超股數")
+                        {
+                            主力買超張數 = Convert.ToDecimal(node.ChildNodes[3].InnerHtml.Replace(",", "")) / 1000;
+                            主力賣超張數 = Convert.ToDecimal(node.ChildNodes[7].InnerHtml.Replace(",", "")) / 1000;
+                        }
                     }
                 }
                 mainForces.TryAdd(index, Tuple.Create(主力買超張數, 主力賣超張數));
@@ -444,38 +489,6 @@ SELECT *
             Console.WriteLine($"{stockId}, {name}, {datetime}：" + s.Elapsed.TotalSeconds);
         }
 
-        private void ParseTech(string stockId, Prices price)
-        {
-            var s = Stopwatch.StartNew();
-            s.Start();
-            var rootNode = GetRootNoteByUrl($"https://www.cnyes.com/twstock/Technical/{stockId}.htm");
-            var node = rootNode.SelectSingleNode("/html/body/div[5]/div[1]/form/div[3]/div[5]/div[3]/table[1]");
-
-            if (node != null)
-            {
-                price.MA3 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[2].InnerText);
-                price.MA5 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[3].InnerText);
-                price.MA10 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[4].InnerText);
-                price.MA20 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[5].InnerText);
-                price.MA60 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[6].InnerText);
-                price.MA120 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[7].InnerText);
-                price.MA240 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[8].InnerText);
-
-                node = rootNode.SelectSingleNode("/html/body/div[5]/div[1]/form/div[3]/div[5]/div[3]/table[2]");
-
-                price.VMA3 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[2].InnerText);
-                price.VMA5 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[3].InnerText);
-                price.VMA10 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[4].InnerText);
-                price.VMA20 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[5].InnerText);
-                price.VMA60 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[6].InnerText);
-                price.VMA120 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[7].InnerText);
-                price.VMA240 = Convert.ToDecimal(node.ChildNodes[1].ChildNodes[8].InnerText);
-            }
-
-            s.Stop();
-            Console.WriteLine("MA, VMA：" + s.Elapsed.TotalSeconds);
-        }
-
         private void ParseNode(int startIndex, string url, string xPzth, Prices[] prices, Action<HtmlNode, Prices> action)
         {
             var rootNode = GetRootNoteByUrl(url);
@@ -494,26 +507,48 @@ SELECT *
 
         private Prices ParseSingleHistoryPrice(string stockId, string name)
         {
-            var rootNode = GetRootNoteByUrl($"https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{stockId}.djhtm");
+            var rootNode = GetRootNoteByUrl($"https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{stockId}.djhtm", false);
             var htmlNode = rootNode.SelectSingleNode("//*[@id=\"_historyDataTable\"]/div[2]/div[2]/table/tbody/tr[1]/td[1]");
-            var dateNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tbody/tr[2]/td[2]/table/tbody/tr/td/table[1]/tbody/tr/td/table[2]/tbody/tr[1]/td/font/div");
-            var date = dateNode.InnerText.Replace("最近交易日:", "").Replace("市值單位:百萬", "");
+            var dateNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[1]/td[1]/font/div");
+                                                        
+
+            var date = DateTime.Today.Year + "/" + dateNode.InnerText.Replace("最近交易日:", "").Replace("&nbsp;&nbsp;&nbsp;市值單位:百萬", "");
+
+            var openNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[2]/td[2]");
+            var highNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[2]/td[4]");
+            var lowNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[2]/td[6]");
+            var closeNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[2]/td[8]");
+            var closeValue = Convert.ToDecimal(closeNode.InnerHtml);
+            var updownNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[3]/td[2]");
+            var tmp = updownNode.InnerHtml
+                .Replace("<p class=\"t3g1\"><p class=\"t3n1\">", "")
+                .Replace("<p class=\"t3g1\"><p class=\"t3g1\">", "")
+                .Replace("<p class=\"t3g1\"><p class=\"t3r1\">", "")
+                .Replace("</p>\r\n", "");
+            var updownValue = Convert.ToDecimal(tmp);
+
+            var tmp2 = rootNode
+                .SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[4]/td[2]")
+                .InnerHtml;
+            var costPercentNode = tmp2 == "N/A" ? 0 : Convert.ToDecimal(tmp2);
+            var volume = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[4]/td[8]").InnerHtml.Replace(",",""));
+
             return new Prices
             {
                 Id = Guid.NewGuid(),
                 StockId = stockId,
                 Name = name,
                 CreatedOn = DateTime.Now,
-                Datetime = Convert.ToDateTime(htmlNode.ChildNodes[0].InnerText),
-                Open = Convert.ToDecimal(htmlNode.ChildNodes[1].InnerText),
-                High = Convert.ToDecimal(htmlNode.ChildNodes[2].InnerText),
-                Low = Convert.ToDecimal(htmlNode.ChildNodes[3].InnerText),
-                Close = Convert.ToDecimal(htmlNode.ChildNodes[4].InnerText),
-                漲跌 = Convert.ToDecimal(htmlNode.ChildNodes[5].InnerText),
-                漲跌百分比 = Convert.ToDecimal(htmlNode.ChildNodes[6].InnerText.Replace("%", "")),
-                成交量 = Convert.ToInt32(htmlNode.ChildNodes[7].InnerText.Replace(",", "")),
-                //成交金額 = Convert.ToInt32(htmlNode.ChildNodes[8].InnerText.Replace(",", "")),
-                //本益比 = Convert.ToDecimal(htmlNode.ChildNodes[9].InnerText)
+                Datetime = Convert.ToDateTime(date),
+                Open = Convert.ToDecimal(openNode.InnerHtml),
+                High = Convert.ToDecimal(highNode.InnerHtml),
+                Low = Convert.ToDecimal(lowNode.InnerHtml),
+                Close = closeValue,
+                漲跌 = updownValue,
+                漲跌百分比 = updownValue / (closeValue - updownValue),
+                成交量 = volume,
+                成交金額 = (int)(volume * closeValue),
+                本益比 = costPercentNode
             };
         }
 
