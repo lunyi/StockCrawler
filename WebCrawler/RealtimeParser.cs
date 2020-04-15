@@ -13,7 +13,7 @@ namespace WebCrawler
     public class RealtimeParser : BaseParser
     {
         private readonly LineNotifyBotApi _lineNotifyBotApi;
-        private string Token;
+        private string _token;
 
         public RealtimeParser(LineNotifyBotApi lineNotifyBotApi)
         { 
@@ -83,10 +83,11 @@ namespace WebCrawler
             ParseWarnStock(context, currentBests);
             await context.SaveChangesAsync();
 
-            Token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
+            _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
             await NotifyBotApiAsync(context, "突破整理區間");
             await NotifyBotApiAsync(context, "多頭吞噬");
             await NotifyBotApiAsync(context, "突破季線");
+            await NotifyBotApiAsync(context, "爆量長紅");
         }
 
         private async Task NotifyBotApiAsync(StockDbContext context, string type)
@@ -113,7 +114,7 @@ namespace WebCrawler
         {
             await _lineNotifyBotApi.Notify(new NotifyRequestDTO
             {
-                AccessToken = Token,
+                AccessToken = _token,
                 Message = message
             });
         }

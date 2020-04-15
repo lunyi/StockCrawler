@@ -44,7 +44,7 @@ namespace WebCrawler
   select s.* from [Stocks]  s 
   left join (select * from [Prices] where [Datetime] = '{DateTime.Today:yyyy/MM/dd}') p on s.StockId = p.StockId
   where  s.Status = 1 and p.Id is null
-  order by s.StockId desc";
+  order by s.StockId";
         }
 
         [Obsolete]
@@ -137,6 +137,8 @@ SELECT *
             {
                 Console.WriteLine($"{stockId} : Thread ID: {Thread.CurrentThread.ManagedThreadId}");
                 var price = ParseSingleHistoryPrice(stockId, name);
+                if (price == null)
+                    return null;
                 ParseMargin(stockId, price);
                 ParseInst(stockId, price);
                 ParseMainForce(stockId, DateTime.Today.ToString("yyyy/MM/dd"), price);
@@ -161,8 +163,11 @@ SELECT *
                 return;
 
             var dateArray = htmlNode.ChildNodes[1].InnerHtml.Split(new[] {'/'});
-            var date = new DateTime(Convert.ToInt32(dateArray[0]) + 1911, Convert.ToInt32(dateArray[1]), Convert.ToInt32(dateArray[2]));
 
+            if (dateArray.Length != 3)
+                return;
+
+            var date = new DateTime(Convert.ToInt32(dateArray[0]) + 1911, Convert.ToInt32(dateArray[1]), Convert.ToInt32(dateArray[2]));
             if (date == price.Datetime)
             {
                 price.融資買進 = Convert.ToInt32(htmlNode.ChildNodes[3].InnerText.Replace(",", ""));
@@ -374,9 +379,10 @@ SELECT *
         private Prices ParseSingleHistoryPrice(string stockId, string name)
         {
             var rootNode = GetRootNoteByUrl($"https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{stockId}.djhtm", false);
-            var htmlNode = rootNode.SelectSingleNode("//*[@id=\"_historyDataTable\"]/div[2]/div[2]/table/tbody/tr[1]/td[1]");
             var dateNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[1]/td[1]/font/div");
-                                                        
+
+            if (dateNode == null)
+                return null;
 
             var date = DateTime.Today.Year + "/" + dateNode.InnerText.Replace("最近交易日:", "").Replace("&nbsp;&nbsp;&nbsp;市值單位:百萬", "");
 

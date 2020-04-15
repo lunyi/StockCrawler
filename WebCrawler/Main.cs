@@ -19,7 +19,7 @@ namespace WebCrawler
         [Obsolete]
         static async Task Main(string[] args)
         {
-            //await RunAsync();
+            await RunAsync();
 
 
             //var ss = new HiStockParser();
@@ -32,9 +32,10 @@ namespace WebCrawler
             //var s1 = new MoneyDjParser();
             //await s1.RunAsync();
 
-            var s1 = new CnyParser();
-            await s1.RunAsync();
-            //s1.ParserLastDay("1333", "恩得利");
+            //var s1 = new UpdateStockListParser();
+            //await s1.RunAsync();
+            //s1.Test_usp_Update_MA_And_VMA();
+            //s1.ParserLastDay("8913", "恩得利");
 
 
 

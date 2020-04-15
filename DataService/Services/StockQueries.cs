@@ -191,7 +191,6 @@ SELECT s.*
         }
         private string GetWeekAnalyst(string stockId, string datetime)
         {
-
             return $@"
 
 DECLARE @MaxDate AS DATETIME = '{datetime}';
@@ -1198,7 +1197,7 @@ order by s.[Description] / s.每股淨值
         private static string 外資投信同步買超排行榜()
         {
             return @$"
-  and [外資買賣超] > 0 and [投信買賣超] > 0
+  and [外資買賣超] > 0 and [投信買賣超] > 0 and ([主力買超張數] - [主力賣超張數]) > 0
   order by [投信買賣超] desc
 ";
         }
