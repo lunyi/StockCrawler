@@ -3,12 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DataService.Models;
-using EFCore.BulkExtensions;
-using HtmlAgilityPack;
 using Microsoft.EntityFrameworkCore;
 
 namespace WebCrawler
@@ -34,7 +31,8 @@ namespace WebCrawler
 
             var dd = await context.Prices.Select(p => p.Datetime).Distinct().OrderByDescending(p => p).Take(2).ToArrayAsync();
             context.Database.ExecuteSqlCommand(GetSqlToUpdate發行張數(dd[0].ToString("yyyy-MM-dd"), dd[1].ToString("yyyy-MM-dd")));
-
+            context.Database.SetCommandTimeout(90);
+            context.Database.ExecuteSqlCommand($"exec[usp_Update_MA_And_VMA] '{DateTime.Today.ToString("yyyy-MM-dd")}'");
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
         }
@@ -44,7 +42,7 @@ namespace WebCrawler
   select s.* from [Stocks]  s 
   left join (select * from [Prices] where [Datetime] = '{DateTime.Today:yyyy/MM/dd}') p on s.StockId = p.StockId
   where  s.Status = 1 and p.Id is null
-  order by s.StockId";
+  order by s.StockId desc";
         }
 
         [Obsolete]
