@@ -26,7 +26,7 @@ namespace WebCrawler
         {
             var context = new StockDbContext();
             _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
-            var date = DateTime.Today.AddDays(-1);
+            var date = DateTime.Today;
 
             var tmpPrices = context.Prices.Where(p => 
                 p.Datetime == date && 

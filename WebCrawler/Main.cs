@@ -19,7 +19,7 @@ namespace WebCrawler
         [Obsolete]
         static async Task Main(string[] args)
         {
-            await DailyNotifyAsync();
+            //await DailyNotifyAsync();
 
 
             //var ss = new HiStockParser();
@@ -29,8 +29,8 @@ namespace WebCrawler
             //var s = new UpdateStockListParser();
             //await s.RunAsync();
 
-            //var s1 = new CnyParser();
-            //await s1.RunAsync();
+            var s1 = new CnyParser();
+            await s1.RunAsync();
 
             //InitailLineNotifyBot();
             //var s1 = new UpdateStockListParser();
