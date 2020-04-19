@@ -64,11 +64,6 @@ function renewWeekChip(weekChips) {
             weekChips[i].updownColor = "green";
         }
 
-        if (weekChips[i].成交量 > 2 * weekChips[i + 1].成交量) {
-            weekChips[i].成交量 = weekChips[i].成交量 + "↑";
-            weekChips[i].vColor = "red";
-        }
-
         if (weekChips[i].pUnder100 > weekChips[i + 1].pUnder100) {
             weekChips[i].pUnder100 = weekChips[i].pUnder100 + "↑ (" + weekChips[i].sUnder100 + ")";
             weekChips[i].sColor = "red";
@@ -102,60 +97,6 @@ function renewWeekChip(weekChips) {
         else if (weekChips[i].pUnder400 < weekChips[i + 1].pUnder400) {
             weekChips[i].pUnder400 = weekChips[i].pUnder400 + "↓ (" + weekChips[i].sUnder400 + ")";
             weekChips[i].p400DownColor = "green";
-        }
-
-        if (weekChips[i].董監持股 > weekChips[i + 1].董監持股) {
-            weekChips[i].董監持股 = weekChips[i].董監持股 + "↑";
-            weekChips[i].doColor = "red";
-        }
-        else if (weekChips[i].董監持股 < weekChips[i + 1].董監持股) {
-            weekChips[i].董監持股 = weekChips[i].董監持股 + "↓";
-            weekChips[i].doColor = "green";
-        }
-
-        if (weekChips[i].融資買賣超 > 0) {
-            weekChips[i].融資買賣超 = weekChips[i].融資買賣超 + "↑";
-            weekChips[i].zoColor = "red";
-        }
-        else if (weekChips[i].融資買賣超 < 0) {
-            weekChips[i].融資買賣超 = weekChips[i].融資買賣超 + "↓";
-            weekChips[i].zoColor = "green";
-        }
-
-        if (weekChips[i].外資買賣超 > 0) {
-            weekChips[i].外資買賣超 = weekChips[i].外資買賣超 + "↑";
-            weekChips[i].wiColor = "red";
-        }
-        else if (weekChips[i].外資買賣超 < 0) {
-            weekChips[i].外資買賣超 = weekChips[i].外資買賣超 + "↓";
-            weekChips[i].wiColor = "green";
-        }
-
-        if (weekChips[i].投信買賣超 > 0) {
-            weekChips[i].投信買賣超 = weekChips[i].投信買賣超 + "↑";
-            weekChips[i].toColor = "red";
-        }
-        else if (weekChips[i].投信買賣超 < 0) {
-            weekChips[i].投信買賣超 = weekChips[i].投信買賣超 + "↓";
-            weekChips[i].toColor = "green";
-        }
-
-        if (weekChips[i].自營商買賣超 > 0) {
-            weekChips[i].自營商買賣超 = weekChips[i].自營商買賣超 + "↑";
-            weekChips[i].ziColor = "red";
-        }
-        else if (weekChips[i].自營商買賣超 < 0) {
-            weekChips[i].自營商買賣超 = weekChips[i].自營商買賣超 + "↓";
-            weekChips[i].ziColor = "green";
-        }
-
-        if (weekChips[i].主力買賣超 > 0) {
-            weekChips[i].主力買賣超 = weekChips[i].主力買賣超 + "↑";
-            weekChips[i].zuColor = "red";
-        }
-        else if (weekChips[i].主力買賣超 < 0) {
-            weekChips[i].主力買賣超 = weekChips[i].主力買賣超 + "↓";
-            weekChips[i].zuColor = "green";
         }
     }
     return weekChips;

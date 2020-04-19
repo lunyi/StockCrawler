@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace DataService.Models
+namespace BlazorApp.Models
 {
     public partial class Prices
     {

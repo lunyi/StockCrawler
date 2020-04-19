@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace DataService.Models
+namespace BlazorApp.Models
 {
-    public partial class Stocks
+    public partial class StockHistory
     {
         public Guid Id { get; set; }
         public string StockId { get; set; }
@@ -22,8 +22,5 @@ namespace DataService.Models
         public decimal? 每股淨值 { get; set; }
         public decimal? 每股盈餘 { get; set; }
         public string Description { get; set; }
-        public decimal? ROE { get; set; }
-        public decimal? ROA { get; set; }
-        public bool? 股票期貨 { get; set; }
     }
 }

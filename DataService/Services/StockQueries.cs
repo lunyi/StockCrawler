@@ -56,7 +56,6 @@ namespace DataService.Services
 	for	[Name] in (' +@ColumnGroup+ ')
   ) p order by [Datetime] desc'
 
-
   EXEC sp_executesql  @PivotSQL;";
         }
 
@@ -103,6 +102,7 @@ select top 300
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,s.[Description]
+      ,s.[股票期貨]
 from [Prices] p join [Stocks] s on s.StockId = p.StockId 
 where p.[Datetime] = '{datetime}'
 order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p.{strVolumn} {orderby}
@@ -149,7 +149,6 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                      }).ToArrayAsync();
 
             var weeklyChip = await context._WeekyChip.FromSqlRaw(GetWeekAnalyst(stockId, GetLastFriday())).ToArrayAsync();
-            var pps = await context.Prices.Where(p => p.StockId == stockId).ToArrayAsync();
             var monthData = await context._MonthData.FromSqlRaw("exec [usp_GetMonthData] {0}", stockId).ToArrayAsync();
 
             return new StockeModel
@@ -175,7 +174,7 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
         private string GetLastFriday(string datetime)
         {
             var today = Convert.ToDateTime(datetime);
-            int days = today.DayOfWeek == DayOfWeek.Saturday ? 1 : 1 * ((int)today.DayOfWeek + 2);
+            var days = today.DayOfWeek == DayOfWeek.Saturday ? 1 : 1 * ((int)today.DayOfWeek + 2);
             days = days == 7 ? 0 : days;
             return today.AddDays(days * -1).ToString("yyyy-MM-dd");
         }
@@ -189,7 +188,51 @@ SELECT s.*
   order by a.[Close] 
 ";
         }
+
         private string GetWeekAnalyst(string stockId, string datetime)
+        {
+            var sql =  $@"DECLARE @MaxDate AS DATETIME = '{datetime}';
+DECLARE @stockid AS nvarchar(10) = '{stockId}';
+select
+	ROW_NUMBER() over (order by [Datetime] desc) as RowNo,
+	StockId,
+	[Name],
+	[Datetime],
+	[PUnder100],
+	[SUnder100],
+	[POver1000],
+	[SOver1000],
+	[P200] + [P400] as [PUnder400],
+	[S200] + [S400] as [SUnder400],
+	[P600] + [P800] + [P1000] as [POver400],
+	[S600] + [S800] + [S1000] as [SOver400]
+into #t3
+from [Thousand] t 
+where [StockId] = @stockid and [Datetime] <= @MaxDate and [Datetime] >= DATEADD(DD,-180,@MaxDate)
+
+select 
+    newid() as Id,
+    t.StockId,
+	t.Name,
+	t.[Datetime],
+	t.[PUnder100],
+	cast(t.[SUnder100] - t1.[SUnder100] as int) as [SUnder100],
+	t.[POver1000],
+	cast(t.[SOver1000] - t1.[SOver1000] as int) as [SOver1000],
+	t.[PUnder400],
+	cast(t.[SUnder400] - t1.[SUnder400] as int) as [SUnder400],
+	t.[POver400],
+	cast(t.[SOver400] - t1.[SOver400] as int) as [SOver400],
+	p.[Close]
+from #t3 t 
+join #t3  t1 on t.RowNo +1 = t1.RowNo 
+join (select * from [Prices] where StockID = @stockid) p on p.StockId = t.StockId and p.[Datetime] = t.[Datetime]
+drop table #t3
+";
+            return sql;
+        }
+
+        private string GetWeekAnalystOld(string stockId, string datetime)
         {
             return $@"
 
@@ -207,7 +250,6 @@ AS
     FROM [Prices]
 	where StockID = @stockid and [Datetime] <= @MaxDate
 )
-
 
 SELECT  
     DATEADD(DAY, NoGroup*-7, @MaxDate) AS [Datetime],
@@ -372,7 +414,6 @@ drop table #t1, #t2, #t3, #t4
        Task<Stocks[]> IStockQueries.GetStocksByDateAsync(string datetime, int type)
         {
             var context = new StockDbContext();
-
             string sql = string.Empty;
 
             switch (type)
@@ -446,6 +487,9 @@ drop table #t1, #t2, #t3, #t4
                 case (int)ChooseStockType.Get淨值比小於2AndROE大於10:
                     sql = Get淨值比小於2AndROE大於10();
                     break;
+                case (int)ChooseStockType.每周投信買散戶賣:
+                    sql = 每周投信買散戶賣(datetime);
+                    break;;
                 case (int)ChooseStockType.投信突然加入買方:
                     sql = Get投信突然加入買方Sql(datetime);
                     break;  
@@ -478,12 +522,6 @@ drop table #t1, #t2, #t3, #t4
                     break;
                 case (int)ChooseStockType.每周成交量增長排行榜:
                     sql = 每周成交量增長排行榜(GetLastFriday(datetime));
-                    break;
-                case (int)ChooseStockType.CMoney選股:
-                    sql = GetCMoneyStocksSql();
-                    break;
-                case (int)ChooseStockType.財報狗選股:
-                    sql = GetStatemenetDogStocksSql();
                     break;
                 default:
                     var whereCondition = DateFunc[(ChooseStockType)type]();
@@ -632,7 +670,7 @@ WITH TOPTEN as (
 select *, (POver1000 - PPOver1000) as [Percent] 
 into #tmp
 from [TOPTEN]
-where RowNo = 1 and (POver1000 - PPOver1000) > 0.5
+where RowNo = 1 and (POver1000 - PPOver1000) > 0.5 and (PUnder100 < PPUnder100) 
 
 select s.[Id]
       ,s.[StockId]
@@ -651,6 +689,7 @@ select s.[Id]
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,CAST(t.[Percent] AS nvarchar(30)) AS [Description]
+      ,股票期貨
 from [Stocks]s 
 join #tmp t on s.StockId = t.StockId
 order by  (t.POver1000 - t.PPOver1000) desc
@@ -658,6 +697,53 @@ order by  (t.POver1000 - t.PPOver1000) desc
 drop table #tmp
 ";
         }
+
+        private string 每周投信買散戶賣(string datetime)
+        {
+            var lastFriday = GetLastFriday(datetime);
+            var last5days = Convert.ToDateTime(lastFriday).AddDays(-5).ToString("yyyy-MM-dd");
+
+            return $@"select 
+	 ss.[Id]
+	,ss.[StockId]
+	,ss.[Name]
+	,ss.[MarketCategory]
+	,ss.[Industry]
+	,ss.[ListingOn]
+	,ss.[CreatedOn]
+	,ss.[UpdatedOn]
+	,ss.[Status]
+	,ss.[Address]
+	,ss.[Website]
+	,ss.[營收比重]
+	,ss.[股本]
+	,ss.[股價]
+	,ss.[每股淨值]
+	,ss.[每股盈餘], ss.[ROE], ss.[ROA]
+	,CAST(st.[投信買賣超] AS nvarchar(30)) AS [Description] 
+	,股票期貨
+from 
+[Stocks] ss 
+join
+	(select 
+	   p.StockId, p.Name, 
+	   sum(p.投信買賣超) as 投信買賣超,
+	   sum(p.外資買賣超) as 外資買賣超,
+	   sum(p.主力買超張數 - p.主力賣超張數) as 主力買賣超
+	from [Prices] p
+		join [Stocks] s on s.StockId = p.StockId
+		join [Thousand] th on th.StockId=p.StockId
+	where 
+		p.[Datetime] >= '{last5days}' and  p.[Datetime] <= '{lastFriday}' 
+		and s.股本 < 100 
+		and s.[股價] < 100
+		and th.[Datetime] = '{lastFriday}' and th.PUnder100 < th.PPUnder100 and th.POver1000 > th.PPOver1000
+	group by p.StockId, p.Name
+	having sum(p.投信買賣超) > 0 and sum(p.外資買賣超) > 0 and sum(p.主力買超張數 - p.主力賣超張數) > 0)
+	st on ss.StockId = st.StockId
+order by st.[投信買賣超] desc";
+        }
+
         private string 五日漲幅排行榜(string datetime, int days)
         {
             return @$"
@@ -694,6 +780,7 @@ select s.[Id]
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA]
       ,CAST(t.[Description] AS nvarchar(30)) AS [Description]
+      ,股票期貨
 from Stocks s 
 join #tmp t on t.StockId = s.StockId
 order by t.[Description] desc
@@ -737,6 +824,7 @@ select s.[Id]
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA]
       ,CAST(t.[Description] AS nvarchar(30)) AS [Description]
+      ,股票期貨
 from Stocks s 
 join #tmp t on t.StockId = s.StockId
 order by t.[Description] asc
@@ -745,14 +833,14 @@ drop table #tmp";
 
         private string 連續買超排行榜(string datetime, string 買賣超 = "投信買賣超")
         {
-            return @$"
-WITH TOPTEN as (
+            var pastSeasonDate = Convert.ToDateTime(datetime).AddMonths(-3).ToString("yyyy-MM-dd");
+            return @$"WITH TOPTEN as (
    SELECT *, ROW_NUMBER() 
     over (
         PARTITION BY  StockId, Name 
        order by [Datetime] desc
     ) AS RowNo 
-    FROM [Prices] where [Datetime] <= '{datetime}' and [{買賣超}]<=0
+    FROM [Prices] where [Datetime] >= '{pastSeasonDate}' and [Datetime] <= '{datetime}' and [{買賣超}]<=0
 )
 
 select 
@@ -786,6 +874,7 @@ select s.[Id]
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
+      ,股票期貨
 from [Stocks]s 
 join #tmp t on s.StockId = t.StockId
 order by t.[Count] desc
@@ -890,6 +979,7 @@ select s.[Id]
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
+      ,股票期貨
 from [Stocks]s 
 join #tmp t on s.StockId = t.StockId
 order by t.[Count] desc
@@ -941,6 +1031,7 @@ select s.[Id]
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
+      ,股票期貨
 from [Stocks]s 
 join #tmp t on s.StockId = t.StockId
 order by t.[Count] desc
@@ -991,6 +1082,7 @@ select s.[Id]
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
+      ,股票期貨
 from [Stocks]s 
 join #tmp t on s.StockId = t.StockId
 order by t.[Count] desc
@@ -1041,6 +1133,7 @@ select s.[Id]
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
+      ,股票期貨
 from [Stocks]s 
 join #tmp t on s.StockId = t.StockId
 order by t.[Count] desc
@@ -1094,6 +1187,7 @@ order by  (t1.[POver1000] -  t2.[POver1000]) desc
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,CAST(m.[累積年增率] AS nvarchar(30)) AS [Description] 
+      ,股票期貨
   from [MonthData] m
   join [Stocks] s on s.StockId = m.StockId
   where m.[Datetime] = '{d}'
@@ -1171,8 +1265,6 @@ order by s.[Description] / s.每股淨值
             { 1 , ()=>GetSqlByFinance() },
             { 2 , ()=>GetSqlByShape() },
             { 3 , ()=>GetSqlByChoose() },
-            { 4 , ()=>GetCMoneyStocksSql() },
-            { 5 , ()=>GetStatemenetDogStocksSql() },
             { 6 , ()=>GetFutureEngingStocksSql()}
         };
 
@@ -1353,56 +1445,6 @@ order by StockId
 ";
         }
 
-        private static string GetCMoneyStocksSql()
-        {
-            return @"
-  WITH ranked_messages AS (
-  SELECT m.*, ROW_NUMBER() OVER (PARTITION BY name ORDER BY CreatedOn DESC) AS rn
-  FROM [AnaCMoney] AS m
-)
-
-select * from [Stocks] 
-where StockId in (SELECT StockId FROM ranked_messages WHERE rn = 1 and Remark in ('很好','優秀'))
-order by StockId
-
-";
-        }
-
-        private static string GetStatemenetDogStocksSql()
-        {
-            return @"
-
-select * from [Stocks]  
-where StockId in (
-select  
-a.StockId
-from (
-	SELECT 
-		  c1.[StockId]
-		  ,c1.[Name]
-		  ,c1.[Type],
-		  COUNT(c1.Pass) as TotalCount,
-		  COUNT(c2.Pass) as Pass
-	  FROM [dbo].[AnaStatementDogs] c1
-	  left join (select * from [dbo].[AnaStatementDogs] where Pass = 1) c2 
-	  on c1.Id = c2.Id
-	  --where 
-	  --c2.[Pass] = 1
-	  group by  
-		  c1.[StockId]
-		  ,c1.[Name],
-		  c1.[Type] 
-) a where a.Pass >= 3
-
-group by 
-a.StockId,
-a.Name
-having count(Pass) = 4
-)
-
-";
-        }
-
         private static string GetFutureEngingStocksSql()
         {
             return @"
@@ -1445,7 +1487,7 @@ select s.[Id]
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,CAST(b.買超 AS nvarchar(30)) AS [Description]
-
+      ,股票期貨
 from [Stocks] s join (
 select a.StockId, a.NAme, a.[董監持股]- b.[董監持股] as 買超
 from (

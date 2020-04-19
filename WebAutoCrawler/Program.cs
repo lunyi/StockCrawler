@@ -17,7 +17,10 @@ namespace WebCrawler
             //var c = new ThousandDataCrawlerV2();
             //await c.ExecuteLastAsync();
 
-            var c = new MonthDataCrawler();
+            //var c = new MonthDataCrawler();
+            //await c.ExecuteAsync();
+
+            var c = new DailyTraderCrawler();
             await c.ExecuteAsync();
         }
 

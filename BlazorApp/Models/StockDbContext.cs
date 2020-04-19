@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace DataService.Models
+namespace BlazorApp.Models
 {
     public partial class StockDbContext : DbContext
     {
@@ -784,7 +784,9 @@ namespace DataService.Models
 
                 entity.Property(e => e.Close).HasColumnType("decimal(18, 2)");
 
-                entity.Property(e => e.Datetime).HasColumnType("datetime");
+                entity.Property(e => e.Datetime)
+                    .IsRequired()
+                    .HasMaxLength(50);
 
                 entity.Property(e => e.Name)
                     .IsRequired()
