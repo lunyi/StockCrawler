@@ -37,6 +37,14 @@ namespace WebCrawler
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
         }
+
+        public void ParseDailyInfo(string stockId)
+        {
+            var url = $"https://goodinfo.tw/StockInfo/DayTrading.asp?STOCK_ID={stockId}";
+            var rootNode = GetRootNoteByUrl(url, false);
+            var dateNode = rootNode.SelectSingleNode("/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody[1]");
+
+        }
         private static string GetSql()
         {
             return @$"
