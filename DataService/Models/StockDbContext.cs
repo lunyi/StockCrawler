@@ -784,7 +784,9 @@ namespace DataService.Models
 
                 entity.Property(e => e.Close).HasColumnType("decimal(18, 2)");
 
-                entity.Property(e => e.Datetime).HasColumnType("datetime");
+                entity.Property(e => e.Datetime)
+                    .IsRequired()
+                    .HasMaxLength(10);
 
                 entity.Property(e => e.Name)
                     .IsRequired()

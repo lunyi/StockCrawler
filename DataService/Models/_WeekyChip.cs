@@ -8,7 +8,7 @@ namespace DataService.Models
         public Guid Id { get; set; }
         public string StockId { get; set; }
         public string Name { get; set; }
-        public DateTime Datetime { get; set; }
+        public string Datetime { get; set; }
         public decimal? Close { get; set; }
         public decimal PUnder100 { get; set; }
         public decimal PUnder400 { get; set; }

@@ -197,7 +197,7 @@ select
 	ROW_NUMBER() over (order by [Datetime] desc) as RowNo,
 	StockId,
 	[Name],
-	[Datetime],
+	CONVERT(nvarchar,[Datetime], 23) as [Datetime],
 	[PUnder100],
 	[SUnder100],
 	[POver1000],
@@ -208,7 +208,7 @@ select
 	[S600] + [S800] + [S1000] as [SOver400]
 into #t3
 from [Thousand] t 
-where [StockId] = @stockid and [Datetime] <= @MaxDate and [Datetime] >= DATEADD(DD,-180,@MaxDate)
+where [StockId] = @stockid and [Datetime] <= @MaxDate and [Datetime] >= DATEADD(DD,-120,@MaxDate)
 
 select 
     newid() as Id,
