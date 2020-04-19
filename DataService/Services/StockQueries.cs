@@ -489,7 +489,11 @@ drop table #t1, #t2, #t3, #t4
                     break;
                 case (int)ChooseStockType.每周投信買散戶賣:
                     sql = 每周投信買散戶賣(datetime);
-                    break;;
+                    break;
+                case (int)ChooseStockType.連續上漲天數:
+                    sql = 連續上漲天數(datetime);
+                    break; ;
+
                 case (int)ChooseStockType.投信突然加入買方:
                     sql = Get投信突然加入買方Sql(datetime);
                     break;  
@@ -742,6 +746,59 @@ join
 	having sum(p.投信買賣超) > 0 and sum(p.外資買賣超) > 0 and sum(p.主力買超張數 - p.主力賣超張數) > 0)
 	st on ss.StockId = st.StockId
 order by st.[投信買賣超] desc";
+        }
+
+        private string 連續上漲天數(string datetime)
+        {
+            var lastday = Convert.ToDateTime(datetime);
+            var last5days = Convert.ToDateTime(lastday).AddMonths(-3).ToString("yyyy-MM-dd");
+
+            return $@"WITH TOPTEN as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY  StockId, Name 
+       order by [Datetime] desc
+    ) AS RowNo 
+    FROM [Prices] where [Datetime] >= '{last5days}' and [Datetime] <= '{datetime}' and [漲跌] < 0
+)
+
+select 
+a.StockId,
+a.Name, 
+count(1) as [Count]
+into #tmp
+from Prices a join (
+	SELECT 	*
+	FROM TOPTEN 
+	WHERE RowNo <= 1) b on a.StockId = b.StockId
+where a.[Datetime] > b.[Datetime] 
+group by a.StockId,a.Name 
+having count(1) >= 3
+order by count(1) desc
+
+select s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
+	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
+      ,股票期貨
+from [Stocks]s 
+join #tmp t on s.StockId = t.StockId
+order by t.[Count] desc
+
+drop table #tmp";
         }
 
         private string 五日漲幅排行榜(string datetime, int days)
