@@ -38,6 +38,137 @@ namespace DataService.Services
             _context = context;
         }
 
+        Task<Stocks[]> IStockQueries.GetStocksByDateAsync(string datetime, int type)
+        {
+            var context = new StockDbContext();
+            string sql = string.Empty;
+
+            switch (type)
+            {
+                case (int)ChooseStockType.五日漲幅排行榜:
+                    sql = 五日漲幅排行榜(datetime, 5);
+                    break;
+                case (int)ChooseStockType.二十日漲幅排行:
+                    sql = 五日漲幅排行榜(datetime, 20);
+                    break;
+                case (int)ChooseStockType.四十日漲幅排行:
+                    sql = 五日漲幅排行榜(datetime, 40);
+                    break;
+                case (int)ChooseStockType.六十日漲幅排行:
+                    sql = 五日漲幅排行榜(datetime, 60);
+                    break;
+                case (int)ChooseStockType.五日跌幅排行榜:
+                    sql = 五日跌幅排行榜(datetime, 5);
+                    break;
+                case (int)ChooseStockType.投信連續買超排行榜:
+                    sql = 連續買超排行榜(datetime, "投信買賣超");
+                    break;
+                case (int)ChooseStockType.投信連續賣超排行榜:
+                    sql = 連續賣超排行榜(datetime, "投信買賣超");
+                    break;
+                case (int)ChooseStockType.外資連續買超排行榜:
+                    sql = 連續買超排行榜(datetime, "外資買賣超");
+                    break;
+                case (int)ChooseStockType.外資連續賣超排行榜:
+                    sql = 連續賣超排行榜(datetime, "外資買賣超");
+                    break;
+                case (int)ChooseStockType.融資連續買超排行榜:
+                    sql = 融資連續買超排行榜(datetime, true);
+                    break;
+                case (int)ChooseStockType.融資連續賣超排行榜:
+                    sql = 融資連續買超排行榜(datetime, false);
+                    break;
+                case (int)ChooseStockType.ROE大於15且股價小於50:
+                    sql = ROE大於15且股價小於50(datetime);
+                    break;
+                case (int)ChooseStockType.主力連續買超排行榜:
+                    sql = 真主力連續買超排行榜(datetime);
+                    break;
+                case (int)ChooseStockType.主力連續賣超排行榜:
+                    sql = 真主力連續買超排行榜(datetime, false);
+                    break;
+                case (int)ChooseStockType.買方籌碼集中排行榜:
+                    sql = Get籌碼集中排行榜Sql(datetime, 1, "desc");
+                    break;
+                case (int)ChooseStockType.五日買方籌碼集中度排行榜:
+                    sql = Get籌碼集中排行榜Sql(datetime, 5, "desc");
+                    break;
+                case (int)ChooseStockType.十日買方籌碼集中度排行榜:
+                    sql = Get籌碼集中排行榜Sql(datetime, 10, "desc");
+                    break;
+                case (int)ChooseStockType.二十日買方籌碼集中度排行榜:
+                    sql = Get籌碼集中排行榜Sql(datetime, 20, "desc");
+                    break;
+                case (int)ChooseStockType.六十日買方籌碼集中度排行榜:
+                    sql = Get籌碼集中排行榜Sql(datetime, 60, "desc");
+                    break;
+                case (int)ChooseStockType.連續十二月單月年增率成長:
+                    sql = 連續十二月單月年增率成長(datetime);
+                    break;
+                case (int)ChooseStockType.近月營收累積年增率成長:
+                    sql = 近月營收累積年增率成長(datetime);
+                    break;
+                case (int)ChooseStockType.當週大戶比例增加:
+                    sql = Get當週大戶比例增加(datetime);
+                    break;
+                case (int)ChooseStockType.Get淨值比小於2AndROE大於10:
+                    sql = Get淨值比小於2AndROE大於10();
+                    break;
+                case (int)ChooseStockType.投信突然進前20名:
+                    sql = 投信突然進前20名(datetime);
+                    break;
+                case (int)ChooseStockType.每周投信買散戶賣:
+                    sql = 每周投信買散戶賣(datetime);
+                    break;
+                case (int)ChooseStockType.連續上漲天數:
+                    sql = 連續上漲天數(datetime);
+                    break; ;
+
+                case (int)ChooseStockType.投信突然加入買方:
+                    sql = Get投信突然加入買方Sql(datetime);
+                    break;
+                case (int)ChooseStockType.賣方籌碼集中排行榜:
+                    sql = Get籌碼集中排行榜Sql(datetime, 1, "asc");
+                    break;
+                case (int)ChooseStockType.五日賣方籌碼集中度排行榜:
+                    sql = Get籌碼集中排行榜Sql(datetime, 5, "asc");
+                    break;
+                case (int)ChooseStockType.十日賣方籌碼集中度排行榜:
+                    sql = Get籌碼集中排行榜Sql(datetime, 10, "asc");
+                    break;
+                case (int)ChooseStockType.二十日賣方籌碼集中度排行榜:
+                    sql = Get籌碼集中排行榜Sql(datetime, 20, "asc");
+                    break;
+                case (int)ChooseStockType.六十日賣方籌碼集中度排行榜:
+                    sql = Get籌碼集中排行榜Sql(datetime, 60, "asc");
+                    break;
+                case (int)ChooseStockType.半年線附近:
+                    sql = Get半年線附近Sql(datetime);
+                    break;
+                case (int)ChooseStockType.連續大戶增加:
+                    sql = Get大戶增加散戶減少Sql(datetime);
+                    break;
+                case (int)ChooseStockType.連續兩週大戶增散戶減:
+                    sql = 連續兩週大戶增散戶減(datetime);
+                    break;
+                case (int)ChooseStockType.董監買賣超排行榜:
+                    sql = GetSqlByChairmanAsync(datetime);
+                    break;
+                case (int)ChooseStockType.每周成交量增長排行榜:
+                    sql = 每周成交量增長排行榜(GetLastFriday(datetime));
+                    break;
+                default:
+                    var whereCondition = DateFunc[(ChooseStockType)type]();
+                    sql = @$"SELECT s.*
+                          FROM [dbo].[Prices] p
+                          join Stocks s on p.StockId = s.StockId
+                          where [Datetime] = '{datetime}' {whereCondition}";
+                    break;
+            }
+
+            return context.Stocks.FromSqlRaw(sql).ToArrayAsync();
+        }
+
         private string GetMainForceSql(string mainForce)
         {
             return @$"
@@ -411,133 +542,7 @@ drop table #t1, #t2, #t3, #t4
             return stocks.ToArrayAsync();
         }
 
-       Task<Stocks[]> IStockQueries.GetStocksByDateAsync(string datetime, int type)
-        {
-            var context = new StockDbContext();
-            string sql = string.Empty;
-
-            switch (type)
-            {
-                case (int)ChooseStockType.五日漲幅排行榜:
-                    sql = 五日漲幅排行榜(datetime, 5);
-                    break;
-                case (int)ChooseStockType.二十日漲幅排行:
-                    sql = 五日漲幅排行榜(datetime, 20);
-                    break;
-                case (int)ChooseStockType.四十日漲幅排行:
-                    sql = 五日漲幅排行榜(datetime, 40);
-                    break;
-                case (int)ChooseStockType.六十日漲幅排行:
-                    sql = 五日漲幅排行榜(datetime, 60);
-                    break;
-                case (int)ChooseStockType.五日跌幅排行榜:
-                    sql = 五日跌幅排行榜(datetime, 5);
-                    break;
-                case (int)ChooseStockType.投信連續買超排行榜:
-                    sql = 連續買超排行榜(datetime, "投信買賣超");
-                    break;
-                case (int)ChooseStockType.投信連續賣超排行榜:
-                    sql = 連續賣超排行榜(datetime, "投信買賣超");
-                    break;
-                case (int)ChooseStockType.外資連續買超排行榜:
-                    sql = 連續買超排行榜(datetime, "外資買賣超");
-                    break;
-                case (int)ChooseStockType.外資連續賣超排行榜:
-                    sql = 連續賣超排行榜(datetime, "外資買賣超");
-                    break;
-                case (int)ChooseStockType.融資連續買超排行榜:
-                    sql = 融資連續買超排行榜(datetime,true);
-                    break;
-                case (int)ChooseStockType.融資連續賣超排行榜:
-                    sql = 融資連續買超排行榜(datetime, false);
-                    break;
-                case (int)ChooseStockType.ROE大於15且股價小於50:
-                    sql = ROE大於15且股價小於50(datetime);
-                    break;
-                case (int)ChooseStockType.主力連續買超排行榜:
-                    sql = 真主力連續買超排行榜(datetime);
-                    break;
-                case (int)ChooseStockType.主力連續賣超排行榜:
-                    sql = 真主力連續買超排行榜(datetime, false);
-                    break;
-                case (int)ChooseStockType.買方籌碼集中排行榜:
-                    sql = Get籌碼集中排行榜Sql(datetime, 1, "desc");
-                    break;
-                case (int)ChooseStockType.五日買方籌碼集中度排行榜:
-                    sql = Get籌碼集中排行榜Sql(datetime, 5, "desc");
-                    break;
-                case (int)ChooseStockType.十日買方籌碼集中度排行榜:
-                    sql = Get籌碼集中排行榜Sql(datetime, 10, "desc");
-                    break;
-                case (int)ChooseStockType.二十日買方籌碼集中度排行榜:
-                    sql = Get籌碼集中排行榜Sql(datetime, 20, "desc");
-                    break;
-                case (int)ChooseStockType.六十日買方籌碼集中度排行榜:
-                    sql = Get籌碼集中排行榜Sql(datetime, 60, "desc");
-                    break;
-                case (int)ChooseStockType.連續十二月單月年增率成長:
-                    sql = 連續十二月單月年增率成長(datetime);
-                    break;
-                case (int)ChooseStockType.近月營收累積年增率成長:
-                    sql = 近月營收累積年增率成長(datetime);
-                    break;              
-                case (int)ChooseStockType.當週大戶比例增加:
-                    sql = Get當週大戶比例增加(datetime);
-                    break;
-                case (int)ChooseStockType.Get淨值比小於2AndROE大於10:
-                    sql = Get淨值比小於2AndROE大於10();
-                    break;
-                case (int)ChooseStockType.每周投信買散戶賣:
-                    sql = 每周投信買散戶賣(datetime);
-                    break;
-                case (int)ChooseStockType.連續上漲天數:
-                    sql = 連續上漲天數(datetime);
-                    break; ;
-
-                case (int)ChooseStockType.投信突然加入買方:
-                    sql = Get投信突然加入買方Sql(datetime);
-                    break;  
-                case (int)ChooseStockType.賣方籌碼集中排行榜:
-                    sql = Get籌碼集中排行榜Sql(datetime, 1, "asc");
-                    break;
-                case (int)ChooseStockType.五日賣方籌碼集中度排行榜:
-                    sql = Get籌碼集中排行榜Sql(datetime, 5, "asc");
-                    break;
-                case (int)ChooseStockType.十日賣方籌碼集中度排行榜:
-                    sql = Get籌碼集中排行榜Sql(datetime, 10, "asc");
-                    break;
-                case (int)ChooseStockType.二十日賣方籌碼集中度排行榜:
-                    sql = Get籌碼集中排行榜Sql(datetime, 20, "asc");
-                    break;
-                case (int)ChooseStockType.六十日賣方籌碼集中度排行榜:
-                    sql = Get籌碼集中排行榜Sql(datetime, 60, "asc");
-                    break;
-                case (int)ChooseStockType.半年線附近:
-                    sql = Get半年線附近Sql(datetime);
-                    break;
-                case (int)ChooseStockType.連續大戶增加:
-                    sql = Get大戶增加散戶減少Sql(datetime);
-                    break;
-                case (int)ChooseStockType.連續兩週大戶增散戶減:
-                    sql = 連續兩週大戶增散戶減(datetime);
-                    break;
-                case (int)ChooseStockType.董監買賣超排行榜:
-                    sql = GetSqlByChairmanAsync(datetime);
-                    break;
-                case (int)ChooseStockType.每周成交量增長排行榜:
-                    sql = 每周成交量增長排行榜(GetLastFriday(datetime));
-                    break;
-                default:
-                    var whereCondition = DateFunc[(ChooseStockType)type]();
-                    sql = @$"SELECT s.*
-                          FROM [dbo].[Prices] p
-                          join Stocks s on p.StockId = s.StockId
-                          where [Datetime] = '{datetime}' {whereCondition}";
-                    break;
-            }
-           
-            return context.Stocks.FromSqlRaw(sql).ToArrayAsync();
-        }
+     
 
         private string Get淨值比小於2AndROE大於10()
         {
@@ -702,6 +707,26 @@ drop table #tmp
 ";
         }
 
+        private string 投信突然進前20名(string datetime)
+        {
+            return $@"declare @date as Datetime = '{datetime}';
+SELECT *, ROW_NUMBER() 
+over (
+    PARTITION BY [Datetime]
+    order by [投信買賣超] * [Close] desc
+) AS RowNo 
+into #t1
+FROM [Prices] where [Datetime] >= DATEADD(DD, -7, @date) and [Datetime] <=  DATEADD(DD, -1, @date)
+
+select s.* from ( 
+select top 20 * from [Prices]
+where [Datetime] = @date order by [投信買賣超]*[Close] desc) a  
+join Stocks s on s.StockId = a.StockId
+where a.StockId not in (select StockId from #t1 where RowNo <= 20)
+
+drop table #t1";
+        }
+
         private string 每周投信買散戶賣(string datetime)
         {
             var lastFriday = GetLastFriday(datetime);
@@ -771,7 +796,7 @@ from Prices a join (
 	SELECT 	*
 	FROM TOPTEN 
 	WHERE RowNo <= 1) b on a.StockId = b.StockId
-where a.[Datetime] > b.[Datetime] 
+where a.[Datetime] > b.[Datetime] and a.[Datetime] >= '{last5days}' and a.[Datetime] <= '{datetime}'
 group by a.StockId,a.Name 
 having count(1) >= 3
 order by count(1) desc
@@ -909,7 +934,7 @@ from Prices a join (
 	SELECT 	*
 	FROM TOPTEN 
 	WHERE RowNo <= 1) b on a.StockId = b.StockId
-where a.[Datetime] > b.[Datetime] 
+where a.[Datetime] > b.[Datetime] and a.[Datetime] >= '{pastSeasonDate}' and a.[Datetime] <= '{datetime}'
 group by a.StockId,a.Name 
 having count(1) >= 2
 order by count(1) desc
@@ -1117,7 +1142,7 @@ from Prices a join (
 	SELECT 	*
 	FROM TOPTEN 
 	WHERE RowNo <= 1) b on a.StockId = b.StockId
-where a.[Datetime] > b.[Datetime] 
+where a.[Datetime] > b.[Datetime] and a.[Datetime] <= '{datetime}'
 group by a.StockId,a.Name 
 having count(1) >= 2
 order by count(1) desc
@@ -1168,7 +1193,7 @@ from Prices a join (
 	SELECT 	*
 	FROM TOPTEN 
 	WHERE RowNo <= 1) b on a.StockId = b.StockId
-where a.[Datetime] > b.[Datetime] 
+where a.[Datetime] > b.[Datetime] and a.[Datetime] <= '{datetime}'
 group by a.StockId,a.Name 
 having count(1) >= 2
 order by count(1) asc
