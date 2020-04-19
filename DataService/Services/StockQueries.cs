@@ -115,7 +115,10 @@ namespace DataService.Services
                     sql = Get淨值比小於2AndROE大於10();
                     break;
                 case (int)ChooseStockType.投信突然進前20名:
-                    sql = 投信突然進前20名(datetime);
+                    sql = 突然進前20名(datetime, "投信買賣超");
+                    break;
+                case (int)ChooseStockType.外資突然進前20名:
+                    sql = 突然進前20名(datetime, "外資買賣超");
                     break;
                 case (int)ChooseStockType.每周投信買散戶賣:
                     sql = 每周投信買散戶賣(datetime);
@@ -707,20 +710,20 @@ drop table #tmp
 ";
         }
 
-        private string 投信突然進前20名(string datetime)
+        private string 突然進前20名(string datetime, string stype)
         {
             return $@"declare @date as Datetime = '{datetime}';
 SELECT *, ROW_NUMBER() 
 over (
     PARTITION BY [Datetime]
-    order by [投信買賣超] * [Close] desc
+    order by [{stype}] * [Close] desc
 ) AS RowNo 
 into #t1
 FROM [Prices] where [Datetime] >= DATEADD(DD, -7, @date) and [Datetime] <=  DATEADD(DD, -1, @date)
 
 select s.* from ( 
 select top 20 * from [Prices]
-where [Datetime] = @date order by [投信買賣超]*[Close] desc) a  
+where [Datetime] = @date order by [{stype}]*[Close] desc) a  
 join Stocks s on s.StockId = a.StockId
 where a.StockId not in (select StockId from #t1 where RowNo <= 20)
 
