@@ -12,6 +12,7 @@ namespace WebAutoCrawler
 {
     public class DailyTraderCrawler : BaseCrawler
     {
+        private string allStockUrl = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E7%8E%87+%28%E7%95%B6%E6%97%A5%29%40%40%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E7%8E%87%40%40%E7%95%B6%E6%97%A5";
         string HealthCheckUrl = "https://goodinfo.tw/StockInfo/DayTrading.asp?STOCK_ID={0}";
 
         public DailyTraderCrawler() : base()

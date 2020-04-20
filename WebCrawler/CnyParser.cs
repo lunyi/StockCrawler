@@ -37,21 +37,40 @@ namespace WebCrawler
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
         }
-
-        public void ParseDailyInfo(string stockId)
-        {
-            var url = $"https://goodinfo.tw/StockInfo/DayTrading.asp?STOCK_ID={stockId}";
-            var rootNode = GetRootNoteByUrl(url, false);
-            var dateNode = rootNode.SelectSingleNode("/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody[1]");
-
-        }
         private static string GetSql()
         {
             return @$"
   select s.* from [Stocks]  s 
   left join (select * from [Prices] where [Datetime] = '{DateTime.Today:yyyy/MM/dd}') p on s.StockId = p.StockId
   where  s.Status = 1 and p.Id is null
-  order by s.StockId desc";
+  order by s.StockId";
+        }
+
+        [Obsolete]
+        public async Task UpdateAsync()
+        {
+            var context = new StockDbContext();
+            var s = Stopwatch.StartNew();
+            s.Start();
+
+            var parser = new CnyParser();
+            var prices = await context.Prices
+                .Where(p=>p.Datetime == DateTime.Today)
+                .OrderByDescending(p=>p.StockId)
+                .ToArrayAsync();
+
+            foreach (var item in prices)
+            {
+                await ExecuteLastAsync(parser, context, item.StockId, item.Name, item);
+            }
+
+            var dd = await context.Prices.Select(p => p.Datetime).Distinct().OrderByDescending(p => p).Take(2).ToArrayAsync();
+            context.Database.ExecuteSqlCommand(GetSqlToUpdate發行張數(dd[0].ToString("yyyy-MM-dd"), dd[1].ToString("yyyy-MM-dd")));
+            context.Database.SetCommandTimeout(90);
+            var sql = $"exec [usp_Update_MA_And_VMA] '{DateTime.Today:yyyy-MM-dd}'";
+            context.Database.ExecuteSqlCommand(sql);
+            s.Stop();
+            Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
         }
 
         [Obsolete]
@@ -84,16 +103,24 @@ namespace WebCrawler
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
         }
 
-        private async Task ExecuteLastAsync(CnyParser parser, StockDbContext context, string stockId, string name)
+        private async Task ExecuteLastAsync(CnyParser parser, StockDbContext context, string stockId, string name, Prices price = null)
         {
-            var price = parser.ParserLastDay(stockId, name);
+            var isAdd = false;
+            if (price == null)
+            {
+                isAdd = true;
+                price = ParseSingleHistoryPrice(stockId, name);
+            }
 
             if (price == null)
             {
                 return;
             }
+
+            price = ParserLastDay(price, stockId, name);
             var p = context.Prices.FirstOrDefault(p => p.Datetime == price.Datetime && p.StockId == stockId);
-            if (p == null)
+
+            if (isAdd)
             {
                 context.Prices.Add(price);
                 var stock = await context.Stocks.FirstOrDefaultAsync(p => p.StockId == stockId);
@@ -138,14 +165,11 @@ SELECT *
 ");
         }
 
-        public Prices ParserLastDay(string stockId, string name)
+        public Prices ParserLastDay(Prices price, string stockId, string name)
         {
             try
             {
                 Console.WriteLine($"{stockId} : Thread ID: {Thread.CurrentThread.ManagedThreadId}");
-                var price = ParseSingleHistoryPrice(stockId, name);
-                if (price == null)
-                    return null;
                 ParseMargin(stockId, price);
                 ParseInst(stockId, price);
                 ParseMainForce(stockId, DateTime.Today.ToString("yyyy/MM/dd"), price);
@@ -331,7 +355,7 @@ SELECT *
                 return;
             }
             var divide = 1;
-            if (nodes[nodes.Count - 3].ChildNodes[1].InnerHtml == "合計買超股數")
+            if (nodes[^3].ChildNodes[1].InnerHtml == "合計買超股數")
             {
                 divide = 1000;
             }

@@ -30,7 +30,7 @@ namespace WebCrawler
             //await s.RunAsync();
 
             var s1 = new CnyParser();
-            s1.ParseDailyInfo("1101");
+            await s1.UpdateAsync();
 
             //InitailLineNotifyBot();
             //var s1 = new UpdateStockListParser();
