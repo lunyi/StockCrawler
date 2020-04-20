@@ -110,13 +110,13 @@
                     <th>自營</th>
                     <th>主力</th>
                     @*<th>本益比</th>*@
-                    <th>淨值比</th>
-                    <th>周轉率</th>
+                    @*<th>淨值比</th>
+                    <th>周轉率</th>*@
                     <th>籌碼集中</th>
-                    <th>五日籌碼</th>
+                    @*<th>五日籌碼</th>
                     <th>十日籌碼</th>
                     <th>二十日籌碼</th>
-                    <th>六十日籌碼</th>
+                    <th>六十日籌碼</th>*@
                 </tr>
             </thead>
             <tr v-for="price in Prices">
@@ -135,13 +135,13 @@
                 <td v-bind:style="{ color: price.zColor}">{{price.自營商買賣超}}</td>
                 <td v-bind:style="{ color: price.mColor}">{{price.主力買賣超}}</td>
                 @*<td>{{price.本益比}}</td>*@
-                <td>{{price.股價淨值比}}</td>
-                <td>{{price.周轉率}}%</td>
+                @*<td>{{price.股價淨值比}}</td>*@
+                @*<td>{{price.周轉率}}%</td>*@
                 <td v-bind:style="{ color: price.chipColor, fontWeight: price.cfontWeight}">{{price.籌碼集中度}}%</td>
-                <td>{{price.五日籌碼集中度}}%</td>
+                @*<td>{{price.五日籌碼集中度}}%</td>
                 <td>{{price.十日籌碼集中度}}%</td>
                 <td>{{price.二十日籌碼集中度}}%</td>
-                <td>{{price.六十日籌碼集中度}}%</td>
+                <td>{{price.六十日籌碼集中度}}%</td>*@
             </tr>
         </table>
         @*</td>

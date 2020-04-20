@@ -263,7 +263,7 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                          漲跌百分比 = price.漲跌百分比,
                          成交量 = price.成交量,
                          本益比 = price.本益比,
-                         股價淨值比 = Math.Round(price.Close / stock.每股淨值.Value, 2),
+                         //股價淨值比 = Math.Round(price.Close / stock.每股淨值.Value, 2),
                          外資持股比例 = price.外資持股比例,
                          融資買賣超 = price.融資買進 - price.融資賣出,
                          融券買賣超 = price.融券買進 - price.融券賣出,
@@ -275,11 +275,11 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                          投信買賣超 = price.投信買賣超,
                          主力買賣超 = price.主力買超張數 - price.主力賣超張數,
                          籌碼集中度 = 100 * Math.Round(((price.主力買超張數 - price.主力賣超張數) / price.成交量).Value, 4),
-                         五日籌碼集中度 = 100 * Math.Round(((price.五日主力買超張數 - price.五日主力賣超張數) / (5 * price.VMA5)).Value, 4),
-                         十日籌碼集中度 = 100 * Math.Round(((price.十日主力買超張數 - price.十日主力賣超張數) / (10 *price.VMA10)).Value, 4),
-                         二十日籌碼集中度 = 100 * Math.Round(((price.二十日主力買超張數 - price.二十日主力賣超張數) / (20 * price.VMA20)).Value, 4),
-                         六十日籌碼集中度 = 100 * Math.Round(((price.六十日主力買超張數 - price.六十日主力賣超張數) / (60 * price.VMA60)).Value, 4),
-                         周轉率 = 100 * Math.Round(((decimal)price.成交量 / price.發行張數).Value, 5)
+                         //五日籌碼集中度 = 100 * Math.Round(((price.五日主力買超張數 - price.五日主力賣超張數) / (5 * price.VMA5)).Value, 4),
+                         //十日籌碼集中度 = 100 * Math.Round(((price.十日主力買超張數 - price.十日主力賣超張數) / (10 *price.VMA10)).Value, 4),
+                         //二十日籌碼集中度 = 100 * Math.Round(((price.二十日主力買超張數 - price.二十日主力賣超張數) / (20 * price.VMA20)).Value, 4),
+                         //六十日籌碼集中度 = 100 * Math.Round(((price.六十日主力買超張數 - price.六十日主力賣超張數) / (60 * price.VMA60)).Value, 4),
+                         //周轉率 = 100 * Math.Round(((decimal)price.成交量 / price.發行張數).Value, 5)
                      }).ToArrayAsync();
 
             var weeklyChip = await context._WeekyChip.FromSqlRaw(GetWeekAnalyst(stockId, GetLastFriday())).ToArrayAsync();
