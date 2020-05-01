@@ -250,7 +250,8 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                      join stock in context.Stocks on price.StockId equals stock.StockId
                      where price.StockId == stockId
                      orderby price.Datetime descending
-                     select new PriceModel
+                     let volume = price.成交量 == 0 ? 1 : price.成交量
+                                select new PriceModel
                      {
                          StockId = price.StockId,
                          Name = price.Name,
@@ -274,7 +275,7 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                          自營商買賣超 = price.自營商買賣超,
                          投信買賣超 = price.投信買賣超,
                          主力買賣超 = price.主力買超張數 - price.主力賣超張數,
-                         籌碼集中度 = 100 * Math.Round(((price.主力買超張數 - price.主力賣超張數) / price.成交量).Value, 4),
+                         籌碼集中度 = 100 * Math.Round(((price.主力買超張數 - price.主力賣超張數) / volume).Value, 4),
                          //五日籌碼集中度 = 100 * Math.Round(((price.五日主力買超張數 - price.五日主力賣超張數) / (5 * price.VMA5)).Value, 4),
                          //十日籌碼集中度 = 100 * Math.Round(((price.十日主力買超張數 - price.十日主力賣超張數) / (10 *price.VMA10)).Value, 4),
                          //二十日籌碼集中度 = 100 * Math.Round(((price.二十日主力買超張數 - price.二十日主力賣超張數) / (20 * price.VMA20)).Value, 4),
@@ -361,6 +362,7 @@ select
 from #t3 t 
 join #t3  t1 on t.RowNo +1 = t1.RowNo 
 join (select * from [Prices] where StockID = @stockid) p on p.StockId = t.StockId and p.[Datetime] = t.[Datetime]
+order by t.[Datetime] desc
 drop table #t3
 ";
             return sql;
@@ -1341,7 +1343,9 @@ order by s.[Description] / s.每股淨值
             { ChooseStockType.投信賣超排行榜  , ()=>投信賣超排行榜() },
             { ChooseStockType.自營賣超排行榜  , ()=>自營賣超排行榜() },
             { ChooseStockType.融資賣超排行榜  , ()=>融資賣超排行榜() },
-            { ChooseStockType.融券買超排行榜  , ()=>融券買超排行榜() }
+            { ChooseStockType.融券買超排行榜  , ()=>融券買超排行榜() },
+            { ChooseStockType.漲停板  , ()=>漲停板() },
+            
         };
 
         private Dictionary<int, Func<string>> MapFunc = new Dictionary<int, Func<string>>
@@ -1479,6 +1483,14 @@ order by s.[Description] / s.每股淨值
             return @$"
   and ( [融券賣出] - [融券買進])>0
   order by ( [融券賣出] - [融券買進])  desc 
+";
+        }
+
+        private static string 漲停板()
+        {
+            return @$"
+  and [漲跌百分比] >= 9.65
+  order by [漲跌百分比] desc 
 ";
         }
 

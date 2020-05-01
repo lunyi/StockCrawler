@@ -27,10 +27,12 @@ namespace WebCrawler
             //await ss.ParserMarginAsync();
 
             //var s = new UpdateStockListParser();
-            //await s.RunAsync();
+            ////await s.RunAsync();
 
-            var s1 = new CnyParser();
-            await s1.UpdateAsync();
+            //var context = new StockDbContext();
+            var s1 = new MacdParser();
+            //await s1.ExecuteLastAsync(context, "5210", "寶碩");
+            await s1.RunAsync();
 
             //InitailLineNotifyBot();
             //var s1 = new UpdateStockListParser();

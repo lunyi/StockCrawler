@@ -42,6 +42,13 @@ namespace WebAutoCrawler
             }
         }
 
+        public void GetStocksByMacd()
+        {
+            var url =
+                "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E6%99%BA%E6%85%A7%E9%81%B8%E8%82%A1&INDUSTRY_CAT=OSC%E7%94%B1%E8%B2%A0%E8%BD%89%E6%AD%A3%40%40%E6%97%A5MACD%E8%90%BD%E9%BB%9E%40%40OSC%E7%94%B1%E8%B2%A0%E8%BD%89%E6%AD%A3";
+
+
+        }
         private void Parser(StockDbContext context, string url, string stockId, string name)
         {
             GoToUrl(url);
@@ -69,14 +76,13 @@ namespace WebAutoCrawler
 
                     var price = context.Prices.FirstOrDefault(p => p.StockId == stockId && p.Datetime == date);
 
-                    if (price != null)
-                    {
-                        price.當沖張數 = Convert.ToDecimal(td[6].Text);
-                        price.當沖比例 = Convert.ToDecimal(td[7].Text);
-                        price.當沖總損益 = Convert.ToDecimal(td[12].Text);
-                        price.當沖均損益 = Convert.ToDecimal(td[13].Text);
-                        context.SaveChanges();
-                    }
+                    if (price == null) continue;
+
+                    price.當沖張數 = Convert.ToDecimal(td[6].Text);
+                    price.當沖比例 = Convert.ToDecimal(td[7].Text);
+                    price.當沖總損益 = Convert.ToDecimal(td[12].Text);
+                    price.當沖均損益 = Convert.ToDecimal(td[13].Text);
+                    context.SaveChanges();
                 }
             }
         }

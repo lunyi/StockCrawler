@@ -21,12 +21,19 @@ namespace WebCrawler
             var s = Stopwatch.StartNew();
             s.Start();
 
-            var parser = new CnyParser();
-            var stocks = context.Stocks.FromSqlRaw(GetSql()).ToList();
+            var stocks = await context.Stocks.Where(p=>p.Status == 1)
+                .OrderBy(p=>p.StockId).ToArrayAsync();
 
             foreach (var item in stocks)
             {
-                await ExecuteLastAsync(parser, context, item.StockId, item.Name);
+                try
+                {
+                    await ExecuteLastAsync(context, item.StockId, item.Name);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"{item.StockId} {item.Name} : Error {e}");
+                }
             }
 
             var dd = await context.Prices.Select(p => p.Datetime).Distinct().OrderByDescending(p => p).Take(2).ToArrayAsync();
@@ -44,33 +51,6 @@ namespace WebCrawler
   left join (select * from [Prices] where [Datetime] = '{DateTime.Today:yyyy/MM/dd}') p on s.StockId = p.StockId
   where  s.Status = 1 and p.Id is null
   order by s.StockId";
-        }
-
-        [Obsolete]
-        public async Task UpdateAsync()
-        {
-            var context = new StockDbContext();
-            var s = Stopwatch.StartNew();
-            s.Start();
-
-            var parser = new CnyParser();
-            var prices = await context.Prices
-                .Where(p=>p.Datetime == DateTime.Today)
-                .OrderByDescending(p=>p.StockId)
-                .ToArrayAsync();
-
-            foreach (var item in prices)
-            {
-                await ExecuteLastAsync(parser, context, item.StockId, item.Name, item);
-            }
-
-            var dd = await context.Prices.Select(p => p.Datetime).Distinct().OrderByDescending(p => p).Take(2).ToArrayAsync();
-            context.Database.ExecuteSqlCommand(GetSqlToUpdate發行張數(dd[0].ToString("yyyy-MM-dd"), dd[1].ToString("yyyy-MM-dd")));
-            context.Database.SetCommandTimeout(90);
-            var sql = $"exec [usp_Update_MA_And_VMA] '{DateTime.Today:yyyy-MM-dd}'";
-            context.Database.ExecuteSqlCommand(sql);
-            s.Stop();
-            Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
         }
 
         [Obsolete]
@@ -103,14 +83,11 @@ namespace WebCrawler
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
         }
 
-        private async Task ExecuteLastAsync(CnyParser parser, StockDbContext context, string stockId, string name, Prices price = null)
+        public async Task ExecuteLastAsync(StockDbContext context, string stockId, string name)
         {
-            var isAdd = false;
-            if (price == null)
-            {
-                isAdd = true;
-                price = ParseSingleHistoryPrice(stockId, name);
-            }
+            var price = await context.Prices.FirstOrDefaultAsync(p => p.Datetime == DateTime.Today && p.StockId == stockId);
+            var isAdd = price==null;
+            price = ParseSingleHistoryPrice(stockId, name, price);
 
             if (price == null)
             {
@@ -122,7 +99,7 @@ namespace WebCrawler
 
             if (isAdd)
             {
-                context.Prices.Add(price);
+                await context.Prices.AddAsync(price);
                 var stock = await context.Stocks.FirstOrDefaultAsync(p => p.StockId == stockId);
                 stock.Description = price.Close.ToString();
                 context.Entry<Stocks>(stock).State = EntityState.Modified;
@@ -407,7 +384,7 @@ SELECT *
             Console.WriteLine($"{stockId}, {name}, {datetime}：" + s.Elapsed.TotalSeconds);
         }
 
-        private Prices ParseSingleHistoryPrice(string stockId, string name)
+        private Prices ParseSingleHistoryPrice(string stockId, string name, Prices price)
         {
             var rootNode = GetRootNoteByUrl($"https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{stockId}.djhtm", false);
             var dateNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[1]/td[1]/font/div");
@@ -416,6 +393,11 @@ SELECT *
                 return null;
 
             var date = DateTime.Today.Year + "/" + dateNode.InnerText.Replace("最近交易日:", "").Replace("&nbsp;&nbsp;&nbsp;市值單位:百萬", "");
+            var today = Convert.ToDateTime(date);
+            if (today != DateTime.Today)
+            {
+                return null;
+            }
 
             var openNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[2]/td[2]");
             var highNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[2]/td[4]");
@@ -437,23 +419,28 @@ SELECT *
             var volume = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[4]/td[8]").InnerHtml.Replace(",",""));
             var percent = Math.Round(100 * updownValue / (closeValue - updownValue),3);
 
-            return new Prices
+            if (price == null)
             {
-                Id = Guid.NewGuid(),
-                StockId = stockId,
-                Name = name,
-                CreatedOn = DateTime.Now,
-                Datetime = Convert.ToDateTime(date),
-                Open = Convert.ToDecimal(openNode.InnerHtml),
-                High = Convert.ToDecimal(highNode.InnerHtml),
-                Low = Convert.ToDecimal(lowNode.InnerHtml),
-                Close = closeValue,
-                漲跌 = updownValue,
-                漲跌百分比 = percent,
-                成交量 = volume,
-                成交金額 = (int)(volume * closeValue),
-                本益比 = costPercentNode
-            };
+                price = new Prices
+                {
+                    Id = Guid.NewGuid(),
+                    CreatedOn = DateTime.Now
+                };
+            }
+
+            price.StockId = stockId;
+            price.Name = name;
+            price.Datetime = today;
+            price.Open = Convert.ToDecimal(openNode.InnerHtml);
+            price.High = Convert.ToDecimal(highNode.InnerHtml);
+            price.Low = Convert.ToDecimal(lowNode.InnerHtml);
+            price.Close = closeValue;
+            price.漲跌 = updownValue;
+            price.漲跌百分比 = percent;
+            price.成交量 = volume;
+            price.成交金額 = (int)(volume * closeValue);
+            price.本益比 = costPercentNode;
+            return price;
         }
     }
 }
