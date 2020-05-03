@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using HtmlAgilityPack;
 
 namespace WebCrawler
@@ -13,6 +14,11 @@ namespace WebCrawler
             { "big5", "big5" },
             { "utf-8", 65001 },
         };
+
+        public virtual Task RunAsync()
+        {
+            return Task.FromResult(0);
+        }
 
         protected HtmlNode GetRootNoteByUrl(string url, bool isUtf8 = true)
         {

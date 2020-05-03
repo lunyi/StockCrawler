@@ -15,7 +15,7 @@ namespace WebCrawler
         public ConcurrentDictionary<string, string> ErrorStocks { get; set; }
 
         [Obsolete]
-        public async Task RunAsync()
+        public override async Task RunAsync()
         {
             var context = new StockDbContext();
             var s = Stopwatch.StartNew();

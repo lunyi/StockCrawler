@@ -187,7 +187,6 @@ namespace WebCrawler
 
         public async Task ParserRoeAsync()
         {
-            var roeUrl = "https://histock.tw/stock/financial.aspx?no={0}&t=3&st=2&q=2";
             var context = new StockDbContext();
             var stocks = context.Stocks.Where(p => p.Status == 1).OrderBy(p=>p.StockId).ToArray();
 

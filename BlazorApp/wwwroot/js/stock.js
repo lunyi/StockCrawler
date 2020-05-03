@@ -293,8 +293,8 @@ function onGetStocksByDate(val) {
         currentType = val;
     } else {
         if (currentUrlIndex === 4) {
-
-            var _url = "https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco.djhtm?a=" + currentStockId + "&e=" + date.val() + "&f=" + date.val();
+            var selectedDay = moment(date.val()).format('YYYY-M-D');
+            var _url = "https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco.djhtm?a=" + currentStockId + "&e=" + selectedDay + "&f=" + selectedDay;
             console.log(_url);
             $("#StockPage").attr("src", _url);
             return;

@@ -30,9 +30,12 @@ namespace WebCrawler
             ////await s.RunAsync();
 
             //var context = new StockDbContext();
-            var s1 = new MacdParser();
+            //var s1 = new MacdParser();
             //await s1.ExecuteLastAsync(context, "5210", "寶碩");
-            await s1.RunAsync();
+            //await s1.RunAsync();
+
+
+            await RunAsync<MacdParser>();
 
             //InitailLineNotifyBot();
             //var s1 = new UpdateStockListParser();
@@ -50,12 +53,14 @@ namespace WebCrawler
 
         private static ServiceCollection _serviceCollection;
 
-        private static void InitailLineNotifyBot()
+        private static void InitailLineNotifyBot<T>() where T : BaseParser
         {
             _serviceCollection = new ServiceCollection();
             // 2. 註冊服務
-            _serviceCollection.AddTransient<RealtimeParser>();
-            _serviceCollection.AddTransient<DailyNotifier>();
+            //_serviceCollection.AddTransient<RealtimeParser>();
+            //_serviceCollection.AddTransient<DailyNotifier>();
+            _serviceCollection.AddTransient<T>();
+
             //serviceCollection.AddTransient<IService, ChtService>();
 
             _serviceCollection.AddLineNotifyBot(new LineNotifyBotSetting
@@ -69,20 +74,21 @@ namespace WebCrawler
                 RevokeApi = "https://notify-api.line.me/api/revoke"
             });
         }
-        private static async Task RunAsync()
+        private static async Task RunAsync<T>() where T:BaseParser
         {
-            InitailLineNotifyBot();
+            InitailLineNotifyBot<T>();
             var serviceProvider = _serviceCollection.BuildServiceProvider();
             // 3. 執行主服務
-           await serviceProvider.GetRequiredService<RealtimeParser>().RunAsync();
+           await serviceProvider.GetRequiredService<T>().RunAsync();
         }
 
-        private static async Task DailyNotifyAsync()
-        {
-            InitailLineNotifyBot();
-            var serviceProvider = _serviceCollection.BuildServiceProvider();
-            // 3. 執行主服務
-            await serviceProvider.GetRequiredService<DailyNotifier>().RunAsync();
-        }
+        //private static async Task DailyNotifyAsync()
+        //{
+        //    InitailLineNotifyBot();
+        //    var serviceProvider = _serviceCollection.BuildServiceProvider();
+        //    // 3. 執行主服務
+        //    await serviceProvider.GetRequiredService<DailyNotifier>().RunAsync();
+        //    //await serviceProvider.GetRequiredService<RealtimeParser>().RunAsync();
+        //}
     }
 }
