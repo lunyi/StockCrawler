@@ -20,6 +20,7 @@ namespace DataService.Models
         public virtual DbSet<AnaStatementDogs> AnaStatementDogs { get; set; }
         public virtual DbSet<BestStockType> BestStockType { get; set; }
         public virtual DbSet<BestStocks> BestStocks { get; set; }
+        public virtual DbSet<Broker> Broker { get; set; }
         public virtual DbSet<BrokerTransaction> BrokerTransaction { get; set; }
         public virtual DbSet<Chip> Chip { get; set; }
         public virtual DbSet<HistoryPrice> HistoryPrice { get; set; }
@@ -144,6 +145,27 @@ namespace DataService.Models
                 entity.Property(e => e.Type)
                     .IsRequired()
                     .HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<Broker>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.Address).HasMaxLength(1024);
+
+                entity.Property(e => e.BrokerId)
+                    .IsRequired()
+                    .HasMaxLength(32);
+
+                entity.Property(e => e.BrokerName)
+                    .IsRequired()
+                    .HasMaxLength(64);
+
+                entity.Property(e => e.BusinessDay).HasColumnType("datetime");
+
+                entity.Property(e => e.Tel)
+                    .HasMaxLength(64)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<BrokerTransaction>(entity =>

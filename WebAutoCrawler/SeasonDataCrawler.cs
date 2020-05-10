@@ -27,7 +27,7 @@ namespace WebAutoCrawler
             {
                 try
                 {
-                    var season = Parser(string.Format(HealthCheckUrl, stock.StockId), stock.StockId, stock.Name);
+                    var season = Parser(context, string.Format(HealthCheckUrl, stock.StockId), stock.StockId, stock.Name);
                     context.SeasonData.AddRange(season);
                     await context.SaveChangesAsync();
                 }
@@ -38,7 +38,7 @@ namespace WebAutoCrawler
             }
         }
 
-        private SeasonData[] Parser(string url, string stockId, string name)
+        private SeasonData[] Parser(StockDbContext context, string url, string stockId, string name)
         {
             GoToUrl(url);
             var table = FindElement(By.XPath("//*[@id='MainContent']/ul/li/article/div[2]/div/table"));
@@ -54,7 +54,11 @@ namespace WebAutoCrawler
             for (var i = 1; i < season.Count; i++)
             {
                 var q = Convert.ToInt32(season[i].Text.Substring(5, 1)) * 3;
-                var datetime = Convert.ToDateTime(season[i].Text.Substring(0, 4) + "-" + q.ToString("00") + "-01"); 
+                var datetime = Convert.ToDateTime(season[i].Text.Substring(0, 4) + "-" + q.ToString("00") + "-01");
+
+                if (context.SeasonData.Any(p => p.StockId == stockId && p.Datetime == datetime))
+                    continue;
+
                 seasonData.Add(new SeasonData
                 {
                     Id = Guid.NewGuid(),

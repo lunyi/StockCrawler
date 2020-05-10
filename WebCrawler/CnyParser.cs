@@ -12,6 +12,9 @@ namespace WebCrawler
 {
     public class CnyParser : BaseParser
     {
+        string baseUrl = "https://fubon-ebrokerdj.fbs.com.tw";
+        //string baseUrl = "http://5850web.moneydj.com";
+        //string baseUrl = "https://concords.moneydj.com";
         public ConcurrentDictionary<string, string> ErrorStocks { get; set; }
 
         [Obsolete]
@@ -22,17 +25,17 @@ namespace WebCrawler
             s.Start();
 
             var stocks = await context.Stocks.Where(p=>p.Status == 1)
-                .OrderBy(p=>p.StockId).ToArrayAsync();
+                .OrderByDescending(p=>p.StockId).ToArrayAsync();
 
-            foreach (var item in stocks)
+            for (int i = 0; i < stocks.Length; i++)
             {
                 try
                 {
-                    await ExecuteLastAsync(context, item.StockId, item.Name);
+                    await ExecuteLastAsync(context, stocks[i].StockId, stocks[i].Name);
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"{item.StockId} {item.Name} : Error {e}");
+                    Console.WriteLine($"{ stocks[i].StockId} { stocks[i].Name} : Error {e}");
                 }
             }
 
@@ -164,7 +167,10 @@ SELECT *
 
         private void ParseMargin(string stockId, Prices price)
         {
-            var rootNode = GetRootNoteByUrl($"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcn/zcn_{stockId}.djhtm", false);
+            var s = Stopwatch.StartNew();
+            s.Start();
+
+            var rootNode = GetRootNoteByUrl($"{baseUrl}/z/zc/zcn/zcn_{stockId}.djhtm", false);
             var htmlNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/form/table/tr/td/table/tr[8]");
 
             if (htmlNode == null)
@@ -189,11 +195,16 @@ SELECT *
                 price.融券餘額 = Convert.ToInt32(htmlNode.ChildNodes[23].InnerText.Replace(",", ""));
                 price.資券相抵 = Convert.ToInt32(htmlNode.ChildNodes[29].InnerText.Replace(",", ""));
             }
+
+            s.Stop();
+            Console.WriteLine("融資：" + s.Elapsed.TotalSeconds);
         }
 
         private void ParseInst(string stockId, Prices price)
         {
-            var rootNode = GetRootNoteByUrl($"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcl/zcl_{stockId}.djhtm", false);
+            var s = Stopwatch.StartNew();
+            s.Start();
+            var rootNode = GetRootNoteByUrl($"{baseUrl}/z/zc/zcl/zcl_{stockId}.djhtm", false);
             var htmlNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/form/table/tr/td/table/tr[8]");
             var dateArray = htmlNode.ChildNodes[1].InnerHtml.Split(new[] { '/' });
             var date = new DateTime(Convert.ToInt32(dateArray[0]) + 1911, Convert.ToInt32(dateArray[1]), Convert.ToInt32(dateArray[2]));
@@ -208,6 +219,9 @@ SELECT *
                 price.自營商持股 = htmlNode.ChildNodes[15].InnerText.Trim() == "--" ? 0 : Convert.ToInt32(htmlNode.ChildNodes[15].InnerText.Replace(",", ""));
                 price.外資持股比例 = htmlNode.ChildNodes[19].InnerText.Trim() == "--" ? 0 : Convert.ToDecimal(htmlNode.ChildNodes[19].InnerText.Replace("%", ""));
             }
+
+            s.Stop();
+            Console.WriteLine("外資：" + s.Elapsed.TotalSeconds);
         }
 
         [Obsolete]
@@ -254,7 +268,7 @@ SELECT *
             var s = Stopwatch.StartNew();
             s.Start();
             var datetime = DateTime.Now.ToString("yyyy-MM-dd");
-            var url = $@"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcj/zcj_{stockId}.djhtm";
+            var url = $@"{baseUrl}/z/zc/zcj/zcj_{stockId}.djhtm";
 
             var rootNode = GetRootNoteByUrl(url, false);
 
@@ -275,7 +289,7 @@ SELECT *
 
             for (int index = 1; index <= 6; index++)
             {
-                var rootNode = GetRootNoteByUrl($"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco_{stockId}_{index}.djhtm", false);
+                var rootNode = GetRootNoteByUrl($"{baseUrl}/z/zc/zco/zco_{stockId}_{index}.djhtm", false);
                 var nodes = rootNode.SelectNodes("/html[1]/body[1]/div[1]/table[1]/tr[2]/td[2]/form[1]/table[1]/tr[1]/td[1]/table[1]/tr");
 
                 decimal 主力買超張數 = 0, 主力賣超張數 = 0;
@@ -323,7 +337,7 @@ SELECT *
             var s = Stopwatch.StartNew();
             s.Start();
 
-            var url = $"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco.djhtm?a={stockId}&e={datetime}&f={datetime}";
+            var url = $"{baseUrl}/z/zc/zco/zco.djhtm?a={stockId}&e={datetime}&f={datetime}";
             var rootNode = GetRootNoteByUrl(url, false);
             var nodes = rootNode.SelectNodes("/html[1]/body[1]/div[1]/table[1]/tr[2]/td[2]/form[1]/table[1]/tr[1]/td[1]/table[1]/tr");
 
@@ -386,7 +400,10 @@ SELECT *
 
         private Prices ParseSingleHistoryPrice(string stockId, string name, Prices price)
         {
-            var rootNode = GetRootNoteByUrl($"https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{stockId}.djhtm", false);
+            var s = Stopwatch.StartNew();
+            s.Start();
+
+            var rootNode = GetRootNoteByUrl($"{baseUrl}/Z/ZC/ZCX/ZCX_{stockId}.djhtm", false);
             var dateNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[1]/td[1]/font/div");
 
             if (dateNode == null)
@@ -440,6 +457,10 @@ SELECT *
             price.成交量 = volume;
             price.成交金額 = (int)(volume * closeValue);
             price.本益比 = costPercentNode;
+
+            s.Stop();
+            Console.WriteLine($"基本資料：{stockId}, {name}：" + s.Elapsed.TotalSeconds);
+
             return price;
         }
     }

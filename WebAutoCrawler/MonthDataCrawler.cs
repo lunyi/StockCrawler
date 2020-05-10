@@ -63,7 +63,7 @@ namespace WebAutoCrawler
         {
             GoToUrl(url);
 
-            var table = FindElement(By.XPath("//*[@id='form1']/div[4]/div[4]/div/div[1]/div[2]/div/div[5]/div/table"));
+            var table = FindElement(By.XPath("//*[@id='form1']/div[4]/div[4]/div/div[1]/div[3]/div/div[5]/div/table"));
                                               //*[@id="form1"]/div[4]/div[4]/div/div[1]/div[2]/div/div[5]/div/table/tbody/tr[3]
 
             var rows = table.FindElements(By.TagName("tr"));

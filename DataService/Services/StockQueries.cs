@@ -121,7 +121,7 @@ namespace DataService.Services
                     sql = 突然進前20名(datetime, "外資買賣超");
                     break;
                 case (int)ChooseStockType.每周投信買散戶賣:
-                    sql = 每周投信買散戶賣(datetime);
+                    sql = 每周投信買散戶賣(context, datetime);
                     break;
                 case (int)ChooseStockType.連續上漲天數:
                     sql = 連續上漲天數(datetime);
@@ -732,10 +732,13 @@ where a.StockId not in (select StockId from #t1 where RowNo <= 20)
 drop table #t1";
         }
 
-        private string 每周投信買散戶賣(string datetime)
+        private string 每周投信買散戶賣(StockDbContext context, string datetime)
         {
             var lastFriday = GetLastFriday(datetime);
-            var last5days = Convert.ToDateTime(lastFriday).AddDays(-5).ToString("yyyy-MM-dd");
+            var last5days = context.Thousand.Where(p=>p.StockId == "2330" && p.Datetime <= Convert.ToDateTime(datetime))
+                .OrderByDescending(p=>p.Datetime)
+                .Select(p => p.Datetime)
+                .FirstOrDefault().ToString("yyyy-MM-dd");
 
             return $@"select 
 	 ss.[Id]
@@ -771,7 +774,7 @@ join
 		p.[Datetime] >= '{last5days}' and  p.[Datetime] <= '{lastFriday}' 
 		and s.股本 < 100 
 		and s.[股價] < 100
-		and th.[Datetime] = '{lastFriday}' and th.PUnder100 < th.PPUnder100 and th.POver1000 > th.PPOver1000
+		and th.[Datetime] = '{last5days}' and th.PUnder100 < th.PPUnder100 and th.POver1000 > th.PPOver1000
 	group by p.StockId, p.Name
 	having sum(p.投信買賣超) > 0 and sum(p.外資買賣超) > 0 and sum(p.主力買超張數 - p.主力賣超張數) > 0)
 	st on ss.StockId = st.StockId
