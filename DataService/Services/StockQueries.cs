@@ -117,8 +117,8 @@ namespace DataService.Services
                 case (int)ChooseStockType.投信突然進前20名:
                     sql = 突然進前20名(datetime, "投信買賣超");
                     break;
-                case (int)ChooseStockType.外資突然進前20名:
-                    sql = 突然進前20名(datetime, "外資買賣超");
+                case (int)ChooseStockType.投量比加主力買超:
+                    sql = 投量比加主力買超(datetime);
                     break;
                 case (int)ChooseStockType.每周投信買散戶賣:
                     sql = 每周投信買散戶賣(context, datetime);
@@ -266,6 +266,8 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                          本益比 = price.本益比,
                          //股價淨值比 = Math.Round(price.Close / stock.每股淨值.Value, 2),
                          外資持股比例 = price.外資持股比例,
+                         投信持股比例 = price.投信持股比例,
+                         董監持股比例 = price.董監持股比例,
                          融資買賣超 = price.融資買進 - price.融資賣出,
                          融券買賣超 = price.融券買進 - price.融券賣出,
                          融券餘額 = price.融券餘額,
@@ -661,6 +663,7 @@ select s.[Id]
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,CAST(t.[Count] AS nvarchar(30)) AS [Description]
+      ,s.股票期貨
 from [Stocks]s 
 join #tmp t on s.StockId = t.StockId
 order by t.[Count] desc
@@ -703,7 +706,7 @@ select s.[Id]
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA]
 	  ,CAST(t.[Percent] AS nvarchar(30)) AS [Description]
-      ,股票期貨
+      ,s.股票期貨
 from [Stocks]s 
 join #tmp t on s.StockId = t.StockId
 order by  (t.POver1000 - t.PPOver1000) desc
@@ -730,6 +733,31 @@ join Stocks s on s.StockId = a.StockId
 where a.StockId not in (select StockId from #t1 where RowNo <= 20)
 
 drop table #t1";
+        }
+
+        private string 投量比加主力買超(string datetime)
+        {
+            return $@"SELECT s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
+	  ,CAST(round(100* [投信買賣超]/ cast([成交量] as decimal), 2)  AS varchar(30)) AS [Description]
+      ,s.股票期貨
+  FROM [dbo].[Prices] p join [dbo].[Stocks] s on s.StockId = p.StockId
+  where [Datetime] = '{datetime}' and [投信買賣超] > 0 and 主力買超張數 - 主力賣超張數 > 0
+  order by [投信買賣超]/ cast([成交量] as decimal) desc";
         }
 
         private string 每周投信買散戶賣(StockDbContext context, string datetime)

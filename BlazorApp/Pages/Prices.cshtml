@@ -127,11 +127,11 @@
                 <td v-bind:style="{ color: price.pColor, fontWeight: price.fontWeight}">{{price.漲跌百分比}}%</td>
                 @*<td>{{price.外資持股比例}}%</td>*@
                 @*<td>{{price.投信持股比例}}%</td>*@
-                <td v-bind:style="{ color: price.dColor}">{{price.董監持股}}</td>
+            <td v-bind:style="{ color: price.dColor}">{{price.董監持股}} ({{price.董監持股比例}}%)</td>
                 <td v-bind:style="{ color: price.lColor}">{{price.融資買賣超}}</td>
                 <td v-bind:style="{ color: price.chColor}">{{price.融券買賣超}}</td>
                 <td v-bind:style="{ color: price.fColor}">{{price.外資買賣超}}</td>
-                <td v-bind:style="{ color: price.tColor}">{{price.投信買賣超}}</td>
+                <td v-bind:style="{ color: price.tColor}">{{price.投信買賣超}} ({{price.投信持股比例}}%)</td>
                 <td v-bind:style="{ color: price.zColor}">{{price.自營商買賣超}}</td>
                 <td v-bind:style="{ color: price.mColor}">{{price.主力買賣超}}</td>
                 @*<td>{{price.本益比}}</td>*@
