@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -71,15 +72,44 @@ namespace WebCrawler
             var endDate = "2020-5-8";
             var broker = "5850";
             var stockId = "2455";
+            var stockName = "全新";
 
             var context = new StockDbContext();
-            var brokers = await context.Broker.ToArrayAsync();
+            var brokers = await context.Broker.OrderBy(p=>p.BrokerId).ToArrayAsync();
 
-            for (int i = 0; i < brokers.Length; i++)
+            for (int i = 841; i < brokers.Length; i++)
             {
                 var sql = $"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco0/zco0.djhtm?A={stockId}&BHID={brokers[i].BrokerId}&b={broker}&C=1&D={startDate}&E={endDate}&ver=V3";
+
+                var rootNode = GetRootNoteByUrl(sql, false);
+                var htmlNode = rootNode.SelectSingleNode("//*[@id=\"oMainTable\"]");
+
+                Console.WriteLine($"{brokers[i].BrokerId} {brokers[i].BrokerName}");
+                var list = new List<BrokerTransactionDetails>();
+                for (int j  = 3; j < htmlNode.ChildNodes.Count; j+=2)
+                {
+                    var date = Convert.ToDateTime(htmlNode.ChildNodes[j].ChildNodes[1].InnerHtml);
+                    var buy = int.Parse(htmlNode.ChildNodes[j].ChildNodes[3].InnerHtml);
+                    var sell = int.Parse(htmlNode.ChildNodes[j].ChildNodes[5].InnerHtml);
+                    var 買賣超 = int.Parse(htmlNode.ChildNodes[j].ChildNodes[9].InnerHtml);
+
+                    var obj = new BrokerTransactionDetails
+                    {
+                        Id = Guid.NewGuid(),
+                        BrokerId = brokers[i].BrokerId,
+                        BrokerName = brokers[i].BrokerName,
+                        StockId = stockId,
+                        StockName = stockName,
+                        Buy = buy,
+                        Sell = sell,
+                        Datetime = date,
+                        買賣超 = 買賣超
+                    };
+                    list.Add(obj);
+                }
+                context.BrokerTransactionDetails.AddRange(list);
+                await context.SaveChangesAsync();
             }
-           
         }
 
         private async Task NotifyBotApiAsync(StockDbContext context, string type)

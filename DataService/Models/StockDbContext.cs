@@ -22,6 +22,7 @@ namespace DataService.Models
         public virtual DbSet<BestStocks> BestStocks { get; set; }
         public virtual DbSet<Broker> Broker { get; set; }
         public virtual DbSet<BrokerTransaction> BrokerTransaction { get; set; }
+        public virtual DbSet<BrokerTransactionDetails> BrokerTransactionDetails { get; set; }
         public virtual DbSet<Chip> Chip { get; set; }
         public virtual DbSet<HistoryPrice> HistoryPrice { get; set; }
         public virtual DbSet<MonthData> MonthData { get; set; }
@@ -170,6 +171,13 @@ namespace DataService.Models
 
             modelBuilder.Entity<BrokerTransaction>(entity =>
             {
+                entity.HasIndex(e => e.StockId)
+                    .HasName("IX_BrokerTransaction");
+
+                entity.HasIndex(e => new { e.BrokerName, e.StockId, e.Datetime })
+                    .HasName("UX_BrokerTransactionDetails")
+                    .IsUnique();
+
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.BrokerName)
@@ -177,6 +185,8 @@ namespace DataService.Models
                     .HasMaxLength(50);
 
                 entity.Property(e => e.Buy).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Close).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.Datetime).HasColumnType("datetime");
 
@@ -193,6 +203,31 @@ namespace DataService.Models
                     .HasMaxLength(10);
 
                 entity.Property(e => e.買賣超).HasColumnType("decimal(18, 2)");
+            });
+
+            modelBuilder.Entity<BrokerTransactionDetails>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.BrokerId)
+                    .IsRequired()
+                    .HasMaxLength(10);
+
+                entity.Property(e => e.BrokerName)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Close).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Datetime).HasColumnType("datetime");
+
+                entity.Property(e => e.StockId)
+                    .IsRequired()
+                    .HasMaxLength(10);
+
+                entity.Property(e => e.StockName)
+                    .IsRequired()
+                    .HasMaxLength(12);
             });
 
             modelBuilder.Entity<Chip>(entity =>
@@ -415,6 +450,8 @@ namespace DataService.Models
 
                 entity.Property(e => e.外資持股比例).HasColumnType("numeric(18, 2)");
 
+                entity.Property(e => e.投信持股比例).HasColumnType("numeric(18, 2)");
+
                 entity.Property(e => e.本益比).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.漲跌).HasColumnType("numeric(18, 2)");
@@ -428,6 +465,8 @@ namespace DataService.Models
                 entity.Property(e => e.當沖比例).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.當沖總損益).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.董監持股比例).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.融資使用率).HasColumnType("numeric(18, 2)");
             });
