@@ -20,12 +20,12 @@ namespace WebCrawler
             //var c = new MonthDataCrawler();
             //await c.ExecuteAsync();
 
-            var c = new SeasonDataCrawler();
-            await c.ExecuteAsync();
-
-
-            //var c = new DailyTraderCrawler();
+            //var c = new SeasonDataCrawler();
             //await c.ExecuteAsync();
+
+            var c = new DailyTraderCrawler();
+            await c.ExecuteAsync();
+            Console.ReadLine();
         }
 
         private async Task ParseHistory()

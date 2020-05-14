@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using OpenQA.Selenium.Support.UI;
 using DataService.Models;
 using OpenQA.Selenium;
-using OpenQA.Selenium.DevTools.DOM;
-using OpenQA.Selenium.Support.UI;
 
 namespace WebAutoCrawler
 {
     public class DailyTraderCrawler : BaseCrawler
     {
-        private string allStockUrl = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E7%8E%87+%28%E7%95%B6%E6%97%A5%29%40%40%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E7%8E%87%40%40%E7%95%B6%E6%97%A5";
-        string HealthCheckUrl = "https://goodinfo.tw/StockInfo/DayTrading.asp?STOCK_ID={0}";
+        private string allStocksUrl = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E5%BC%B5%E6%95%B8+%28%E7%95%B6%E6%97%A5%29%40%40%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E5%BC%B5%E6%95%B8%40%40%E7%95%B6%E6%97%A5";
 
         public DailyTraderCrawler() : base()
         {
@@ -21,63 +20,82 @@ namespace WebAutoCrawler
         public override async Task ExecuteAsync()
         {
             var context = new StockDbContext();
-            var stocks = context.Stocks
-                .Where(p => p.Status == 1)
-                .OrderByDescending(p => p.StockId)
-                .ToList();
+            var s = Stopwatch.StartNew();
+            s.Start();
+            await ParserAsync(context, allStocksUrl);
 
-            //var stock = stocks.FirstOrDefault(p=>p.StockId == "9940");
-            foreach (var stock in stocks)
+            s.Stop();
+            Console.WriteLine(s.Elapsed.TotalSeconds);
+        }
+
+        private async Task ParserAsync(StockDbContext contet, string url)
+        {
+            GoToUrl(url);
+ 
+            for (int k = 20; k >= 2; k--)
             {
-                try
+                var selRPT_TIME = new SelectElement(FindElement(By.Id("selRPT_TIME")));
+                selRPT_TIME.SelectByIndex(k);
+                Thread.Sleep(5000);
+
+                for (int i = 0; i <= 5; i++)
                 {
-                    await ParserAsync(context, string.Format(HealthCheckUrl, stock.StockId), stock.StockId, stock.Name);
-                    Thread.Sleep(5000);
-                }
-                catch (Exception ex)
-                {
-                    Thread.Sleep(5000);
-                    Console.WriteLine($"{stock.StockId} {stock.Name} {ex} !");
+                    var selRANK = new SelectElement(FindElement(By.Id("selRANK")));
+                    selRANK.SelectByIndex(i);
+                    Thread.Sleep(10000);
+
+                    var tables = FindElements(By.XPath($"/html/body/table[5]/tbody/tr/td[3]/div[2]/div/div/table/tbody"));
+                    foreach (var table in tables)
+                    {
+                        var tr = table.FindElements(By.TagName("tr"));
+
+                        foreach (var t in tr)
+                        {
+                            var td = t.FindElements(By.TagName("td"));
+
+                            if (td[10].Text.Trim() == "-")
+                                continue;
+
+                            var year = Convert.ToInt16(td[10].Text.Substring(0, 2)) >= 10 ? DateTime.Now.Year - 1 : DateTime.Now.Year;
+                            try
+                            {
+
+                                var datetime = Convert.ToDateTime($"{year}/{td[10].Text}");
+                                var stockId = Convert.ToString(td[1].Text);
+
+                                var price = contet.Prices.FirstOrDefault(p => p.Datetime == datetime && p.StockId == stockId);
+
+                                if (price == null)
+                                    continue;
+
+                                Console.WriteLine(td[10].Text + "　" +td[0].Text + " " + td[1].Text + " " + td[2].Text);
+                                var name = Convert.ToString(td[2].Text);
+                                price.當沖張數 = Convert.ToInt32(td[11].Text.Replace(",", ""));
+                                price.當沖比例 = Convert.ToDecimal(td[12].Text);
+                                price.當沖總損益 = Convert.ToDecimal(td[17].Text);
+                                price.當沖均損益 = td[18].Text == "" ? 0 : Convert.ToDecimal(td[18].Text);
+                                await contet.SaveChangesAsync();
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine(ex);
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        private async Task ParserAsync(StockDbContext context, string url, string stockId, string name)
+
+        private class TempStock
         {
-            GoToUrl(url);
-
-            var selectElement = new SelectElement(FindElement(By.Id("selDayTradingPeriod")));
-            selectElement.SelectByIndex(1);
-
-            for (var i = 1; i <= 7; i++)
-            {
-                var tables = FindElement(By.XPath($"/html/body/table[2]/tbody/tr/td[3]/div/div/div/table/tbody[{i}]"));
-
-                if (tables == null)
-                {
-                    continue;
-                }
-
-                var tr = tables.FindElements(By.TagName("tr"));
-
-                foreach (var t in tr)
-                {
-                    var td = t.FindElements(By.TagName("td"));
-
-                    var year = Convert.ToInt16(td[0].Text.Substring(0, 2)) >= 10 ? DateTime.Now.Year - 1 : DateTime.Now.Year;
-                    var date = Convert.ToDateTime($"{year}/{td[0].Text}");
-
-                    var price = context.Prices.FirstOrDefault(p => p.StockId == stockId && p.Datetime == date);
-
-                    if (price == null) continue;
-
-                    price.當沖張數 = Convert.ToDecimal(td[6].Text);
-                    price.當沖比例 = Convert.ToDecimal(td[7].Text);
-                    price.當沖總損益 = Convert.ToDecimal(td[12].Text);
-                    price.當沖均損益 = Convert.ToDecimal(td[13].Text);
-                    await context.SaveChangesAsync();
-                }
-            }
+            public string StockId { get; set; }
+            public string Name { get; set; }
+            public DateTime Datetime { get; set; }
+            public int 當沖張數 { get; set; }
+            public decimal 當沖比例 { get; set; }
+            public decimal 當沖總盈虧 { get; set; }
+            public decimal 當沖均盈虧 { get; set; }
         }
     }
 }

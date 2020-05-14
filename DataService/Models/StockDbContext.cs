@@ -573,14 +573,12 @@ namespace DataService.Models
 
             modelBuilder.Entity<Stocks>(entity =>
             {
-                entity.HasIndex(e => new { e.Name, e.MarketCategory, e.Industry, e.ListingOn, e.CreatedOn, e.UpdatedOn, e.Status, e.Address, e.Website, e.營收比重, e.股本, e.股價, e.每股淨值, e.每股盈餘, e.StockId })
+                entity.HasIndex(e => new { e.Name, e.MarketCategory, e.Industry, e.ListingOn, e.CreatedOn, e.股價, e.每股淨值, e.每股盈餘, e.UpdatedOn, e.Status, e.Address, e.Website, e.營收比重, e.股本, e.StockId })
                     .HasName("Stocks_Index");
 
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.Address).HasMaxLength(256);
-
-                entity.Property(e => e.Description).HasMaxLength(256);
 
                 entity.Property(e => e.Industry)
                     .IsRequired()

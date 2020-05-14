@@ -247,43 +247,47 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
         {
             var context = new StockDbContext();
             var prices = await (from price in context.Prices
-                     join stock in context.Stocks on price.StockId equals stock.StockId
-                     where price.StockId == stockId
-                     orderby price.Datetime descending
-                     let volume = price.成交量 == 0 ? 1 : price.成交量
+                                join stock in context.Stocks on price.StockId equals stock.StockId
+                                where price.StockId == stockId
+                                orderby price.Datetime descending
+                                let volume = price.成交量 == 0 ? 1 : price.成交量
                                 select new PriceModel
-                     {
-                         StockId = price.StockId,
-                         Name = price.Name,
-                         Datetime = price.Datetime.ToString("yyyy-MM-dd"),
-                         Open = price.Open,
-                         High = price.High,
-                         Low = price.Low,
-                         Close = price.Close,
-                         漲跌 = price.漲跌,
-                         漲跌百分比 = price.漲跌百分比,
-                         成交量 = price.成交量,
-                         本益比 = price.本益比,
-                         //股價淨值比 = Math.Round(price.Close / stock.每股淨值.Value, 2),
-                         外資持股比例 = price.外資持股比例,
-                         投信持股比例 = price.投信持股比例,
-                         董監持股比例 = price.董監持股比例,
-                         融資買賣超 = price.融資買進 - price.融資賣出,
-                         融券買賣超 = price.融券買進 - price.融券賣出,
-                         融券餘額 = price.融券餘額,
-                         董監持股 = price.董監持股,
-                         融資使用率 = price.融資使用率,
-                         外資買賣超 = price.外資買賣超,
-                         自營商買賣超 = price.自營商買賣超,
-                         投信買賣超 = price.投信買賣超,
-                         主力買賣超 = price.主力買超張數 - price.主力賣超張數,
-                         籌碼集中度 = 100 * Math.Round(((price.主力買超張數 - price.主力賣超張數) / volume).Value, 4),
-                         //五日籌碼集中度 = 100 * Math.Round(((price.五日主力買超張數 - price.五日主力賣超張數) / (5 * price.VMA5)).Value, 4),
-                         //十日籌碼集中度 = 100 * Math.Round(((price.十日主力買超張數 - price.十日主力賣超張數) / (10 *price.VMA10)).Value, 4),
-                         //二十日籌碼集中度 = 100 * Math.Round(((price.二十日主力買超張數 - price.二十日主力賣超張數) / (20 * price.VMA20)).Value, 4),
-                         //六十日籌碼集中度 = 100 * Math.Round(((price.六十日主力買超張數 - price.六十日主力賣超張數) / (60 * price.VMA60)).Value, 4),
-                         //周轉率 = 100 * Math.Round(((decimal)price.成交量 / price.發行張數).Value, 5)
-                     }).ToArrayAsync();
+                                {
+                                    StockId = price.StockId,
+                                    Name = price.Name,
+                                    Datetime = price.Datetime.ToString("yyyy-MM-dd"),
+                                    Open = price.Open,
+                                    High = price.High,
+                                    Low = price.Low,
+                                    Close = price.Close,
+                                    漲跌 = price.漲跌,
+                                    漲跌百分比 = price.漲跌百分比,
+                                    成交量 = price.成交量,
+                                    本益比 = price.本益比,
+                                    //股價淨值比 = Math.Round(price.Close / stock.每股淨值.Value, 2),
+                                    外資持股比例 = price.外資持股比例,
+                                    投信持股比例 = price.投信持股比例,
+                                    董監持股比例 = price.董監持股比例,
+                                    融資買賣超 = price.融資買進 - price.融資賣出,
+                                    融券買賣超 = price.融券買進 - price.融券賣出,
+                                    融券餘額 = price.融券餘額,
+                                    董監持股 = price.董監持股,
+                                    融資使用率 = price.融資使用率,
+                                    外資買賣超 = price.外資買賣超,
+                                    自營商買賣超 = price.自營商買賣超,
+                                    投信買賣超 = price.投信買賣超,
+                                    主力買賣超 = price.主力買超張數 - price.主力賣超張數,
+                                    籌碼集中度 = 100 * Math.Round(((price.主力買超張數 - price.主力賣超張數) / volume).Value, 4),
+                                    當沖張數 = price.當沖張數,
+                                    當沖比例 = price.當沖比例,
+                                    當沖總損益 = price.當沖總損益,
+                                    當沖均損益 = price.當沖均損益
+                                    //五日籌碼集中度 = 100 * Math.Round(((price.五日主力買超張數 - price.五日主力賣超張數) / (5 * price.VMA5)).Value, 4),
+                                    //十日籌碼集中度 = 100 * Math.Round(((price.十日主力買超張數 - price.十日主力賣超張數) / (10 *price.VMA10)).Value, 4),
+                                    //二十日籌碼集中度 = 100 * Math.Round(((price.二十日主力買超張數 - price.二十日主力賣超張數) / (20 * price.VMA20)).Value, 4),
+                                    //六十日籌碼集中度 = 100 * Math.Round(((price.六十日主力買超張數 - price.六十日主力賣超張數) / (60 * price.VMA60)).Value, 4),
+                                    //周轉率 = 100 * Math.Round(((decimal)price.成交量 / price.發行張數).Value, 5)
+                                }).ToArrayAsync();
 
             var weeklyChip = await context._WeekyChip.FromSqlRaw(GetWeekAnalyst(stockId, GetLastFriday())).ToArrayAsync();
             var monthData = await context._MonthData.FromSqlRaw("exec [usp_GetMonthData] {0}", stockId).ToArrayAsync();
@@ -753,7 +757,7 @@ drop table #t1";
       ,s.[股價]
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA]
-	  ,CAST(round(100* [投信買賣超]/ cast([成交量] as decimal), 2)  AS varchar(30)) AS [Description]
+	  ,CAST(round(100* [投信買賣超]/ cast([成交量] as decimal(2,2)), 2)  AS varchar(30)) AS [Description]
       ,s.股票期貨
   FROM [dbo].[Prices] p join [dbo].[Stocks] s on s.StockId = p.StockId
   where [Datetime] = '{datetime}' and [投信買賣超] > 0 and 主力買超張數 - 主力賣超張數 > 0
