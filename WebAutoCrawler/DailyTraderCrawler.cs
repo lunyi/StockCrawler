@@ -32,11 +32,11 @@ namespace WebAutoCrawler
         {
             GoToUrl(url);
  
-            for (int k = 20; k >= 2; k--)
+            //for (int k = 20; k >= 2; k--)
             {
-                var selRPT_TIME = new SelectElement(FindElement(By.Id("selRPT_TIME")));
-                selRPT_TIME.SelectByIndex(k);
-                Thread.Sleep(5000);
+                //var selRPT_TIME = new SelectElement(FindElement(By.Id("selRPT_TIME")));
+                //selRPT_TIME.SelectByIndex(k);
+                //Thread.Sleep(5000);
 
                 for (int i = 0; i <= 5; i++)
                 {

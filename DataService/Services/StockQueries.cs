@@ -757,7 +757,7 @@ drop table #t1";
       ,s.[股價]
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA]
-	  ,CAST(round(100* [投信買賣超]/ cast([成交量] as decimal(2,2)), 2)  AS varchar(30)) AS [Description]
+	  ,CAST(round(100* [投信買賣超]/ cast([成交量] as decimal(5)), 4)  AS varchar(9)) AS [Description]
       ,s.股票期貨
   FROM [dbo].[Prices] p join [dbo].[Stocks] s on s.StockId = p.StockId
   where [Datetime] = '{datetime}' and [投信買賣超] > 0 and 主力買超張數 - 主力賣超張數 > 0

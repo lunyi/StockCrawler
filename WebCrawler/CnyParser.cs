@@ -12,8 +12,8 @@ namespace WebCrawler
 {
     public class CnyParser : BaseParser
     {
-        string baseUrl = "https://fubon-ebrokerdj.fbs.com.tw";
-        //string baseUrl = "http://5850web.moneydj.com";
+        //string baseUrl = "https://fubon-ebrokerdj.fbs.com.tw";
+        string baseUrl = "http://5850web.moneydj.com";
         //string baseUrl = "https://concords.moneydj.com";
         public ConcurrentDictionary<string, string> ErrorStocks { get; set; }
 
@@ -24,10 +24,11 @@ namespace WebCrawler
             var s = Stopwatch.StartNew();
             s.Start();
 
-            var stocks = await context.Stocks.Where(p=>p.Status == 1)
-                .OrderByDescending(p=>p.StockId).ToArrayAsync();
+            //var stocks = await context.Stocks.Where(p=>p.Status == 1)
+            //    .OrderByDescending(p=>p.StockId).ToArrayAsync();
 
-            for (int i = 0; i < stocks.Length; i++)
+            var stocks = await context.Stocks.FromSql(GetSql()).ToArrayAsync();
+            for (int i = stocks.Length / 2; i >=0; i--)
             {
                 try
                 {
@@ -204,8 +205,15 @@ SELECT *
         {
             var s = Stopwatch.StartNew();
             s.Start();
-            var rootNode = GetRootNoteByUrl($"{baseUrl}/z/zc/zcl/zcl_{stockId}.djhtm", false);
+            var url = $"{baseUrl}/z/zc/zcl/zcl_{stockId}.djhtm";
+            var rootNode = GetRootNoteByUrl(url, false);
             var htmlNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/form/table/tr/td/table/tr[8]");
+            if (htmlNode == null)
+            {
+                htmlNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/form/table/tr/td/table/tr[8]");
+                                                      
+            }
+
             var dateArray = htmlNode.ChildNodes[1].InnerHtml.Split(new[] { '/' });
             var date = new DateTime(Convert.ToInt32(dateArray[0]) + 1911, Convert.ToInt32(dateArray[1]), Convert.ToInt32(dateArray[2]));
 
@@ -294,7 +302,8 @@ SELECT *
 
             for (int index = 1; index <= 6; index++)
             {
-                var rootNode = GetRootNoteByUrl($"{baseUrl}/z/zc/zco/zco_{stockId}_{index}.djhtm", false);
+                var url = $"{baseUrl}/z/zc/zco/zco_{stockId}_{index}.djhtm";
+                var rootNode = GetRootNoteByUrl(url, false);
                 var nodes = rootNode.SelectNodes("/html[1]/body[1]/div[1]/table[1]/tr[2]/td[2]/form[1]/table[1]/tr[1]/td[1]/table[1]/tr");
 
                 decimal 主力買超張數 = 0, 主力賣超張數 = 0;
