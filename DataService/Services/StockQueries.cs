@@ -1380,7 +1380,10 @@ order by s.[Description] / s.每股淨值
             { ChooseStockType.融資賣超排行榜  , ()=>融資賣超排行榜() },
             { ChooseStockType.融券買超排行榜  , ()=>融券買超排行榜() },
             { ChooseStockType.漲停板  , ()=>漲停板() },
-            
+            { ChooseStockType.當沖比例 , ()=>當沖比例()},
+            { ChooseStockType.當沖總損益 , ()=>當沖總損益()},
+            { ChooseStockType.當沖均損益 , ()=>當沖均損益()}
+
         };
 
         private Dictionary<int, Func<string>> MapFunc = new Dictionary<int, Func<string>>
@@ -1393,6 +1396,26 @@ order by s.[Description] / s.每股淨值
         };
 
         #region 買賣超排行榜
+
+        private static string 當沖比例()
+        {
+            return @$"
+  and [當沖比例] > 1
+  order by [當沖比例] desc
+";
+        }
+        private static string 當沖總損益()
+        {
+            return @$"
+  order by [當沖總損益] desc
+";
+        }
+        private static string 當沖均損益()
+        {
+            return @$"
+  order by [當沖均損益] desc
+";
+        }
 
         private static string 一日漲幅排行榜()
         {
