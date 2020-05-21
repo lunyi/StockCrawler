@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace DataService.Enums
+﻿namespace DataService.Enums
 {
     public enum ChooseStockType
     {
@@ -26,6 +22,9 @@ namespace DataService.Enums
         外資突然進前20名 = 39,
         漲停板 = 40,
         投量比加主力買超 = 41,
+        當沖比例 = 42,
+        當沖總損益 = 43,
+        當沖均損益 = 44,
         外資買超排行榜 = 5,
         投信買超排行榜 = 6,
         自營買超排行榜 = 7,
