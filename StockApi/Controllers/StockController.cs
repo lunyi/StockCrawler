@@ -1,15 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http.Cors;
 using DataService.DataModel;
 using DataService.Models;
 using DataService.Services;
 using LineBotLibrary;
-using LineBotLibrary.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
 namespace StockApi.Controllers
 {
@@ -28,9 +24,9 @@ namespace StockApi.Controllers
         }
 
         [HttpGet, Route("{stockId}")]
-        public Task<StockeModel> Get(string stockId)
+        public Task<StockeModel> Get(string stockId, [FromQuery]DateTime datetime)
         {
-            return _stockQueries.GetPricesByStockIdAsync(stockId);
+            return _stockQueries.GetPricesByStockIdAsync(stockId, datetime);
         }
 
         [HttpGet, Route("")]

@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
 </head>
 <body>
-    @*<link href="css/table.css" rel="stylesheet" />*@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.16.0/polyfill.min.js"></script>
     <script src="https://cdn.jsdelivr.net/data-transformer/0.1.12/data-transformer-browser.min.js"></script>
@@ -100,8 +99,6 @@
                     <th>量</th>
                     <th>漲跌</th>
                     <th>百分比</th>
-                    @*<th>外資比例</th>*@
-                    @*<th>投信比例</th>*@
                     <th>董監增減</th>
                     <th>融資</th>
                     <th>融券</th>
@@ -131,8 +128,6 @@
                 <td v-bind:style="{ fontWeight: price.zfontWeight}">{{price.成交量}}</td>
                 <td v-bind:style="{ color: price.updownColor, fontWeight: price.fontWeight}">{{price.漲跌}}</td>
                 <td v-bind:style="{ color: price.pColor, fontWeight: price.fontWeight}">{{price.漲跌百分比}}%</td>
-                @*<td>{{price.外資持股比例}}%</td>*@
-                @*<td>{{price.投信持股比例}}%</td>*@
                 <td v-bind:style="{ color: price.dColor}">{{price.董監持股}} ({{price.董監持股比例}}%)</td>
                 <td v-bind:style="{ color: price.lColor}">{{price.融資買賣超}}</td>
                 <td v-bind:style="{ color: price.chColor}">{{price.融券買賣超}}</td>

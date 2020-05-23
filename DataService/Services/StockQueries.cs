@@ -11,7 +11,7 @@ namespace DataService.Services
 {
     public interface IStockQueries
     {
-        Task<StockeModel> GetPricesByStockIdAsync(string stockId);
+        Task<StockeModel> GetPricesByStockIdAsync(string stockId, DateTime datetime);
         Task<Stocks[]> GetBestStocksAsync(int key);
         Task<string[]> GetDaysAsync();
         Task<string[]> GetChosenStockTypesAsync();
@@ -243,12 +243,12 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
 ";
         }
 
-        async Task<StockeModel> IStockQueries.GetPricesByStockIdAsync(string stockId)
+        async Task<StockeModel> IStockQueries.GetPricesByStockIdAsync(string stockId, DateTime datetime)
         {
             var context = new StockDbContext();
             var prices = await (from price in context.Prices
                                 join stock in context.Stocks on price.StockId equals stock.StockId
-                                where price.StockId == stockId
+                                where price.StockId == stockId && price.Datetime <= datetime
                                 orderby price.Datetime descending
                                 let volume = price.成交量 == 0 ? 1 : price.成交量
                                 select new PriceModel
@@ -289,8 +289,9 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                                     //周轉率 = 100 * Math.Round(((decimal)price.成交量 / price.發行張數).Value, 5)
                                 }).ToArrayAsync();
 
-            var weeklyChip = await context._WeekyChip.FromSqlRaw(GetWeekAnalyst(stockId, GetLastFriday())).ToArrayAsync();
-            var monthData = await context._MonthData.FromSqlRaw("exec [usp_GetMonthData] {0}", stockId).ToArrayAsync();
+            var datetimeString = datetime.ToString("yyyy-MM-dd");
+            var weeklyChip = await context._WeekyChip.FromSqlRaw(GetWeekAnalyst(stockId, GetLastFriday(datetimeString))).ToArrayAsync();
+            var monthData = await context._MonthData.FromSqlRaw("exec [usp_GetMonthData] {0}, {1}", stockId, datetimeString).ToArrayAsync();
 
             return new StockeModel
             {
@@ -306,14 +307,14 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
             return context.TwStock.OrderByDescending(p=>p.Datetime).ToArrayAsync();
         }
 
-        private string GetLastFriday()
+        private string GetLastFriday(string datetime = null)
         {
-            int days = DateTime.Today.DayOfWeek == DayOfWeek.Saturday ? 1 : 1 * ((int)DateTime.Today.DayOfWeek + 2);
-            return DateTime.Today.AddDays(days*-1).ToString("yyyy-MM-dd");
-        }
+            if (datetime == null)
+            {
+                int days1 = DateTime.Today.DayOfWeek == DayOfWeek.Saturday ? 1 : 1 * ((int)DateTime.Today.DayOfWeek + 2);
+                return DateTime.Today.AddDays(days1 * -1).ToString("yyyy-MM-dd");
+            }
 
-        private string GetLastFriday(string datetime)
-        {
             var today = Convert.ToDateTime(datetime);
             var days = today.DayOfWeek == DayOfWeek.Saturday ? 1 : 1 * ((int)today.DayOfWeek + 2);
             days = days == 7 ? 0 : days;
@@ -535,7 +536,6 @@ drop table #t1, #t2, #t3, #t4
             var datetimes = await  context.Prices.Where(p=>p.StockId == "1101")
                 .GroupBy(p => p.Datetime)
                 .OrderByDescending(p => p.Key)
-                .Take(60)
                 .Select(p=>p.Key.ToString("yyyy-MM-dd"))
                 .ToListAsync();
             var today = DateTime.Today.ToString("yyyy-MM-dd");

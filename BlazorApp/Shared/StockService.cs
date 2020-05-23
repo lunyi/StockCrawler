@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using DataService.DataModel;
 using DataService.Models;
@@ -75,10 +73,10 @@ namespace BlazorApp.Shared
         }
 
         [JSInvokable]
-        public static Task<StockeModel> GetPricesByStockIdAsync(string stockId)
+        public static Task<StockeModel> GetPricesByStockIdAsync(string stockId, DateTime datetime)
         {
             IStockQueries dataLayer = new StockQueries();
-            return dataLayer.GetPricesByStockIdAsync(stockId);
+            return dataLayer.GetPricesByStockIdAsync(stockId, datetime);
         }
     }
 }

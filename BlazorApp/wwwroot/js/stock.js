@@ -19,9 +19,11 @@
 
 document.onkeydown = function () {
     console.log("event.keyCode=" + event.keyCode);
+    var keyLeft = 37;
+    var keyRight = 39;
+
     var dateIndex = $("#selectDateList").prop("selectedIndex");
-    var stockLength = $('#stockList').children('option').length;
-    if (event.keyCode === 37) {
+    if (event.keyCode === keyLeft) {
         if (dateIndex >= $('#selectDateList').children('option').length) {
             dateIndex = $('#selectDateList').children('option').length - 1;
         } else if (dateIndex < 0) {
@@ -30,7 +32,7 @@ document.onkeydown = function () {
         else {
             dateIndex = dateIndex + 1;
         }
-    } else if (event.keyCode === 39) {
+    } else if (event.keyCode === keyRight) {
 
         if (dateIndex < 0) {
             dateIndex = 0;
@@ -41,22 +43,27 @@ document.onkeydown = function () {
         }
     }
 
-    if (event.keyCode === 37 || event.keyCode === 39) {
+    if (event.keyCode === keyLeft || event.keyCode === keyRight) {
         var newDate = $("#selectDateList option").eq(dateIndex).val();
         console.log("newDate=" + newDate);
         $("#selectDateList").val(newDate);
         onGetStocksByDate(0);
     }
 
-    if (event.keyCode === 17) {
+    var keyCtrl = 17;
+    var keyShift = 16;
+    var keyEnter = 13;
+    var keyDelete = 46;
+
+    if (event.keyCode === keyCtrl) {
         onUrlChangeAsync(9);
-    } else if (event.keyCode === 16) {
+    } else if (event.keyCode === keyShift) {
         onUrlChangeAsync(6);
-    } else if (event.keyCode === 13) {
+    } else if (event.keyCode === keyEnter) {
         onUrlChangeAsync(3);
     } else if (event.keyCode === 220) {
         onUrlChangeAsync(1);
-    } else if (event.keyCode === 46) {
+    } else if (event.keyCode === keyDelete) {
         onUrlChangeAsync(2);
     }
 };
@@ -120,7 +127,7 @@ var urls = {
     //3: 'https://concords.moneydj.com/z/zc/zca/zco_{0}.djhtm',
     //4: 'https://concords.moneydj.com/z/zc/zcl/zcl_{0}.djhtm',
     1: 'https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm',
-    2: 'Prices?stockId={0}',
+    2: 'Prices?stockId={0}&datetime={1}',
     0: 'TwStock',
     //3: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zca_{0}.djhtm',
     4: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zca/zco_{0}.djhtm',
@@ -146,9 +153,9 @@ var urls = {
 //https://www.moneydj.com/KMDJ/Common/ListNewArticles.aspx?svc=NW&a=X0200000
 //https://tw.stock.yahoo.com/q/h?s=6449 
 
-
 var currentUrlIndex = 1;
 var currentStockId = "1101";
+var currentSelectedDate = "";
 var currentUrl = "https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm";
 var urlIndexNewTab = 18;
 
@@ -159,11 +166,11 @@ function onStockChangeAsync(obj) {
 }
 
 function onUrlChangeAsync(index) {
-
-    if (index == undefined)
+    if (index === undefined)
         return;
     currentStockId = currentStockId || "1101";
-    var url = urls[index].replace('{0}', currentStockId);
+    currentSelectedDate = currentSelectedDate || moment($("#selectDateList option").eq(0).val()).format('YYYY-MM-DD');
+    var url = urls[index].replace('{0}', currentStockId).replace('{1}', currentSelectedDate);
 
     if (index >= urlIndexNewTab) {
         window.open(url, '_blank').focus();
@@ -177,6 +184,8 @@ function onUrlChangeAsync(index) {
 function goToUrl() {
     currentUrl = urls[currentUrlIndex];
     var url = currentUrl.replace('{0}', currentStockId);
+    currentSelectedDate = currentSelectedDate || moment($("#selectDateList option").eq(0).val()).format('YYYY-MM-DD');
+    url = url.replace('{1}', currentSelectedDate);
 
     if (currentUrlIndex >= urlIndexNewTab) {
         window.open(url, '_blank').focus();
@@ -288,6 +297,7 @@ function onGetStocksByDate(val) {
     var date = $("#selectDateList");
     var bestType = $("#selectBestType");
     var rankType = $("#selectRankType");
+    currentSelectedDate = date.val();
 
     if (val !== 0) {
         currentType = val;
