@@ -345,8 +345,8 @@ function setStocks(data) {
 
     if (data.length > 0) {
         if (currentStockId === null) {
-            $("#stockList").val(data[currentIndex].stockId);
-            currentStockId = data[currentIndex].stockId;
+            $("#stockList").val(data[0].stockId);
+            currentStockId = data[0].stockId;
         } else {
             $("#stockList").val(currentStockId);
         }

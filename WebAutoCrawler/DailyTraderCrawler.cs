@@ -7,23 +7,47 @@ using System.Threading.Tasks;
 using OpenQA.Selenium.Support.UI;
 using DataService.Models;
 using OpenQA.Selenium;
+using LineBotLibrary;
+using LineBotLibrary.Models;
+using Microsoft.EntityFrameworkCore;
+using System.Text;
+using System.Globalization;
 
 namespace WebAutoCrawler
 {
     public class DailyTraderCrawler : BaseCrawler
     {
         private string allStocksUrl = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E5%BC%B5%E6%95%B8+%28%E7%95%B6%E6%97%A5%29%40%40%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E5%BC%B5%E6%95%B8%40%40%E7%95%B6%E6%97%A5";
+        private readonly LineNotifyBotApi _lineNotifyBotApi;
+        private string _token;
 
-        public DailyTraderCrawler() : base()
+        public DailyTraderCrawler(LineNotifyBotApi lineNotifyBotApi) : base()
         {
+            _lineNotifyBotApi = lineNotifyBotApi;
         }
         public override async Task ExecuteAsync()
         {
             var context = new StockDbContext();
+            _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
             var s = Stopwatch.StartNew();
             s.Start();
+            
             await ParserAsync(context, allStocksUrl);
 
+            var prices = context.Prices.Where(P => P.Datetime == DateTime.Today)
+                .OrderByDescending(p => p.當沖比例).Take(20).ToArray();
+
+            var msg = new StringBuilder();
+            msg.AppendLine($"當沖比例 : {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+
+            var index = 1;
+            foreach (var price in prices)
+            {
+                msg.AppendLine($"{index}. {price.StockId} {price.Name} {price.當沖比例}%");
+                index++;
+            }
+
+            await NotifyBotApiAsync(msg.ToString());
             s.Stop();
             Console.WriteLine(s.Elapsed.TotalSeconds);
         }
@@ -59,7 +83,6 @@ namespace WebAutoCrawler
                             var year = Convert.ToInt16(td[10].Text.Substring(0, 2)) >= 10 ? DateTime.Now.Year - 1 : DateTime.Now.Year;
                             try
                             {
-
                                 var datetime = Convert.ToDateTime($"{year}/{td[10].Text}");
                                 var stockId = Convert.ToString(td[1].Text);
 
@@ -86,6 +109,14 @@ namespace WebAutoCrawler
             }
         }
 
+        private async Task NotifyBotApiAsync(string message)
+        {
+            await _lineNotifyBotApi.Notify(new NotifyRequestDTO
+            {
+                AccessToken = _token,
+                Message = message
+            });
+        }
 
         private class TempStock
         {

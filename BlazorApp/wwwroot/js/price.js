@@ -23,6 +23,7 @@
 
         $("#cValue").text(data.stock.每股淨值);
         $("#YValue").text(data.stock.每股盈餘);
+        $("#price").text(data.stock.股價);
         $("#website").attr("href", data.stock.website);
         //$("#kChart").attr("src", kUrl);
         //console.log(renewPrices(data.monthData));

@@ -5,6 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using DataService.Models;
 using EFCore.BulkExtensions;
+using LineBotLibrary;
+using LineBotLibrary.Models;
+using Microsoft.Extensions.DependencyInjection;
 using WebAutoCrawler;
 
 namespace WebCrawler
@@ -23,68 +26,42 @@ namespace WebCrawler
             //var c = new SeasonDataCrawler();
             //await c.ExecuteAsync();
 
-            var c = new DailyTraderCrawler();
-            await c.ExecuteAsync();
-            Console.ReadLine();
+            //var c = new SeasonDataCrawler();
+            //await c.ExecuteAsync();
+            //Console.ReadLine();
+
+            await RunAsync<DailyTraderCrawler>();
         }
 
-        private async Task ParseHistory()
+        private static ServiceCollection _serviceCollection;
+
+        private static void InitailLineNotifyBot<T>() where T : BaseCrawler
         {
-            var s = Stopwatch.StartNew();
-            s.Start();
+            _serviceCollection = new ServiceCollection();
+            // 2. 註冊服務
+            //_serviceCollection.AddTransient<RealtimeParser>();
+            //_serviceCollection.AddTransient<DailyNotifier>();
+            _serviceCollection.AddTransient<T>();
 
-            var context = new StockDbContext();
-            var stocks = context.Stocks.Where(p => p.Status == 1).OrderBy(p=>p.StockId).ToList();
-            var h = new HistoryPriceCrawler();
-            var history = new HistoryParser();
+            //serviceCollection.AddTransient<IService, ChtService>();
 
-            for (int i = 0; i < stocks.Count; i++)
+            _serviceCollection.AddLineNotifyBot(new LineNotifyBotSetting
             {
-                if (stocks[i].StockId == "2330")
-                {
-                    var prices = h.Execute(stocks[i].StockId);
-
-                    for (int j = 0; j < prices.Count; j++)
-                    {
-                        prices[j].StockId = stocks[i].StockId;
-                        prices[j].Name = stocks[i].Name;
-                        history.ParseTrust(prices, prices[j].StockId, prices[j].Datetime.ToString("yyyy/MM/dd"), prices[j].Datetime.ToString("yyyy/MM/dd"));
-                        history.ParseFinancing(prices, prices[j].StockId, prices[j].Datetime.ToString("yyyy/MM/dd"), prices[j].Datetime.ToString("yyyy/MM/dd"));
-                        decimal oneDayBuy = 0, OneDaySell = 0;
-                        Thread.Sleep(1000);
-                        (oneDayBuy, OneDaySell) = history.ParseMainForce(prices[j].StockId, prices[j].Datetime.ToString("yyyy/MM/dd"), prices[j].Datetime.ToString("yyyy/MM/dd"));
-
-                        prices[j].主力買超張數 = oneDayBuy;
-                        prices[j].主力賣超張數 = OneDaySell;
-
-                        (oneDayBuy, OneDaySell) = history.ParseMainForce(prices[j].StockId, prices[j].Datetime.AddDays(-6).ToString("yyyy/MM/dd"), prices[j].Datetime.ToString("yyyy/MM/dd"));
-                        prices[j].五日主力買超張數 = oneDayBuy;
-                        prices[j].五日主力賣超張數 = OneDaySell;
-
-                        (oneDayBuy, OneDaySell) = history.ParseMainForce(prices[j].StockId, prices[j].Datetime.AddDays(-13).ToString("yyyy/MM/dd"), prices[j].Datetime.ToString("yyyy/MM/dd"));
-                        prices[j].十日主力買超張數 = oneDayBuy;
-                        prices[j].十日主力賣超張數 = OneDaySell;
-
-                        (oneDayBuy, OneDaySell) = history.ParseMainForce(prices[j].StockId, prices[j].Datetime.AddDays(-27).ToString("yyyy/MM/dd"), prices[j].Datetime.ToString("yyyy/MM/dd"));
-                        prices[j].二十日主力買超張數 = oneDayBuy;
-                        prices[j].二十日主力賣超張數 = OneDaySell;
-
-                        (oneDayBuy, OneDaySell) = history.ParseMainForce(prices[j].StockId, prices[j].Datetime.AddDays(-55).ToString("yyyy/MM/dd"), prices[j].Datetime.ToString("yyyy/MM/dd"));
-                        prices[j].四十日主力賣超張數 = oneDayBuy;
-                        prices[j].四十日主力賣超張數 = OneDaySell;
-
-                        (oneDayBuy, OneDaySell) = history.ParseMainForce(prices[j].StockId, prices[j].Datetime.AddDays(-83).ToString("yyyy/MM/dd"), prices[j].Datetime.ToString("yyyy/MM/dd"));
-                        prices[j].六十日主力買超張數 = oneDayBuy;
-                        prices[j].六十日主力賣超張數 = OneDaySell;
-                    }
-
-                    await context.BulkInsertAsync(prices);
-                }
-            }
-
-            s.Stop();
-            Console.WriteLine(s.Elapsed.TotalSeconds);
-            Console.ReadLine();
+                ClientID = "BCHYbMmFT9Tgz4ckkSNPsX",
+                ClientSecret = "SIhnxiIzgcu9UQBHseTm2N6XsZs6nuDyGKmVkHdJL9x",
+                AuthorizeApi = "https://notify-bot.line.me/oauth/authorize",
+                TokenApi = "https://notify-bot.line.me/oauth/token",
+                NotifyApi = "https://notify-api.line.me/api/notify",
+                StatusApi = "https://notify-api.line.me/api/status",
+                RevokeApi = "https://notify-api.line.me/api/revoke"
+            });
+        }
+        private static async Task RunAsync<T>() where T : BaseCrawler
+        {
+            InitailLineNotifyBot<T>();
+            var serviceProvider = _serviceCollection.BuildServiceProvider();
+            // 3. 執行主服務
+            await serviceProvider.GetRequiredService<T>().ExecuteAsync();
         }
     }
 }
