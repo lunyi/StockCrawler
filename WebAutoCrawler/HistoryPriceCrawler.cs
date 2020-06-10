@@ -32,7 +32,7 @@ namespace WebAutoCrawler
                     cancelBtn.Click();
                 }
             }
-            catch (NoSuchElementException ex)
+            catch (NoSuchElementException)
             { 
                 
             }

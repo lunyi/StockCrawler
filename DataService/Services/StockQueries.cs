@@ -38,7 +38,7 @@ namespace DataService.Services
             _context = context;
         }
 
-        Task<Stocks[]> IStockQueries.GetStocksByDateAsync(string datetime, int type)
+        async Task<Stocks[]> IStockQueries.GetStocksByDateAsync(string datetime, int type)
         {
             var context = new StockDbContext();
             string sql = string.Empty;
@@ -160,6 +160,9 @@ namespace DataService.Services
                 case (int)ChooseStockType.每周成交量增長排行榜:
                     sql = 每周成交量增長排行榜(GetLastFriday(datetime));
                     break;
+                case (int)ChooseStockType.多頭排列:
+                    sql = Get多頭排列SQL(datetime);
+                    break;   
                 default:
                     var whereCondition = DateFunc[(ChooseStockType)type]();
                     sql = @$"SELECT s.*
@@ -169,7 +172,8 @@ namespace DataService.Services
                     break;
             }
 
-            return context.Stocks.FromSqlRaw(sql).ToArrayAsync();
+            var res = await context.Stocks.FromSqlRaw(sql).ToArrayAsync();
+            return res;
         }
 
         private string GetMainForceSql(string mainForce)
@@ -179,7 +183,6 @@ namespace DataService.Services
 
   SELECT @ColumnGroup = COALESCE(@ColumnGroup + ',' ,'' ) + QUOTENAME([NAme])
   FROM dbo.[Stocks] where [Status] = 1
-
 
   SELECT @PivotSQL = N'
   select * from 
@@ -553,8 +556,6 @@ drop table #t1, #t2, #t3, #t4
             return stocks.ToArrayAsync();
         }
 
-     
-
         private string Get淨值比小於2AndROE大於10()
         {
             return $@"
@@ -741,26 +742,27 @@ drop table #t1";
 
         private string 投量比加主力買超(string datetime)
         {
-            return $@"SELECT s.[Id]
+            return $@"select s.[Id]
       ,s.[StockId]
       ,s.[Name]
-      ,s.[MarketCategory]
-      ,s.[Industry]
-      ,s.[ListingOn]
+      ,[MarketCategory]
+      ,[Industry]
+      ,[ListingOn]
       ,s.[CreatedOn]
-      ,s.[UpdatedOn]
-      ,s.[Status]
-      ,s.[Address]
-      ,s.[Website]
-      ,s.[營收比重]
-      ,s.[股本]
-      ,s.[股價]
-      ,s.[每股淨值]
-      ,s.[每股盈餘], s.[ROE], s.[ROA]
-	  ,CAST(round(100* [投信買賣超]/ cast([成交量] as decimal(5)), 4)  AS varchar(9)) AS [Description]
-      ,s.股票期貨
-  FROM [dbo].[Prices] p join [dbo].[Stocks] s on s.StockId = p.StockId
-  where [Datetime] = '{datetime}' and [投信買賣超] > 0 and 主力買超張數 - 主力賣超張數 > 0
+      ,[UpdatedOn]
+      ,[Status]
+      ,[Address]
+      ,[Website]
+      ,[營收比重]
+      ,[股本]
+      ,[股價]
+      ,[每股淨值]
+      ,[每股盈餘]
+      ,[ROE]
+      ,[ROA]
+      ,[股票期貨]
+	  ,CAST(round(100* [投信買賣超]/ cast([成交量] as decimal(11)), 10)  AS varchar(18)) AS [Description] FROM [dbo].[Prices] p join [dbo].[Stocks] s on s.StockId = p.StockId
+  where [Datetime] = '{datetime}' and [投信買賣超] > 0 and 主力買超張數 - 主力賣超張數 > 0 and [成交量] > 0
   order by [投信買賣超]/ cast([成交量] as decimal) desc";
         }
 
@@ -1613,6 +1615,26 @@ SELECT
       ,[Name]
 	having count([Pass]) >=10)
 ";
+        }
+
+        private string Get多頭排列SQL(string datetime)
+        {
+            _context = new StockDbContext();
+            var dd = Convert.ToDateTime(datetime);
+            var datetime2 = _context.Prices.Where(p => p.StockId == "2330" && p.Datetime < dd)
+                .OrderByDescending(p => p.Datetime)
+                .Take(1)
+                .Select(p => p.Datetime)
+                .FirstOrDefault().ToString("yyyy/MM/dd");
+
+            return $@"select * from Stocks where StockId in (
+  select a.StockId from (SELECT *
+  FROM [StockDb].[dbo].[Prices]
+  where [Datetime] = '{datetime}' and [漲跌百分比] > 2 and [Close] > MA5 and MA5 > MA10 and MA10 > MA20 and MA20 > MA60) a
+  join  (SELECT *
+  FROM [StockDb].[dbo].[Prices]
+  where [Datetime] = '{datetime2}' and not ([Close] > MA5 and MA5 > MA10 and MA10 > MA20 and MA20 > MA60)) b on a.StockId = b.StockId)
+  order by StockId";
         }
         private string GetSqlByChairmanAsync(string datetime)
         {
