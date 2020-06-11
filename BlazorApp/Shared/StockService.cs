@@ -73,10 +73,10 @@ namespace BlazorApp.Shared
         }
 
         [JSInvokable]
-        public static Task<StockeModel> GetPricesByStockIdAsync(string stockId, DateTime datetime)
+        public static Task<StockeModel> GetPricesByStockIdAsync(string stockId, DateTime datetime, bool chkDate)
         {
             IStockQueries dataLayer = new StockQueries();
-            return dataLayer.GetPricesByStockIdAsync(stockId, datetime);
+            return dataLayer.GetPricesByStockIdAsync(stockId, datetime, chkDate);
         }
     }
 }

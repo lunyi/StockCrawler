@@ -24,9 +24,9 @@ namespace StockApi.Controllers
         }
 
         [HttpGet, Route("{stockId}")]
-        public Task<StockeModel> Get(string stockId, [FromQuery]DateTime datetime)
+        public Task<StockeModel> Get(string stockId, [FromQuery]DateTime datetime, bool chkDate)
         {
-            return _stockQueries.GetPricesByStockIdAsync(stockId, datetime);
+            return _stockQueries.GetPricesByStockIdAsync(stockId, datetime, chkDate);
         }
 
         [HttpGet, Route("")]

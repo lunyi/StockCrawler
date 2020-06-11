@@ -2,10 +2,12 @@
 
     var stockId = getUrlParameter('stockId');
     var datetime = getUrlParameter('datetime');
-    var url = "http://" + window.location.hostname + ":8081/stock/" + stockId + '?datetime=' + datetime ;
+    var chkDate = getUrlParameter('chkDate');
+
+    var url = "http://" + window.location.hostname + ":8081/stock/" + stockId + '?datetime=' + datetime + '&chkDate=' + chkDate;
 
     if (window.location.hostname === "localhost") {
-        url = "https://localhost:44367/stock/" + stockId + '?datetime=' + datetime;
+        url = "https://localhost:44367/stock/" + stockId + '?datetime=' + datetime + '&chkDate=' + chkDate;
     }
     
     //var kUrl = "https://so.cnyes.com/JavascriptGraphic/chartstudy.aspx?country=tw&market=tw&code=" + stockId + "&divwidth=550&divheight=330";

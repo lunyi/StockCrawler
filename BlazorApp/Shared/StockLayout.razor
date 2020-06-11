@@ -16,11 +16,12 @@
             <option value="2">五日漲幅排行</option>
             <option value="23">二十日漲幅排行</option>
             @*<option value="30">四十日漲幅排行</option>
-        <option value="31">六十日漲幅排行</option>*@
+            <option value="31">六十日漲幅排行</option>*@
             <option value="29">每周成交量增長排行榜</option>
             <option value="45">多頭開始排列</option>
+            <option value="46">三天漲20%</option>
             @*<option value="33">ROE大於15且股價小於50</option>
-        <option value="34">淨值比小於2且ROE大於10</option>*@
+            <option value="34">淨值比小於2且ROE大於10</option>*@
             <option value="42">==當沖比例==</option>
             <option value="43">==當沖總損益==</option>
             <option value="44">==當沖均損益==</option>
@@ -71,6 +72,7 @@
         <select id="stockList" size="30" onchange="onStockChangeAsync(this)"></select>
         <input id="txtChosenStockType" list="chosenStockType" type="text" placeholder="選股類型" />
         <input id="btnClear" type="button" class="fa fa-close" value="清空" onclick="onClear()" />
+        <input id="chkDate" type="checkbox" value="日期過濾" />
         <datalist id="chosenStockType"></datalist>
         <input id="btnSelectStock" type="button" value="加入選股" onclick="chooseStock()" />
         <input id="btnRemoveStock" type="button" value="移除選股" onclick="removeStock()" />

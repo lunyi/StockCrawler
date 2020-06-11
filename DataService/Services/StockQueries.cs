@@ -11,7 +11,7 @@ namespace DataService.Services
 {
     public interface IStockQueries
     {
-        Task<StockeModel> GetPricesByStockIdAsync(string stockId, DateTime datetime);
+        Task<StockeModel> GetPricesByStockIdAsync(string stockId, DateTime datetime, bool chkDate);
         Task<Stocks[]> GetBestStocksAsync(int key);
         Task<string[]> GetDaysAsync();
         Task<string[]> GetChosenStockTypesAsync();
@@ -125,8 +125,7 @@ namespace DataService.Services
                     break;
                 case (int)ChooseStockType.連續上漲天數:
                     sql = 連續上漲天數(datetime);
-                    break; ;
-
+                    break;
                 case (int)ChooseStockType.投信突然加入買方:
                     sql = Get投信突然加入買方Sql(datetime);
                     break;
@@ -162,7 +161,10 @@ namespace DataService.Services
                     break;
                 case (int)ChooseStockType.多頭排列:
                     sql = Get多頭排列SQL(datetime);
-                    break;   
+                    break;
+                case (int)ChooseStockType.三天漲百分之二十:
+                    sql = Get三天漲百分之二十SQL(datetime);
+                    break;
                 default:
                     var whereCondition = DateFunc[(ChooseStockType)type]();
                     sql = @$"SELECT s.*
@@ -241,17 +243,17 @@ select top 300
 	  ,s.[Description]
       ,s.[股票期貨]
 from [Prices] p join [Stocks] s on s.StockId = p.StockId 
-where p.[Datetime] = '{datetime}'
+where p.[Datetime] = '{datetime}' and VMA5 > 0 and VMA10 > 0 and VMA20 > 0 and VMA60 > 0
 order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p.{strVolumn} {orderby}
 ";
         }
 
-        async Task<StockeModel> IStockQueries.GetPricesByStockIdAsync(string stockId, DateTime datetime)
+        async Task<StockeModel> IStockQueries.GetPricesByStockIdAsync(string stockId, DateTime datetime, bool chkDate)
         {
             var context = new StockDbContext();
             var prices = await (from price in context.Prices
                                 join stock in context.Stocks on price.StockId equals stock.StockId
-                                where price.StockId == stockId && price.Datetime <= datetime
+                                where price.StockId == stockId && (chkDate ? price.Datetime <= datetime : true) 
                                 orderby price.Datetime descending
                                 let volume = price.成交量 == 0 ? 1 : price.成交量
                                 select new PriceModel
@@ -1630,12 +1632,56 @@ SELECT
             return $@"select * from Stocks where StockId in (
   select a.StockId from (SELECT *
   FROM [StockDb].[dbo].[Prices]
-  where [Datetime] = '{datetime}' and [漲跌百分比] > 2 and [Close] > MA5 and MA5 > MA10 and MA10 > MA20 and MA20 > MA60) a
+  where [Datetime] = '{datetime}' and [漲跌百分比] > 2 and [Close] > MA5 and MA5 > MA10 and MA10 > MA20) a
   join  (SELECT *
   FROM [StockDb].[dbo].[Prices]
-  where [Datetime] = '{datetime2}' and not ([Close] > MA5 and MA5 > MA10 and MA10 > MA20 and MA20 > MA60)) b on a.StockId = b.StockId)
+  where [Datetime] = '{datetime2}' and not ([Close] > MA5 and MA5 > MA10 and MA10 > MA20)) b on a.StockId = b.StockId)
   order by StockId";
         }
+
+        private string Get三天漲百分之二十SQL(string datetime)
+        {
+            _context = new StockDbContext();
+            var dd = Convert.ToDateTime(datetime);
+            var datetimeList = _context.Prices.Where(p => p.StockId == "2330" && p.Datetime < dd)
+                .OrderByDescending(p => p.Datetime)
+                .Take(2)
+                .Select(p => p.Datetime.ToString("yyyy/MM/dd")).ToArray();
+            var datetime2 = datetimeList[1];
+            return $@"WITH TOPTEN as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY [Name] 
+       order by [Datetime] desc
+    ) AS RowNo 
+    FROM [Prices] where [Datetime] <= '{datetime}' and [Datetime] >= '{datetime2}'
+)
+
+select  s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
+	  ,CAST(a.[漲跌百分比] AS nvarchar(30)) AS [Description]
+      ,股票期貨 from [Stocks] s
+join (
+select StockId, [Name], sum([漲跌百分比]) as [漲跌百分比] from TOPTEN
+group by StockId, [Name]
+having sum([漲跌百分比]) > 20) a on s.StockId = a.StockId
+order by a.漲跌百分比 desc";
+        }
+
         private string GetSqlByChairmanAsync(string datetime)
         {
             _context = new StockDbContext();
@@ -1675,7 +1721,6 @@ select * from [Prices]
 where [Datetime] = '{datetime2}' ) b  on a.StockId = b.StockId
 where a.[董監持股] !=  b.[董監持股]) b on s.StockId = b.StockId
 order by b.買超 desc
-
 ";
 
         }

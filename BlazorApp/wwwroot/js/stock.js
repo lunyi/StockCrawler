@@ -127,7 +127,7 @@ var urls = {
     //3: 'https://concords.moneydj.com/z/zc/zca/zco_{0}.djhtm',
     //4: 'https://concords.moneydj.com/z/zc/zcl/zcl_{0}.djhtm',
     1: 'https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm',
-    2: 'Prices?stockId={0}&datetime={1}',
+    2: 'Prices?stockId={0}&datetime={1}&chkDate={2}',
     0: 'TwStock',
     //3: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zca_{0}.djhtm',
     4: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zca/zco_{0}.djhtm',
@@ -170,13 +170,17 @@ function onUrlChangeAsync(index) {
         return;
     currentStockId = currentStockId || "1101";
     currentSelectedDate = currentSelectedDate || moment($("#selectDateList option").eq(0).val()).format('YYYY-MM-DD');
-    var url = urls[index].replace('{0}', currentStockId).replace('{1}', currentSelectedDate);
+    var url = urls[index]
+        .replace('{0}', currentStockId)
+        .replace('{1}', currentSelectedDate)
+        .replace('{2}', $("#chkDate").prop('checked'));
 
     if (index >= urlIndexNewTab) {
         window.open(url, '_blank').focus();
     }
     else {
         currentUrlIndex = index;
+        console.log(url);
         $("#StockPage").attr("src", url);
     }
 }
