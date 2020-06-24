@@ -60,7 +60,7 @@ namespace WebAutoCrawler
             {
                 //var selRPT_TIME = new SelectElement(FindElement(By.Id("selRPT_TIME")));
                 //selRPT_TIME.SelectByIndex(k);
-                //Thread.Sleep(5000);
+                Thread.Sleep(5000);
 
                 for (int i = 0; i <= 5; i++)
                 {

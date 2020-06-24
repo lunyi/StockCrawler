@@ -189,7 +189,7 @@ function goToUrl() {
     currentUrl = urls[currentUrlIndex];
     var url = currentUrl.replace('{0}', currentStockId);
     currentSelectedDate = currentSelectedDate || moment($("#selectDateList option").eq(0).val()).format('YYYY-MM-DD');
-    url = url.replace('{1}', currentSelectedDate);
+    url = url.replace('{1}', currentSelectedDate).replace('{2}', $("#chkDate").prop('checked'));;
 
     if (currentUrlIndex >= urlIndexNewTab) {
         window.open(url, '_blank').focus();
