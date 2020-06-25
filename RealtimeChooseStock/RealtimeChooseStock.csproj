@@ -6,6 +6,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="EFCore.BulkExtensions" Version="3.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DataService\DataService.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Reference Include="Interop.SKCOMLib">
       <HintPath>..\Lib\Interop.SKCOMLib.dll</HintPath>
     </Reference>

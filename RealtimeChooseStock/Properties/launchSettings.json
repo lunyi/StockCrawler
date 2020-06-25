@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "RealtimeChooseStock": {
+      "commandName": "Project",
+      "commandLineArgs": "10 0"
+    }
+  }
+}

@@ -1,5 +1,11 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
+using DataService.Models;
+using EFCore.BulkExtensions;
+using Microsoft.EntityFrameworkCore;
 using SKCOMLib;
 
 namespace RealtimeChooseStock
@@ -8,20 +14,24 @@ namespace RealtimeChooseStock
     {
         private bool m_bfirst = true;
         private int m_nCode;
-        private int m_nCount = 0;
+        private string StockName;
+        private StockDbContext DbContext;
         public delegate void MyMessageHandler(string strType, int nCode, string strMessage);
         public event MyMessageHandler GetMessage;
+        private ConcurrentBag<MinuteKLine> MinuteKines = new ConcurrentBag<MinuteKLine>();
         private SKQuoteLib m_SKQuoteLib { get; set; }
         private DataTable dtStocks;
         private DataTable dtBest5Ask;
         private DataTable dtBest5Bid;
+        private static object locker = new object();
 
-        public TwQuote()
+        public TwQuote(StockDbContext dbContext)
         {
             dtStocks = CreateStocksDataTable();
             dtBest5Ask = CreateBest5AskTable();
             dtBest5Bid = CreateBest5AskTable();
             m_SKQuoteLib = new SKQuoteLibClass();
+            DbContext = dbContext;
             Connect();
         }
 
@@ -38,77 +48,61 @@ namespace RealtimeChooseStock
                 m_SKQuoteLib.OnNotifyQuote += m_SKQuoteLib_OnNotifyQuote;
                 m_SKQuoteLib.OnNotifyBest5 += m_SKQuoteLib_OnNotifyBest5;
                 m_SKQuoteLib.OnNotifyKLineData += m_SKQuoteLib_OnNotifyKLineData;
-                m_SKQuoteLib.OnNotifyServerTime += m_SKQuoteLib_OnNotifyServerTime;
+                //m_SKQuoteLib.OnNotifyServerTime += m_SKQuoteLib_OnNotifyServerTime;
                 m_SKQuoteLib.OnNotifyMarketTot += m_SKQuoteLib_OnNotifyMarketTot;
                 m_SKQuoteLib.OnNotifyMarketBuySell += m_SKQuoteLib_OnNotifyMarketBuySell;
                 m_bfirst = false;
-                Console.WriteLine("Connect OK");
             }
             m_nCode = m_SKQuoteLib.SKQuoteLib_EnterMonitor();
             SendReturnMessage("Quote", m_nCode, "SKQuoteLib_EnterMonitor");
         }
 
-        private void btnDisconnect_Click(object sender, EventArgs e)
+        public void GetPricesByStockId(string stockId, string stockName)
         {
-            m_nCode = m_SKQuoteLib.SKQuoteLib_LeaveMonitor();
-            SendReturnMessage("Quote", m_nCode, "SKQuoteLib_LeaveMonitor");
-        }
-
-        private void btnTicks_Click(object sender, EventArgs e)
-        {
-            short sPage = 0;
-            dtBest5Ask.Clear();
-            dtBest5Bid.Clear();
-
-            m_nCode = m_SKQuoteLib.SKQuoteLib_RequestTicks(ref sPage, "2330");
-            SendReturnMessage("Quote", m_nCode, "SKQuoteLib_RequestTicks");
-        }
-
-        public void QueryStocks()
-        {
-            short sPage = 0;
-            dtStocks.Clear();
-            string[] Stocks = {"2330","2317"};
-
-            foreach (var s in Stocks)
+            lock (locker)
             {
-                var pSKStock = new SKSTOCK();
-                var nCode = m_SKQuoteLib.SKQuoteLib_GetStockByNo(s.Trim(), ref pSKStock);
-                
-                if (nCode == 0)
-                {
-                    OnUpDateDataRow(pSKStock);
-                }
-
-                Console.WriteLine();
+                StockName = stockName;
+                m_nCode = m_SKQuoteLib.SKQuoteLib_RequestKLine(stockId, KLineType.PerMinute, OutputFormat.New);
             }
-
-            m_nCode = m_SKQuoteLib.SKQuoteLib_RequestStocks(ref sPage, "2330, 2317");
-
-            SendReturnMessage("Quote", m_nCode, "SKQuoteLib_RequestStocks");
         }
 
-        private void TickStop(object sender, EventArgs e)
+        //public void GetPricesByStocks(Stocks[] stocks)
+        //{
+        //    Parallel.ForEach(stocks, currentStock =>
+        //    {
+        //        StockName = currentStock.Name;
+        //        Console.WriteLine($"{DateTime.UtcNow} {currentStock.StockId} {StockName}");
+        //        m_nCode = m_SKQuoteLib.SKQuoteLib_RequestKLine(currentStock.StockId, KLineType.PerMinute, OutputFormat.New);
+        //    });
+        //}
+
+        void m_SKQuoteLib_OnNotifyKLineData(string bstrStockNo, string bstrData)
         {
-            m_nCode = m_SKQuoteLib.SKQuoteLib_RequestTicks(50, "2330");
+            var data = bstrData.Split(new[] { ',' });
+            var datetime = Convert.ToDateTime(data[0]);
 
-            SendReturnMessage("Quote", m_nCode, "SKQuoteLib_CancelRequestTicks");
+            if (datetime <= DateTime.Today.AddDays(-1))
+                return;
+
+            var k = new MinuteKLine
+            {
+                Datetime = datetime,
+                StockId = bstrStockNo,
+                Name = StockName,
+                Open = Convert.ToDecimal(data[1]),
+                High = Convert.ToDecimal(data[2]),
+                Low = Convert.ToDecimal(data[3]),
+                Close = Convert.ToDecimal(data[4]),
+                Volume = Convert.ToInt32(data[5]),
+            };
+            MinuteKines.Add(k);
+            //Console.WriteLine($"{DateTime.UtcNow}--{bstrStockNo} {StockName}--{bstrData}");
         }
 
-        private void GetServerTime()
+        public void SaveMinuteKLines()
         {
-            m_nCode = m_SKQuoteLib.SKQuoteLib_RequestServerTime();
-
-            SendReturnMessage("Quote", m_nCode, "SKQuoteLib_RequestServerTime");
+            DbContext.BulkInsert(MinuteKines.ToArray());
         }
-
-        private void btnKLine_Click(object sender, EventArgs e)
-        {
-            m_nCode = m_SKQuoteLib.SKQuoteLib_RequestKLine("2330", KLineType.PerMinute, OutputFormat.Old);
-
-            SendReturnMessage("Quote", m_nCode, "SKQuoteLib_RequestKLine");
-        }
-
         void m_SKQuoteLib_OnConnection(int nKind, int nCode)
         {
             if (nKind == 3001)
@@ -130,6 +124,13 @@ namespace RealtimeChooseStock
             {
                 Console.WriteLine("Disconnection !!");
             }
+        }
+
+        private void TickStop(object sender, EventArgs e)
+        {
+            m_nCode = m_SKQuoteLib.SKQuoteLib_RequestTicks(50, "2330");
+
+            SendReturnMessage("Quote", m_nCode, "SKQuoteLib_CancelRequestTicks");
         }
 
         void m_SKQuoteLib_OnNotifyQuote(short sMarketNo, short sStockIdx)
@@ -208,7 +209,6 @@ namespace RealtimeChooseStock
                 myDataRow["m_nAskQty"] = nBestBidQty5;
                 myDataRow["m_nAsk"] = nBestBid5 / dDigitNum;
                 dtBest5Bid.Rows.Add(myDataRow);
-
             }
             else
             {
@@ -248,13 +248,33 @@ namespace RealtimeChooseStock
         void m_SKQuoteLib_OnNotifyServerTime(short sHour, short sMinute, short sSecond, int nTotal)
         {
             Console.WriteLine(sHour.ToString("D2") + ":" + sMinute.ToString("D2") + ":" + sSecond.ToString("D2"));
-            QueryStocks();
+            //QueryStocks();
         }
 
-        void m_SKQuoteLib_OnNotifyKLineData(string bstrStockNo, string bstrData)
+        public void QueryStocks()
         {
-            Console.WriteLine("[OnNotifyKLineData]" + bstrData);
+            short sPage = 0;
+            dtStocks.Clear();
+            string[] Stocks = { "2330", "2317" };
+
+            foreach (var s in Stocks)
+            {
+                var pSKStock = new SKSTOCK();
+                var nCode = m_SKQuoteLib.SKQuoteLib_GetStockByNo(s.Trim(), ref pSKStock);
+
+                if (nCode == 0)
+                {
+                    OnUpDateDataRow(pSKStock);
+                }
+
+                Console.WriteLine();
+            }
+
+            m_nCode = m_SKQuoteLib.SKQuoteLib_RequestStocks(ref sPage, "2330, 2317");
+
+            SendReturnMessage("Quote", m_nCode, "SKQuoteLib_RequestStocks");
         }
+
 
         void m_SKQuoteLib_OnNotifyMarketTot(short sMarketNo, short sPrt, int nTime, int nTotv, int nTots, int nTotc)
         {
@@ -420,7 +440,6 @@ namespace RealtimeChooseStock
 
         private void OnUpDateDataRow(SKSTOCK pStock)
         {
-
             DataRow myDataRow = dtStocks.NewRow();
 
             myDataRow["m_sStockidx"] = pStock.sStockIdx;
@@ -512,6 +531,29 @@ namespace RealtimeChooseStock
         {
             m_nCode = m_SKQuoteLib.SKQuoteLib_RequestFutureTradeInfo(50, "TX00");
             SendReturnMessage("Quote", m_nCode, "SKQuoteLib_CancelRequestFutureTradeInfo");
+        }
+
+        private void btnDisconnect_Click(object sender, EventArgs e)
+        {
+            m_nCode = m_SKQuoteLib.SKQuoteLib_LeaveMonitor();
+            SendReturnMessage("Quote", m_nCode, "SKQuoteLib_LeaveMonitor");
+        }
+
+        private void btnTicks_Click(object sender, EventArgs e)
+        {
+            short sPage = 0;
+            dtBest5Ask.Clear();
+            dtBest5Bid.Clear();
+
+            m_nCode = m_SKQuoteLib.SKQuoteLib_RequestTicks(ref sPage, "2330");
+            SendReturnMessage("Quote", m_nCode, "SKQuoteLib_RequestTicks");
+        }
+
+        private void GetServerTime()
+        {
+            m_nCode = m_SKQuoteLib.SKQuoteLib_RequestServerTime();
+
+            SendReturnMessage("Quote", m_nCode, "SKQuoteLib_RequestServerTime");
         }
     }
 
