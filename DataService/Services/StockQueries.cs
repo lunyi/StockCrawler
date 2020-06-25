@@ -24,6 +24,7 @@ namespace DataService.Services
         Task<Stocks[]> GetStocksByBestStockTypeAsync(string name, string datetime);
         Task<TwStock[]> GetTwStocksAsync();
         Task<string> GetTokenAsync();
+        Task<string[]> GetMinuteKLinesAsync();
     }
     public class StockQueries : IStockQueries
     {
@@ -1747,6 +1748,26 @@ order by b.買超 desc
         {
             var context = new StockDbContext();
             return context.Token.Select(p=>p.LineToken).FirstOrDefaultAsync();
+        }
+
+        async Task<string[]> IStockQueries.GetMinuteKLinesAsync()
+        {
+            var context = new StockDbContext();
+            var result = new List<string>();
+;;          var minutes = new[] { 5, 10, 30 };
+
+            for (int i = 0; i < minutes.Length; i++)
+            {
+                var key = $"_{minutes[i]}分K線均線多排";
+                var stocks = await context.BestStocks.Where(p => p.Type == key)
+                    .OrderBy(p => p.StockId)
+                    .Select(p=>p.StockId)
+                    .ToArrayAsync();
+
+                string s1 = string.Join(',', stocks).Replace(" ","");
+                result.Add($"{key}={s1}");
+            }
+            return result.ToArray();       
         }
         #endregion
     }

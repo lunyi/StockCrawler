@@ -34,5 +34,11 @@ namespace StockApi.Controllers
         {
             return _stockQueries.GetTwStocksAsync();
         }
+
+        [HttpGet, Route("minuteKLines")]
+        public Task<string[]> GetMinuteKLinesAsync()
+        {
+            return _stockQueries.GetMinuteKLinesAsync();
+        }
     }
 }

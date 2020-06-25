@@ -81,7 +81,7 @@ namespace RealtimeChooseStock
             var data = bstrData.Split(new[] { ',' });
             var datetime = Convert.ToDateTime(data[0]);
 
-            if (datetime <= DateTime.Today.AddDays(-1))
+            if (datetime <= DateTime.Today)
                 return;
 
             var k = new MinuteKLine
@@ -96,7 +96,6 @@ namespace RealtimeChooseStock
                 Volume = Convert.ToInt32(data[5]),
             };
             MinuteKines.Add(k);
-            //Console.WriteLine($"{DateTime.UtcNow}--{bstrStockNo} {StockName}--{bstrData}");
         }
 
         public void SaveMinuteKLines()

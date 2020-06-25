@@ -36,6 +36,7 @@ namespace DataService.Models
         public virtual DbSet<Token> Token { get; set; }
         public virtual DbSet<TwStock> TwStock { get; set; }
         public virtual DbSet<YearData> YearData { get; set; }
+        public virtual DbSet<_MinuteKLine> _MinuteKLine { get; set; }
         public virtual DbSet<_MonthData> _MonthData { get; set; }
         public virtual DbSet<_WeekyChip> _WeekyChip { get; set; }
 
@@ -844,6 +845,19 @@ namespace DataService.Models
                 entity.Property(e => e.負債總計).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.資產總計).HasColumnType("decimal(18, 2)");
+            });
+
+            modelBuilder.Entity<_MinuteKLine>(entity =>
+            {
+                entity.HasKey(e => e.StockId);
+
+                entity.Property(e => e.StockId)
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Datetime).HasColumnType("datetime");
+
+                entity.Property(e => e.Name).HasMaxLength(50);
             });
 
             modelBuilder.Entity<_MonthData>(entity =>

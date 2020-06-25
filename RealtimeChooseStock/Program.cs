@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DataService.Models;
+using Microsoft.EntityFrameworkCore;
 using SKCOMLib;
 
 namespace RealtimeChooseStock
@@ -15,6 +16,8 @@ namespace RealtimeChooseStock
         static SKCenterLib PskCenter;
         static StockDbContext DbContext;
         static SKReplyLib m_pSKReply;
+
+        [Obsolete]
         static void Main(string[] args)
         {
             PskCenter = new SKCenterLib();
@@ -37,8 +40,12 @@ namespace RealtimeChooseStock
             GetMinuteKLines(int.Parse(args[0]), int.Parse(args[1]));
         }
 
+        [Obsolete]
         private static void GetMinuteKLines(int totalCount, int index)
         {
+            var sql = $"delete from [MinuteKLine] where [Datetime] >= '{DateTime.Today:yyyy-MM-dd}'";
+            DbContext.Database.ExecuteSqlCommand(sql);
+
             var quote = new TwQuote(DbContext);
             var p = Stopwatch.StartNew();
             p.Start();
@@ -51,11 +58,6 @@ namespace RealtimeChooseStock
             var tmpStocks = stocks.ToArray();
             var tmpStocks1 = tmpStocks[index].ToArray();
             var count = 0;
-            //foreach (var stock in tmpStocks1)
-            //{
-            //    Console.WriteLine($"{DateTime.UtcNow} {count++} {stock.StockId} {stock.Name}");
-            //    quote.GetPricesByStockId(stock.StockId, stock.Name);
-            //}
 
             Parallel.ForEach(tmpStocks1, stock =>
             {

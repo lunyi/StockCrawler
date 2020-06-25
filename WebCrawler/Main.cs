@@ -26,8 +26,11 @@ namespace WebCrawler
             //await ss.RunSingleAsync();
             //await ss.ParserMarginAsync();
 
-            var s = new CnyParser();
-            await s.RunAsync();
+            //var s = new CnyParser();
+            //await s.RunAsync();
+
+
+            await RunAsync<DailyKLineNotifier>(int.Parse(args[0]));
 
             //var context = new StockDbContext();
             //var s1 = new CnyParser();
@@ -74,12 +77,21 @@ namespace WebCrawler
                 RevokeApi = "https://notify-api.line.me/api/revoke"
             });
         }
-        private static async Task RunAsync<T>() where T:BaseParser
+
+        private static async Task RunAsync<T>() where T : BaseParser
         {
             InitailLineNotifyBot<T>();
             var serviceProvider = _serviceCollection.BuildServiceProvider();
             // 3. 執行主服務
-           await serviceProvider.GetRequiredService<T>().RunAsync();
+            await serviceProvider.GetRequiredService<T>().RunAsync();
+        }
+
+        private static async Task RunAsync<T>(int minute) where T:BaseParser
+        {
+            InitailLineNotifyBot<T>();
+            var serviceProvider = _serviceCollection.BuildServiceProvider();
+            // 3. 執行主服務
+           await serviceProvider.GetRequiredService<T>().RunAsync(minute);
         }
 
         //private static async Task DailyNotifyAsync()

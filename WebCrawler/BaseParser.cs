@@ -20,6 +20,11 @@ namespace WebCrawler
             return Task.FromResult(0);
         }
 
+        public virtual Task RunAsync(int minutes)
+        {
+            return Task.FromResult(0);
+        }
+
         protected HtmlNode GetRootNoteByUrl(string url, bool isUtf8 = true)
         {
             var web = new HtmlWeb();
