@@ -17,8 +17,8 @@ namespace WebCrawler
         [Obsolete]
         static async Task Main(string[] args)
         {
-            //var c = new ThousandDataCrawlerV2();
-            //await c.ExecuteLastAsync();
+            var c = new ThousandDataCrawlerV2();
+            await c.ExecuteLastAsync();
 
             //var c = new MonthDataCrawler();
             //await c.ExecuteAsync();
@@ -30,7 +30,7 @@ namespace WebCrawler
             //await c.ExecuteAsync();
             //Console.ReadLine();
 
-            await RunAsync<DailyTraderCrawler>();
+            //await RunAsync<DailyTraderCrawler>();
         }
 
         private static ServiceCollection _serviceCollection;

@@ -19,7 +19,7 @@ namespace WebAutoCrawler
         {
             GoToUrl(BillionUrl);
         }
-        public async Task ExecuteAsync2()
+        public async Task ExecuteHistoryAsync()
         {
             var context = new StockDbContext();
             var stocks = context.Stocks.Where(p => p.Status == 1).OrderBy(p => p.StockId).ToArray();
@@ -64,7 +64,7 @@ namespace WebAutoCrawler
         public async Task ExecuteLastAsync()
         {
             var context = new StockDbContext();
-            var stocks = context.Stocks.FromSqlRaw(GetStockIdbyString(GetLastFriday())).ToArray();
+            var stocks = context.Stocks.FromSqlRaw(GetStockIdbyString(GetCurrentDate())).ToArray();
 
             foreach (var stock in stocks)
             {
@@ -78,11 +78,19 @@ namespace WebAutoCrawler
                 }
             }
 
-            context.Database.ExecuteSqlCommand(GetSqlToUpdate(GetLastFriday()));
+            context.Database.ExecuteSqlCommand(GetSqlToUpdate(GetCurrentDate()));
 
             Dispose();
         }
 
+        private string GetCurrentDate()
+        {
+            GoToUrl(BillionUrl);
+            Thread.Sleep(300);
+            var selectElement = new SelectElement(FindElement(By.Id("scaDates")));
+            var res = selectElement.Options[0].Text.Insert(6, "-").Insert(4, "-");
+            return res;
+        }
         private string GetStockIdbyString(string datetime)
         {
             return $@"
@@ -151,6 +159,7 @@ where t.[Datetime] = '{datetime}'
             var k = index;
             var selectElement = new SelectElement(FindElement(By.Id("scaDates")));
             var date = selectElement.Options[k].Text.Insert(6, "-").Insert(4, "-");
+
             selectElement.SelectByIndex(k);
             FindElement(By.Id("StockNo")).SendKeys(stockId);
             FindElement(By.Name("sub")).Click();

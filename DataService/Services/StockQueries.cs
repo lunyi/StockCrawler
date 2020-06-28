@@ -310,7 +310,7 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
         Task<TwStock[]> IStockQueries.GetTwStocksAsync()
         {
             var context = new StockDbContext();
-            return context.TwStock.OrderByDescending(p=>p.Datetime).ToArrayAsync();
+            return context.TwStock.OrderByDescending(p=>p.Datetime).Take(60).ToArrayAsync();
         }
 
         private string GetLastFriday(string datetime = null)
@@ -326,6 +326,13 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
             days = days == 7 ? 0 : days;
             return today.AddDays(days * -1).ToString("yyyy-MM-dd");
         }
+
+        private string GetLastMonday(DateTime lastThousandDay)
+        {
+            var days = (int)(lastThousandDay.DayOfWeek) - 1;
+            return lastThousandDay.AddDays(days * -1).ToString("yyyy-MM-dd");
+        }
+
         private string ROE大於15且股價小於50(string datetime)
         {
             return $@"
@@ -542,6 +549,7 @@ drop table #t1, #t2, #t3, #t4
             var datetimes = await  context.Prices.Where(p=>p.StockId == "1101")
                 .GroupBy(p => p.Datetime)
                 .OrderByDescending(p => p.Key)
+                .Take(90)
                 .Select(p=>p.Key.ToString("yyyy-MM-dd"))
                 .ToListAsync();
             var today = DateTime.Today.ToString("yyyy-MM-dd");
@@ -771,13 +779,15 @@ drop table #t1";
 
         private string 每周投信買散戶賣(StockDbContext context, string datetime)
         {
-            var lastFriday = GetLastFriday(datetime);
-            var last5days = context.Thousand.Where(p=>p.StockId == "2330" && p.Datetime <= Convert.ToDateTime(datetime))
+            var today = Convert.ToDateTime(datetime);
+            
+            var lastThousandDay = context.Thousand.Where(p=>p.StockId == "2330" && p.Datetime <= today)
                 .OrderByDescending(p=>p.Datetime)
                 .Select(p => p.Datetime)
-                .FirstOrDefault().ToString("yyyy-MM-dd");
+                .FirstOrDefault();
+            var lastMonday = GetLastMonday(lastThousandDay);
 
-            return $@"select 
+            var res = $@"select 
 	 ss.[Id]
 	,ss.[StockId]
 	,ss.[Name]
@@ -808,14 +818,15 @@ join
 		join [Stocks] s on s.StockId = p.StockId
 		join [Thousand] th on th.StockId=p.StockId
 	where 
-		p.[Datetime] >= '{last5days}' and  p.[Datetime] <= '{lastFriday}' 
+		p.[Datetime] >= '{lastMonday}' and  p.[Datetime] <= '{lastThousandDay.ToString("yyyy-MM-dd")}' 
 		and s.股本 < 100 
 		and s.[股價] < 100
-		and th.[Datetime] = '{last5days}' and th.PUnder100 < th.PPUnder100 and th.POver1000 > th.PPOver1000
+		and th.[Datetime] = '{lastThousandDay.ToString("yyyy-MM-dd")}' and th.PUnder100 < th.PPUnder100 and th.POver1000 > th.PPOver1000
 	group by p.StockId, p.Name
 	having sum(p.投信買賣超) > 0 and sum(p.外資買賣超) > 0 and sum(p.主力買超張數 - p.主力賣超張數) > 0)
 	st on ss.StockId = st.StockId
 order by st.[投信買賣超] desc";
+            return res;
         }
 
         private string 連續上漲天數(string datetime)
@@ -1723,7 +1734,6 @@ where [Datetime] = '{datetime2}' ) b  on a.StockId = b.StockId
 where a.[董監持股] !=  b.[董監持股]) b on s.StockId = b.StockId
 order by b.買超 desc
 ";
-
         }
 
         Task<BestStockType[]> IStockQueries.GetBestStockTypeAsync()
