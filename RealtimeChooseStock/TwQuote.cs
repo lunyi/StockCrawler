@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
 using DataService.Models;
 using EFCore.BulkExtensions;
@@ -15,10 +16,12 @@ namespace RealtimeChooseStock
         private bool m_bfirst = true;
         private int m_nCode;
         private string StockName;
+        private string StockId;
         private StockDbContext DbContext;
         public delegate void MyMessageHandler(string strType, int nCode, string strMessage);
         public event MyMessageHandler GetMessage;
         private ConcurrentBag<MinuteKLine> MinuteKines = new ConcurrentBag<MinuteKLine>();
+        private ConcurrentBag<Prices> Prices = new ConcurrentBag<Prices>();
         private SKQuoteLib m_SKQuoteLib { get; set; }
         private DataTable dtStocks;
         private DataTable dtBest5Ask;
@@ -62,26 +65,58 @@ namespace RealtimeChooseStock
             lock (locker)
             {
                 StockName = stockName;
+                StockId = stockId;
                 m_nCode = m_SKQuoteLib.SKQuoteLib_RequestKLine(stockId, KLineType.PerMinute, OutputFormat.New);
             }
         }
 
-        //public void GetPricesByStocks(Stocks[] stocks)
-        //{
-        //    Parallel.ForEach(stocks, currentStock =>
-        //    {
-        //        StockName = currentStock.Name;
-        //        Console.WriteLine($"{DateTime.UtcNow} {currentStock.StockId} {StockName}");
-        //        m_nCode = m_SKQuoteLib.SKQuoteLib_RequestKLine(currentStock.StockId, KLineType.PerMinute, OutputFormat.New);
-        //    });
-        //}
+        public void GetBest5(string stockId, string stockName)
+        {
+            short sPage = 0;
+            lock (locker)
+            {
+                StockId = stockId;
+                StockName = stockName;
+                m_nCode = m_SKQuoteLib.SKQuoteLib_RequestTicks(ref sPage, stockId);
+                Thread.Sleep(100);
+                m_nCode = m_SKQuoteLib.SKQuoteLib_RequestTicks(50, stockId);
+            }
+        }
 
+        public void GetOHLC(string stockId, string stockName)
+        {
+            SKSTOCK pSKStock = new SKSTOCK();
+
+            int nCode = m_SKQuoteLib.SKQuoteLib_GetStockByNo(stockId, ref pSKStock);
+
+            OnUpDateDataRow(pSKStock);
+
+            if (nCode == 0)
+            {
+                OnUpDateDataRow(pSKStock);
+            }
+        }
+        void m_SKQuoteLib_OnNotifyBest5(short sMarketNo, short sStockIdx, int nBestBid1, int nBestBidQty1, int nBestBid2, int nBestBidQty2, int nBestBid3, int nBestBidQty3, int nBestBid4, int nBestBidQty4, int nBestBid5, int nBestBidQty5, int nExtendBid, int nExtendBidQty, int nBestAsk1, int nBestAskQty1, int nBestAsk2, int nBestAskQty2, int nBestAsk3, int nBestAskQty3, int nBestAsk4, int nBestAskQty4, int nBestAsk5, int nBestAskQty5, int nExtendAsk, int nExtendAskQty, int nSimulate)
+        {
+            var p = new Prices
+            {
+                Id = Guid.NewGuid(),
+                StockId = StockId,
+                Name = StockName,
+                Close = nBestAsk1 / 100,
+                Open = nBestBid1 / 100,
+            };
+
+            Prices.Add(p);
+        }
         void m_SKQuoteLib_OnNotifyKLineData(string bstrStockNo, string bstrData)
         {
             var data = bstrData.Split(new[] { ',' });
             var datetime = Convert.ToDateTime(data[0]);
 
-            if (datetime <= DateTime.Today)
+            Console.WriteLine(datetime.ToString("yyyy/MM/dd HH:mm:ss"));
+
+            if (datetime <= DateTime.Today.Date)
                 return;
 
             var k = new MinuteKLine
@@ -102,6 +137,11 @@ namespace RealtimeChooseStock
         {
             DbContext.BulkInsert(MinuteKines.ToArray());
         }
+        public void SavePrices()
+        {
+            DbContext.BulkInsert(Prices.ToArray());
+        }
+
         void m_SKQuoteLib_OnConnection(int nKind, int nCode)
         {
             if (nKind == 3001)
@@ -139,109 +179,6 @@ namespace RealtimeChooseStock
             m_SKQuoteLib.SKQuoteLib_GetStockByIndex(sMarketNo, sStockIdx, ref pSKStock);
 
             OnUpDateDataRow(pSKStock);
-        }
-
-        void m_SKQuoteLib_OnNotifyBest5(short sMarketNo, short sStockIdx, int nBestBid1, int nBestBidQty1, int nBestBid2, int nBestBidQty2, int nBestBid3, int nBestBidQty3, int nBestBid4, int nBestBidQty4, int nBestBid5, int nBestBidQty5, int nExtendBid, int nExtendBidQty, int nBestAsk1, int nBestAskQty1, int nBestAsk2, int nBestAskQty2, int nBestAsk3, int nBestAskQty3, int nBestAsk4, int nBestAskQty4, int nBestAsk5, int nBestAskQty5, int nExtendAsk, int nExtendAskQty, int nSimulate)
-        {
-            var pSKStock = new SKSTOCK();
-            double dDigitNum = 0.000;
-            string strStockNoTick = "2330";
-            var nCode = m_SKQuoteLib.SKQuoteLib_GetStockByNo(strStockNoTick, ref pSKStock);
-            //[-1022-a-]
-            if (nCode == 0)
-                dDigitNum = (Math.Pow(10, pSKStock.sDecimal));
-            else
-                dDigitNum = 100.00;//default value
-
-            if (dtBest5Ask.Rows.Count == 0 && dtBest5Bid.Rows.Count == 0)
-            {
-                DataRow myDataRow;
-
-                myDataRow = dtBest5Ask.NewRow();
-                myDataRow["m_nAskQty"] = nBestAskQty1;
-                myDataRow["m_nAsk"] = nBestAsk1 / dDigitNum;///100.00;
-                dtBest5Ask.Rows.Add(myDataRow);
-
-                myDataRow = dtBest5Ask.NewRow();
-                myDataRow["m_nAskQty"] = nBestAskQty2;
-                myDataRow["m_nAsk"] = nBestAsk2 / dDigitNum;//100.00;
-                dtBest5Ask.Rows.Add(myDataRow);
-
-                myDataRow = dtBest5Ask.NewRow();
-                myDataRow["m_nAskQty"] = nBestAskQty3;
-                myDataRow["m_nAsk"] = nBestAsk3 / dDigitNum;//100.00;
-                dtBest5Ask.Rows.Add(myDataRow);
-
-                myDataRow = dtBest5Ask.NewRow();
-                myDataRow["m_nAskQty"] = nBestAskQty4;
-                myDataRow["m_nAsk"] = nBestAsk4 / dDigitNum;// 100.00;
-                dtBest5Ask.Rows.Add(myDataRow);
-
-                myDataRow = dtBest5Ask.NewRow();
-                myDataRow["m_nAskQty"] = nBestAskQty5;
-                myDataRow["m_nAsk"] = nBestAsk5 / dDigitNum;// 100.00;
-                dtBest5Ask.Rows.Add(myDataRow);
-
-
-
-                myDataRow = dtBest5Bid.NewRow();
-                myDataRow["m_nAskQty"] = nBestBidQty1;
-                myDataRow["m_nAsk"] = nBestBid1 / dDigitNum;
-                dtBest5Bid.Rows.Add(myDataRow);
-
-                myDataRow = dtBest5Bid.NewRow();
-                myDataRow["m_nAskQty"] = nBestBidQty2;
-                myDataRow["m_nAsk"] = nBestBid2 / dDigitNum;
-                dtBest5Bid.Rows.Add(myDataRow);
-
-                myDataRow = dtBest5Bid.NewRow();
-                myDataRow["m_nAskQty"] = nBestBidQty3;
-                myDataRow["m_nAsk"] = nBestBid3 / dDigitNum;
-                dtBest5Bid.Rows.Add(myDataRow);
-
-                myDataRow = dtBest5Bid.NewRow();
-                myDataRow["m_nAskQty"] = nBestBidQty4;
-                myDataRow["m_nAsk"] = nBestBid4 / dDigitNum;
-                dtBest5Bid.Rows.Add(myDataRow);
-
-                myDataRow = dtBest5Bid.NewRow();
-                myDataRow["m_nAskQty"] = nBestBidQty5;
-                myDataRow["m_nAsk"] = nBestBid5 / dDigitNum;
-                dtBest5Bid.Rows.Add(myDataRow);
-            }
-            else
-            {
-                dtBest5Ask.Rows[0]["m_nAskQty"] = nBestAskQty1;
-                dtBest5Ask.Rows[0]["m_nAsk"] = nBestAsk1 / dDigitNum;
-
-                dtBest5Ask.Rows[1]["m_nAskQty"] = nBestAskQty2;
-                dtBest5Ask.Rows[1]["m_nAsk"] = nBestAsk2 / dDigitNum;
-
-                dtBest5Ask.Rows[2]["m_nAskQty"] = nBestAskQty3;
-                dtBest5Ask.Rows[2]["m_nAsk"] = nBestAsk3 / dDigitNum;
-
-                dtBest5Ask.Rows[3]["m_nAskQty"] = nBestAskQty4;
-                dtBest5Ask.Rows[3]["m_nAsk"] = nBestAsk4 / dDigitNum;
-
-                dtBest5Ask.Rows[4]["m_nAskQty"] = nBestAskQty5;
-                dtBest5Ask.Rows[4]["m_nAsk"] = nBestAsk5 / dDigitNum;
-
-
-                dtBest5Bid.Rows[0]["m_nAskQty"] = nBestBidQty1;
-                dtBest5Bid.Rows[0]["m_nAsk"] = nBestBid1 / dDigitNum;
-
-                dtBest5Bid.Rows[1]["m_nAskQty"] = nBestBidQty2;
-                dtBest5Bid.Rows[1]["m_nAsk"] = nBestBid2 / dDigitNum;
-
-                dtBest5Bid.Rows[2]["m_nAskQty"] = nBestBidQty3;
-                dtBest5Bid.Rows[2]["m_nAsk"] = nBestBid3 / dDigitNum;
-
-                dtBest5Bid.Rows[3]["m_nAskQty"] = nBestBidQty4;
-                dtBest5Bid.Rows[3]["m_nAsk"] = nBestBid4 / dDigitNum;
-
-                dtBest5Bid.Rows[4]["m_nAskQty"] = nBestBidQty5;
-                dtBest5Bid.Rows[4]["m_nAsk"] = nBestBid5 / dDigitNum;
-            }
         }
 
         void m_SKQuoteLib_OnNotifyServerTime(short sHour, short sMinute, short sSecond, int nTotal)

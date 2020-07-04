@@ -163,8 +163,14 @@ namespace DataService.Services
                 case (int)ChooseStockType.多頭排列:
                     sql = Get多頭排列SQL(datetime);
                     break;
+                case (int)ChooseStockType.上漲破五日均:
+                    sql = Get上漲破五日均SQL(datetime);
+                    break;
                 case (int)ChooseStockType.三天漲百分之二十:
                     sql = Get三天漲百分之二十SQL(datetime);
+                    break;
+                case (int)ChooseStockType.連續兩天漲停板:
+                    sql = 連續兩天漲停板(context, datetime);
                     break;
                 default:
                     var whereCondition = DateFunc[(ChooseStockType)type]();
@@ -577,7 +583,7 @@ order by [股價]
 ";
         }
 
-        private string Get投信突然加入買方Sql(string datetime, string orderby = "")
+        private string Get投信突然加入買方Sql(string datetime)
         {
             return $@"
 
@@ -598,31 +604,13 @@ join TOPTEN t3 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
 join TOPTEN t4 on t1.StockId = t4.StockId and t1.RowNo + 3 = t4.RowNo
 join TOPTEN t5 on t1.StockId = t5.StockId and t1.RowNo + 4 = t5.RowNo
 join TOPTEN t6 on t1.StockId = t6.StockId and t1.RowNo + 5 = t6.RowNo
-join TOPTEN t7 on t1.StockId = t7.StockId and t1.RowNo + 6 = t7.RowNo
-join TOPTEN t8 on t1.StockId = t8.StockId and t1.RowNo + 7 = t8.RowNo
-join TOPTEN t9 on t1.StockId = t9.StockId and t1.RowNo + 8 = t9.RowNo
-join TOPTEN t10 on t1.StockId = t10.StockId and t1.RowNo + 9 = t10.RowNo
---join TOPTEN t11 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
---join TOPTEN t12 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
---join TOPTEN t13 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
---join TOPTEN t14 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
---join TOPTEN t15 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
---join TOPTEN t16 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
---join TOPTEN t17 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
---join TOPTEN t18 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
---join TOPTEN t19 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
---join TOPTEN t20 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
 WHERE t1.RowNo=1 and 
 t1.[投信買賣超] > 0 and 
-t2.[投信買賣超] = 0 and
-t3.[投信買賣超] = 0 and
-t4.[投信買賣超] = 0 and
-t5.[投信買賣超] = 0 and
-t6.[投信買賣超] = 0 and
-t7.[投信買賣超] = 0 and
-t8.[投信買賣超]= 0 and
-t9.[投信買賣超]= 0 and
-t10.[投信買賣超]= 0
+t2.[投信買賣超] <= 0 and
+t3.[投信買賣超] <= 0 and
+t4.[投信買賣超] <= 0 and
+t5.[投信買賣超] <= 0 and
+t6.[投信買賣超] <= 0
 order by t1.[Close]  
 ";
         }
@@ -826,6 +814,27 @@ join
 	having sum(p.投信買賣超) > 0 and sum(p.外資買賣超) > 0 and sum(p.主力買超張數 - p.主力賣超張數) > 0)
 	st on ss.StockId = st.StockId
 order by st.[投信買賣超] desc";
+            return res;
+        }
+
+        private string 連續兩天漲停板(StockDbContext context, string datetime)
+        {
+            var today = Convert.ToDateTime(datetime);
+
+            var lastDays = context.Prices.Where(p => p.StockId == "2330" && p.Datetime < today)
+                .OrderByDescending(p => p.Datetime)
+                .Select(p => p.Datetime.ToString("yyyy-MM-dd"))
+                .Take(2).ToArray();
+
+            var res = $@"select s.* from 
+Stocks s 
+join
+	(select * from [Prices] where [Datetime] = '{datetime}') a on s.StockId = a.StockId
+join 
+	(select * from [Prices] where [Datetime] = '{lastDays[0]}') b on a.StockId = b.StockId
+--join 
+--	(select * from [Prices] where [Datetime] = '{lastDays[1]}') c on a.StockId = c.StockId
+where a.漲跌百分比 > 9.4 and b.漲跌百分比 > 9.4 and a.[Close] > 10 order by s.StockId";
             return res;
         }
 
@@ -1399,7 +1408,6 @@ order by s.[Description] / s.每股淨值
             { ChooseStockType.當沖比例 , ()=>當沖比例()},
             { ChooseStockType.當沖總損益 , ()=>當沖總損益()},
             { ChooseStockType.當沖均損益 , ()=>當沖均損益()}
-
         };
 
         private Dictionary<int, Func<string>> MapFunc = new Dictionary<int, Func<string>>
@@ -1426,6 +1434,7 @@ order by s.[Description] / s.每股淨值
   order by [當沖總損益] desc
 ";
         }
+
         private static string 當沖均損益()
         {
             return @$"
@@ -1651,6 +1660,35 @@ SELECT
   order by StockId";
         }
 
+        private string Get上漲破五日均SQL(string datetime)
+        {
+            _context = new StockDbContext();
+            var dd = Convert.ToDateTime(datetime);
+            var datetime2 = _context.Prices.Where(p => p.StockId == "2330" && p.Datetime < dd)
+                .OrderByDescending(p => p.Datetime)
+                .Take(1)
+                .Select(p => p.Datetime)
+                .FirstOrDefault().ToString("yyyy-MM-dd");
+
+            return $@"select s.* 
+  from [Stocks] s 
+    join
+	  (select * 
+	  from [Prices]
+	  where [Datetime] = '{datetime}') a on s.StockId = a.StockId
+	join
+	  (select * 
+	  from [Prices]
+	  where [Datetime] = '{datetime2}') b on a.StockId = b.StockId
+  where a.[漲跌百分比] > 2.5
+	  and a.[Close] > a.MA5 and a.[open] < a.MA5
+	  and a.[Close] > 20 and a.[Close] < 170
+	  and a.[Close] > b.[Open]
+      and (a.投信買賣超 > 0 or b.投信買賣超 > 0)
+  order by a.[漲跌百分比] desc";
+        }
+
+
         private string Get三天漲百分之二十SQL(string datetime)
         {
             _context = new StockDbContext();
@@ -1762,6 +1800,12 @@ order by b.買超 desc
 
         async Task<string[]> IStockQueries.GetMinuteKLinesAsync()
         {
+            var s = new[] 
+            {
+                "最近十天每三天漲幅超過20%",
+                "最近十天每天外資投信主力買超",
+                "最近十天每天外資投信主力買超"
+            };
             var context = new StockDbContext();
             var result = new List<string>();
 ;;          var minutes = new[] { 5, 10, 30 };
