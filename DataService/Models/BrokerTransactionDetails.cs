@@ -15,5 +15,6 @@ namespace DataService.Models
         public int Sell { get; set; }
         public int 買賣超 { get; set; }
         public decimal? Close { get; set; }
+        public decimal? Percent { get; set; }
     }
 }

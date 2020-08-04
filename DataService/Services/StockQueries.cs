@@ -158,7 +158,7 @@ namespace DataService.Services
                     sql = GetSqlByChairmanAsync(datetime);
                     break;
                 case (int)ChooseStockType.每周成交量增長排行榜:
-                    sql = 每周成交量增長排行榜(GetLastFriday(datetime));
+                    sql = 每周成交量增長排行榜(datetime);
                     break;
                 case (int)ChooseStockType.多頭排列:
                     sql = Get多頭排列SQL(datetime);
@@ -168,6 +168,9 @@ namespace DataService.Services
                     break;
                 case (int)ChooseStockType.三天漲百分之二十:
                     sql = Get三天漲百分之二十SQL(datetime);
+                    break;
+                case (int)ChooseStockType.三天漲百分之二十且投信買超:
+                    sql = Get三天漲百分之二十且投信買超SQL(datetime);
                     break;
                 case (int)ChooseStockType.連續兩天漲停板:
                     sql = 連續兩天漲停板(context, datetime);
@@ -250,7 +253,7 @@ select top 300
 	  ,s.[Description]
       ,s.[股票期貨]
 from [Prices] p join [Stocks] s on s.StockId = p.StockId 
-where p.[Datetime] = '{datetime}' and VMA5 > 0 and VMA10 > 0 and VMA20 > 0 and VMA60 > 0
+where p.[Datetime] = '{datetime}' and VMA5 > 0 and VMA10 > 0 and VMA20 > 0 and VMA60 > 0 and p.{strVolumn} > 0
 order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p.{strVolumn} {orderby}
 ";
         }
@@ -302,7 +305,7 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                                 }).ToArrayAsync();
 
             var datetimeString = datetime.ToString("yyyy-MM-dd");
-            var weeklyChip = await context._WeekyChip.FromSqlRaw(GetWeekAnalyst(stockId, GetLastFriday(datetimeString))).ToArrayAsync();
+            var weeklyChip = await context._WeekyChip.FromSqlRaw(GetWeekAnalyst(stockId, GetLastFriday(datetimeString), chkDate)).ToArrayAsync();
             var monthData = await context._MonthData.FromSqlRaw("exec [usp_GetMonthData] {0}, {1}", stockId, datetimeString).ToArrayAsync();
 
             return new StockeModel
@@ -350,7 +353,7 @@ SELECT s.*
 ";
         }
 
-        private string GetWeekAnalyst(string stockId, string datetime)
+        private string GetWeekAnalyst(string stockId, string datetime, bool chkDate)
         {
             var sql =  $@"DECLARE @MaxDate AS DATETIME = '{datetime}';
 DECLARE @stockid AS nvarchar(10) = '{stockId}';
@@ -834,7 +837,7 @@ join
 	(select * from [Prices] where [Datetime] = '{lastDays[0]}') b on a.StockId = b.StockId
 --join 
 --	(select * from [Prices] where [Datetime] = '{lastDays[1]}') c on a.StockId = c.StockId
-where a.漲跌百分比 > 9.4 and b.漲跌百分比 > 9.4 and a.[Close] > 10 order by s.StockId";
+where a.漲跌百分比 > 9.4 and b.漲跌百分比 > 9.4 and a.[Close] > 10 and a.[Close] < 180 order by a.[Close] desc";
             return res;
         }
 
@@ -1031,54 +1034,29 @@ drop table #tmp";
 
         private string 每周成交量增長排行榜(string datetime)
         {
+            var dd = Convert.ToDateTime(datetime);
+            var datetime2 = _context.Prices.Where(p => p.StockId == "2330" && p.Datetime < dd)
+                .OrderByDescending(p => p.Datetime)
+                .Take(9)
+                .Select(p => p.Datetime.ToString("yyyy-MM-dd"))
+                .ToArray();
+
             return $@"
-DECLARE @MaxDate AS DATETIME = '{datetime}';
-
-WITH cte
-AS
-(
-    SELECT
-	    StockId, [Name],
-        [Datetime], 
-		DATEDIFF(DAY,  [Datetime], @MaxDate) AS NoDays,
-        DATEDIFF(DAY,  [Datetime], @MaxDate)/7 AS NoGroup,
-        [外資買賣超],  [投信買賣超] , [自營商買賣超] , 
-		([融資買進] - [融資賣出]) as 融資買賣超,
-		[主力買超張數] - [主力賣超張數] as [主力買賣超],
-		成交量
-    FROM [Prices]
-	where [Datetime] <= @MaxDate
-)
-
-SELECT  
-	c1.StockId, c1.[Name],
-    DATEADD(DAY, c1.NoGroup*-7, @MaxDate) AS [Datetime],
-    SUM(c1.[外資買賣超]) as [外資買賣超],
-	SUM(c1.[投信買賣超]) as [投信買賣超],
-	SUM(c1.[自營商買賣超]) as [自營商買賣超],
-	SUM(c1.[主力買賣超]) as [主力買賣超],
-	SUM(c1.融資買賣超) as 融資買賣超,
-    SUM(c1.成交量) as c1成交量,
-	SUM(c2.成交量) as c2成交量,
-	SUM(c1.成交量) / cast(SUM(c2.成交量) as decimal) as 買超比例
-	into #t1
-FROM cte c1
-join cte c2  on c1.StockId = c2.StockId and c1.NoGroup + 1 = c2.NoGroup
-join [Stocks] s  on s.StockId = c1.StockId 
-where c1.NoGroup = 0 
-GROUP BY c1.NoGroup, c1.StockId, c1.[Name]
-having 
- SUM(c1.成交量) > SUM(c2.成交量) * 1.5
- and (SUM(c1.[主力買賣超]) > 0 or SUM(c1.[融資買賣超]) > 0 or SUM(c1.[外資買賣超]) > 0)
- order by 
-  SUM(c1.成交量) / SUM(c2.成交量) desc
-
 select s.* 
-from [Stocks] s
-join #t1 t1 on t1.StockId = s.StockId
-order by t1.買超比例 desc
-
-drop table #t1
+from
+(select 
+	p.StockId,
+	p.Name,
+	Sum(p.投信買賣超) as 投信買賣超,
+	Sum(t.Vol2) as 成交量2,
+	sum(p.成交量) as 成交量
+from Prices p
+join [Stocks] s on s.StockId = p.StockId
+cross apply (select 成交量 as Vol2 from Prices where StockId = p.StockId and [Datetime] >= '{datetime2[8]}' and [Datetime] < '{datetime2[3]}') as t
+where p.[Datetime] <= '{datetime}' and p.[Datetime] >= '{datetime2[3]}'
+group by p.StockId, p.Name) a join [Stocks] s on s.StockId = a.StockId
+where a.成交量 > (a.成交量2 * 2) and a.投信買賣超 > 0 
+order by a.成交量 / a.成交量2 desc
 ";
         }
 
@@ -1729,6 +1707,49 @@ join (
 select StockId, [Name], sum([漲跌百分比]) as [漲跌百分比] from TOPTEN
 group by StockId, [Name]
 having sum([漲跌百分比]) > 20) a on s.StockId = a.StockId
+order by a.漲跌百分比 desc";
+        }
+
+        private string Get三天漲百分之二十且投信買超SQL(string datetime)
+        {
+            _context = new StockDbContext();
+            var dd = Convert.ToDateTime(datetime);
+            var datetimeList = _context.Prices.Where(p => p.StockId == "2330" && p.Datetime < dd)
+                .OrderByDescending(p => p.Datetime)
+                .Take(2)
+                .Select(p => p.Datetime.ToString("yyyy/MM/dd")).ToArray();
+            var datetime2 = datetimeList[1];
+            return $@"WITH TOPTEN as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY [Name] 
+       order by [Datetime] desc
+    ) AS RowNo 
+    FROM [Prices] where [Datetime] <= '{datetime}' and [Datetime] >= '{datetime2}'
+)
+
+select  s.[Id]
+      ,s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
+	  ,CAST(a.[漲跌百分比] AS nvarchar(30)) AS [Description]
+      ,股票期貨 from [Stocks] s
+join (
+select StockId, [Name], sum([漲跌百分比]) as [漲跌百分比] from TOPTEN
+group by StockId, [Name]
+having sum([漲跌百分比]) > 20 and  sum([投信買賣超]) > 0) a on s.StockId = a.StockId
 order by a.漲跌百分比 desc";
         }
 

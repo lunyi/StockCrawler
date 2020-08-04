@@ -12,6 +12,8 @@ namespace WebCrawler
 {
     public class CnyParser : BaseParser
     {
+        //https://jdata.yuanta.com.tw/z/zc/zco/zco0/zco0.djhtm?A=2330&BHID=1480&b=1480&C=1&D=2019-6-1&E=2020-7-22&ver=V3
+        //https://pscnetsecrwd.moneydj.com/b2brwdCommon/jsondata/ef/3f/9b/twStockData.xdjjson?x=stock-chip0002-7&d=2019/03/24&e=2020/07/23&a=1229&b=1520&revision=2018_07_31_1
         //string baseUrl = "https://fubon-ebrokerdj.fbs.com.tw";
         string baseUrl = "http://5850web.moneydj.com";
         //string baseUrl = "https://concords.moneydj.com";
@@ -24,11 +26,14 @@ namespace WebCrawler
             var s = Stopwatch.StartNew();
             s.Start();
 
-            //var stocks = await context.Stocks.Where(p=>p.Status == 1)
-            //    .OrderByDescending(p=>p.StockId).ToArrayAsync();
+            var stocks = await context.Stocks.Where(p => p.Status == 1)
+                .OrderByDescending(p => p.StockId).ToArrayAsync();
 
-            var stocks = await context.Stocks.FromSql(GetSql()).ToArrayAsync();
-            for (int i = stocks.Length / 2; i >=0; i--)
+            //var stocks = await context.Stocks.FromSql(GetSql()).ToArrayAsync();
+            for (int i = stocks.Length / 2; i <= stocks.Length - 1; i++)
+            //for (int i = stocks.Length / 2; i >=0; i--)
+            //for (int i = 0; i <= stocks.Length-1; i++)
+            //for (int i = stocks.Length - 1; i >=0 ; i--)
             {
                 try
                 {

@@ -16,8 +16,7 @@ using System.Globalization;
 namespace WebAutoCrawler
 {
     public class DailyTraderCrawler : BaseCrawler
-    {
-        private string allStocksUrl = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E5%BC%B5%E6%95%B8+%28%E7%95%B6%E6%97%A5%29%40%40%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E5%BC%B5%E6%95%B8%40%40%E7%95%B6%E6%97%A5";
+    { 
         private readonly LineNotifyBotApi _lineNotifyBotApi;
         private string _token;
 
@@ -32,7 +31,9 @@ namespace WebAutoCrawler
             var s = Stopwatch.StartNew();
             s.Start();
             
-            await ParserAsync(context, allStocksUrl);
+            await ParserAsync(context);
+            await ParserKDAsync(context);
+            await ParserMACDAsync(context);
 
             var prices = context.Prices.Where(P => P.Datetime == DateTime.Today)
                 .OrderByDescending(p => p.當沖比例).Take(20).ToArray();
@@ -52,8 +53,101 @@ namespace WebAutoCrawler
             Console.WriteLine(s.Elapsed.TotalSeconds);
         }
 
-        private async Task ParserAsync(StockDbContext contet, string url)
+        private async Task ParserKDAsync(StockDbContext contet)
         {
+            string url = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E6%97%A5RSV+%28%E4%BD%8E%E2%86%92%E9%AB%98%29%40%40%E6%97%A5KD%E6%8C%87%E6%A8%99%40%40RSV+%28%E4%BD%8E%E2%86%92%E9%AB%98%29";
+            GoToUrl(url);
+            Thread.Sleep(5000);
+
+            for (int i = 0; i <= 5; i++)
+            {
+                var selRANK = new SelectElement(FindElement(By.Id("selRANK")));
+                selRANK.SelectByIndex(i);
+                Thread.Sleep(10000);
+                var tables = FindElements(By.XPath($"/html/body/table[5]/tbody/tr/td[3]/div[2]/div/div/table/tbody"));
+                foreach (var table in tables)
+                {
+                    var tr = table.FindElements(By.TagName("tr"));
+
+                    foreach (var t in tr)
+                    {
+                        var td = t.FindElements(By.TagName("td"));
+                        try
+                        {
+                            var datetime = Convert.ToDateTime($"{DateTime.Now.Year}/{td[3].Text}");
+                            var stockId = Convert.ToString(td[1].Text);
+
+                            var price = contet.Prices.FirstOrDefault(p => p.Datetime == datetime && p.StockId == stockId);
+
+                            if (price == null)
+                                continue;
+
+                            Console.WriteLine(td[0].Text + " " + td[1].Text + " " + td[2].Text);
+                            var name = Convert.ToString(td[2].Text);
+                            price.RSV = Convert.ToDecimal(td[7].Text.Replace("↘", "").Replace("↗", "").Replace("→", ""));
+                            price.K = Convert.ToDecimal(td[8].Text.Replace("↘", "").Replace("↗", "").Replace("→", ""));
+                            price.D = Convert.ToDecimal(td[9].Text.Replace("↘", "").Replace("↗", "").Replace("→", ""));
+
+                            await contet.SaveChangesAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex);
+                        }
+                    }
+                }
+            }
+        }
+
+        private async Task ParserMACDAsync(StockDbContext contet)
+        {
+            string url = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E6%97%A5DIF+%28%E4%BD%8E%E2%86%92%E9%AB%98%29%40%40%E6%97%A5MACD%40%40DIF+%28%E4%BD%8E%E2%86%92%E9%AB%98%29";
+            GoToUrl(url);
+            Thread.Sleep(5000);
+
+            for (int i = 0; i <= 5; i++)
+            {
+                var selRANK = new SelectElement(FindElement(By.Id("selRANK")));
+                selRANK.SelectByIndex(i);
+                Thread.Sleep(10000);
+                var tables = FindElements(By.XPath($"/html/body/table[5]/tbody/tr/td[3]/div[2]/div/div/table/tbody"));
+                foreach (var table in tables)
+                {
+                    var tr = table.FindElements(By.TagName("tr"));
+
+                    foreach (var t in tr)
+                    {
+                        var td = t.FindElements(By.TagName("td"));
+                        try
+                        {
+                            var datetime = Convert.ToDateTime($"{DateTime.Now.Year}/{td[3].Text}");
+                            var stockId = Convert.ToString(td[1].Text);
+
+                            var price = contet.Prices.FirstOrDefault(p => p.Datetime == datetime && p.StockId == stockId);
+
+                            if (price == null)
+                                continue;
+
+                            Console.WriteLine(td[0].Text + " " + td[1].Text + " " + td[2].Text);
+                            var name = Convert.ToString(td[2].Text);
+                            price.DIF = Convert.ToDecimal(td[7].Text.Replace("↘", "").Replace("↗", "").Replace("→", ""));
+                            price.MACD = Convert.ToDecimal(td[8].Text.Replace("↘", "").Replace("↗", "").Replace("→", ""));
+                            price.OSC = Convert.ToDecimal(td[9].Text.Replace("↘", "").Replace("↗", "").Replace("→", ""));
+
+                            await contet.SaveChangesAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex);
+                        }
+                    }
+                }
+            }
+        }
+
+        private async Task ParserAsync(StockDbContext contet)
+        {
+            string url = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E5%BC%B5%E6%95%B8+%28%E7%95%B6%E6%97%A5%29%40%40%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E5%BC%B5%E6%95%B8%40%40%E7%95%B6%E6%97%A5";
             GoToUrl(url);
  
             //for (int k = 20; k >= 2; k--)

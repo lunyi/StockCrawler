@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -15,7 +16,7 @@ namespace WebCrawler
     public class BrokerParser : BaseParser
     {
         private readonly LineNotifyBotApi _lineNotifyBotApi;
-        private string _token;
+        private readonly string _token;
 
         public BrokerParser(LineNotifyBotApi lineNotifyBotApi)
         {
@@ -68,47 +69,176 @@ namespace WebCrawler
 
         public override async Task RunAsync()
         {
-            var startDate = "2019-9-1";
-            var endDate = "2020-5-8";
-            var broker = "5850";
-            var stockId = "2455";
-            var stockName = "全新";
-
+            var startDate = "2020-3-1";
+            var endDate = "2020-7-17";
+            var s = new Stopwatch();
+            s.Start();
             var context = new StockDbContext();
-            var brokers = await context.Broker.OrderBy(p=>p.BrokerId).ToArrayAsync();
+            var stocks = await context.Stocks.Where(p=>p.Status == 1).OrderBy(p => p.StockId).ToArrayAsync();
+            var brokers = await context.Broker.OrderBy(p => p.BrokerId).ToArrayAsync();
+            var sb = new StreamWriter(@"D:\Database\StockBroker.csv", true, Encoding.Unicode, 1024);
 
-            for (int i = 841; i < brokers.Length; i++)
+            sb.AutoFlush = true;
+
+            for (int k = 0; k < stocks.Length; k++)
             {
-                var sql = $"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco0/zco0.djhtm?A={stockId}&BHID={brokers[i].BrokerId}&b={broker}&C=1&D={startDate}&E={endDate}&ver=V3";
-
-                var rootNode = GetRootNoteByUrl(sql, false);
-                var htmlNode = rootNode.SelectSingleNode("//*[@id=\"oMainTable\"]");
-
-                Console.WriteLine($"{brokers[i].BrokerId} {brokers[i].BrokerName}");
-                var list = new List<BrokerTransactionDetails>();
-                for (int j  = 3; j < htmlNode.ChildNodes.Count; j+=2)
+                var stockId = stocks[k].StockId;
+                var stockName = stocks[k].Name;
+                s.Restart();
+                for (int i = 28; i < brokers.Length; i++)
                 {
-                    var date = Convert.ToDateTime(htmlNode.ChildNodes[j].ChildNodes[1].InnerHtml);
-                    var buy = int.Parse(htmlNode.ChildNodes[j].ChildNodes[3].InnerHtml);
-                    var sell = int.Parse(htmlNode.ChildNodes[j].ChildNodes[5].InnerHtml);
-                    var 買賣超 = int.Parse(htmlNode.ChildNodes[j].ChildNodes[9].InnerHtml);
+                    var brokerId = brokers[i].BrokerId;
+                    var sql = $"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco0/zco0.djhtm?A={stockId}&BHID={brokerId}&b={brokerId}&C=1&D={startDate}&E={endDate}&ver=V3";
 
-                    var obj = new BrokerTransactionDetails
+                    try
                     {
-                        Id = Guid.NewGuid(),
-                        BrokerId = brokers[i].BrokerId,
-                        BrokerName = brokers[i].BrokerName,
-                        StockId = stockId,
-                        StockName = stockName,
-                        Buy = buy,
-                        Sell = sell,
-                        Datetime = date,
-                        買賣超 = 買賣超
-                    };
-                    list.Add(obj);
+                        var rootNode = GetRootNoteByUrl(sql, false);
+                        var htmlNode = rootNode.SelectSingleNode("//*[@id=\"oMainTable\"]");
+
+                        if (htmlNode == null)
+                        {
+                            continue;
+                        }
+                        Console.WriteLine($"{stockId} {stockName} {brokers[i].BrokerId} {brokers[i].BrokerName}");
+                        for (int j = 3; j < htmlNode.ChildNodes.Count; j += 2)
+                        {
+                            var date = Convert.ToDateTime(htmlNode.ChildNodes[j].ChildNodes[1].InnerHtml);
+                            var buy = int.Parse(htmlNode.ChildNodes[j].ChildNodes[3].InnerHtml.Replace(",",""));
+                            var sell = int.Parse(htmlNode.ChildNodes[j].ChildNodes[5].InnerHtml.Replace(",", ""));
+                            var 買賣超 = int.Parse(htmlNode.ChildNodes[j].ChildNodes[9].InnerHtml.Replace(",", ""));
+                            await sb.WriteLineAsync($"{Guid.NewGuid()},{brokers[i].BrokerId},{brokers[i].BrokerName},{stockId},{stockName},{date:yyyy-MM-dd},{buy},{sell},{買賣超},0");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                    }
+                    Console.WriteLine($"{s.Elapsed.TotalSeconds} sec");
                 }
-                context.BrokerTransactionDetails.AddRange(list);
-                await context.SaveChangesAsync();
+            }
+           
+            sb.Close();
+        }
+
+        public async Task RunAllAsync()
+        {
+            string path = "";
+            var startDate = "2020-3-1";
+            var endDate = "2020-7-17";
+            var s = new Stopwatch();
+            s.Start();
+            var context = new StockDbContext();
+            var stocks = await context.Stocks.Where(p => p.Status == 1).OrderBy(p => p.StockId).ToArrayAsync();
+            var sb = new StreamWriter(@"D:\Database\StockBroker.csv", true, Encoding.Unicode, 1024);
+
+            sb.AutoFlush = true;
+
+            var rangePartitioner = Partitioner.Create(0, stocks.Length);
+
+            Parallel.ForEach(rangePartitioner, (range, loopState) =>
+            {
+                // Loop over each range element without a delegate invocation.
+                for (int i = range.Item1; i < range.Item2; i++)
+                {
+                    Process.Start(path);
+                }
+            });
+
+
+
+
+            sb.Close();
+        }
+
+        public async Task RunByStockIdAsync(string stockId, string startDate, string endDate)
+        {
+            var s = new Stopwatch();
+            s.Start();
+            var context = new StockDbContext();
+            var stock = await context.Stocks.FirstOrDefaultAsync(p => p.StockId == stockId);
+            var brokers = await context.Broker.OrderBy(p => p.BrokerId).ToArrayAsync();
+            var sb = new StreamWriter(@"D:\Database\StockBroker.csv", true, Encoding.Unicode, 1024);
+
+            sb.AutoFlush = true;
+
+            var stockName = stock.Name;
+
+            s.Restart();
+            for (int i = 0; i < brokers.Length; i++)
+            {
+                var brokerId = brokers[i].BrokerId;
+                var sql = $"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco0/zco0.djhtm?A={stockId}&BHID={brokerId}&b={brokerId}&C=1&D={startDate}&E={endDate}&ver=V3";
+
+                try
+                {
+                    var rootNode = GetRootNoteByUrl(sql, false);
+                    var htmlNode = rootNode.SelectSingleNode("//*[@id=\"oMainTable\"]");
+
+                    if (htmlNode == null)
+                    {
+                        continue;
+                    }
+                    Console.WriteLine($"{stockId} {stockName} {brokers[i].BrokerId} {brokers[i].BrokerName}");
+                    for (int j = 3; j < htmlNode.ChildNodes.Count; j += 2)
+                    {
+                        var date = Convert.ToDateTime(htmlNode.ChildNodes[j].ChildNodes[1].InnerHtml);
+                        var buy = int.Parse(htmlNode.ChildNodes[j].ChildNodes[3].InnerHtml.Replace(",", ""));
+                        var sell = int.Parse(htmlNode.ChildNodes[j].ChildNodes[5].InnerHtml.Replace(",", ""));
+                        var 買賣超 = int.Parse(htmlNode.ChildNodes[j].ChildNodes[9].InnerHtml.Replace(",", ""));
+                        await sb.WriteLineAsync($"{Guid.NewGuid()},{brokers[i].BrokerId},{brokers[i].BrokerName},{stockId},{stockName},{date:yyyy-MM-dd},{buy},{sell},{買賣超},0");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+                Console.WriteLine($"{s.Elapsed.TotalSeconds} sec");
+            }
+        }
+
+        public async Task RunByBrokerIdAsync(string brokerId, string startDate, string endDate)
+        {
+            var s = new Stopwatch();
+            s.Start();
+            var context = new StockDbContext();
+            var broker = await context.Broker.FirstOrDefaultAsync(p => p.BrokerId == brokerId);
+            var stocks = await context.Stocks.OrderBy(p => p.StockId).ToArrayAsync();
+            var sb = new StreamWriter(@"D:\Database\Broker.csv", true, Encoding.Unicode, 1024);
+
+            sb.AutoFlush = true;
+
+            var brokerName = broker.BrokerName;
+
+            s.Restart();
+            for (int i = 0; i < stocks.Length; i++)
+            {
+                var stockId = stocks[i].StockId;
+                var sql = $"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco0/zco0.djhtm?A={stockId}&BHID={brokerId}&b={brokerId}&C=1&D={startDate}&E={endDate}&ver=V3";
+
+                try
+                {
+                    var rootNode = GetRootNoteByUrl(sql, false);
+                    var htmlNode = rootNode.SelectSingleNode("//*[@id=\"oMainTable\"]");
+
+                    if (htmlNode == null)
+                    {
+                        continue;
+                    }
+                    Console.WriteLine($"{stockId} {stocks[i].Name} {brokerId} {brokerName}");
+                    for (int j = 3; j < htmlNode.ChildNodes.Count; j += 2)
+                    {
+                        var date = Convert.ToDateTime(htmlNode.ChildNodes[j].ChildNodes[1].InnerHtml);
+                        var buy = int.Parse(htmlNode.ChildNodes[j].ChildNodes[3].InnerHtml.Replace(",", ""));
+                        var sell = int.Parse(htmlNode.ChildNodes[j].ChildNodes[5].InnerHtml.Replace(",", ""));
+                        var 買賣超 = int.Parse(htmlNode.ChildNodes[j].ChildNodes[9].InnerHtml.Replace(",", ""));
+                        await sb.WriteLineAsync($"{Guid.NewGuid()},{brokerId},{brokerName},{stockId},{stocks[i].Name},{date:yyyy-MM-dd},{buy},{sell},{買賣超},0");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
+                Console.WriteLine($"{s.Elapsed.TotalSeconds} sec");
             }
         }
 

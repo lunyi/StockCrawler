@@ -26,11 +26,11 @@ namespace WebCrawler
             //await ss.RunSingleAsync();
             //await ss.ParserMarginAsync();
 
-            //var s = new CnyParser();
-            //await s.RunAsync();
+            var s = new CnyParser();
+            await s.RunAsync();
 
 
-            await RunAsync<DailyKLineNotifier>(int.Parse(args[0]));
+            //await RunAsync<BrokerParser>();
 
             //var context = new StockDbContext();
             //var s1 = new CnyParser();

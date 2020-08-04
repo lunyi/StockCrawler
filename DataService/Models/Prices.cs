@@ -31,10 +31,6 @@ namespace DataService.Models
         public int? 外資持股 { get; set; }
         public decimal? 外資持股比例 { get; set; }
         public int? 外資買賣超 { get; set; }
-        public int? 外資買進 { get; set; }
-        public int? 外資賣出 { get; set; }
-        public int? 尚可投資張數 { get; set; }
-        public int? 發行張數 { get; set; }
         public int? 投信買賣超 { get; set; }
         public int? 自營商買賣超 { get; set; }
         public decimal? 當沖張數 { get; set; }
@@ -72,5 +68,11 @@ namespace DataService.Models
         public int? 自營商持股 { get; set; }
         public int? 董監持股 { get; set; }
         public decimal? 董監持股比例 { get; set; }
+        public decimal DIF { get; set; }
+        public decimal MACD { get; set; }
+        public decimal OSC { get; set; }
+        public decimal RSV { get; set; }
+        public decimal K { get; set; }
+        public decimal D { get; set; }
     }
 }
