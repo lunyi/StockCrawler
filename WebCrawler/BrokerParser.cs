@@ -144,9 +144,6 @@ namespace WebCrawler
                 }
             });
 
-
-
-
             sb.Close();
         }
 

@@ -423,9 +423,6 @@ namespace DataService.Models
                 entity.HasIndex(e => new { e.StockId, e.投信買賣超, e.主力買超張數, e.主力賣超張數, e.Datetime, e.外資買賣超 })
                     .HasName("Prices_MainForce_Index");
 
-                entity.HasIndex(e => new { e.StockId, e.Name, e.High, e.Low, e.Open, e.Close, e.漲跌, e.漲跌百分比, e.成交量, e.成交金額, e.本益比, e.CreatedOn, e.融資買進, e.融資賣出, e.融資現償, e.融資餘額, e.融資使用率, e.融券買進, e.融券賣出, e.融券餘額, e.資券相抵, e.外資持股, e.外資持股比例, e.外資買賣超, e.投信買賣超, e.自營商買賣超, e.當沖張數, e.當沖比例, e.當沖總損益, e.當沖均損益, e.MA3, e.MA5, e.MA10, e.MA20, e.MA60, e.MA120, e.MA240, e.VMA3, e.VMA5, e.VMA10, e.VMA20, e.VMA60, e.VMA120, e.VMA240, e.主力買超張數, e.主力賣超張數, e.五日主力買超張數, e.五日主力賣超張數, e.十日主力買超張數, e.十日主力賣超張數, e.二十日主力買超張數, e.二十日主力賣超張數, e.四十日主力買超張數, e.四十日主力賣超張數, e.六十日主力買超張數, e.六十日主力賣超張數, e.投信持股, e.投信持股比例, e.自營商持股, e.董監持股, e.董監持股比例, e.Datetime })
-                    .HasName("Index_Prices_Datetime");
-
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.Close).HasColumnType("numeric(18, 2)");
@@ -434,13 +431,31 @@ namespace DataService.Models
 
                 entity.Property(e => e.D).HasColumnType("numeric(18, 2)");
 
+                entity.Property(e => e.D1)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("((0))");
+
                 entity.Property(e => e.DIF).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.DIF1)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.Datetime).HasColumnType("datetime");
 
                 entity.Property(e => e.High).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.K).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.K1)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.Low).HasColumnType("numeric(18, 2)");
 
@@ -460,15 +475,33 @@ namespace DataService.Models
 
                 entity.Property(e => e.MACD).HasColumnType("numeric(18, 2)");
 
+                entity.Property(e => e.MACD1)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("((0))");
+
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50);
 
                 entity.Property(e => e.OSC).HasColumnType("numeric(18, 2)");
 
+                entity.Property(e => e.OSC1)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("((0))");
+
                 entity.Property(e => e.Open).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.RSV).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.RSV1)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.StockId)
                     .IsRequired()

@@ -6,6 +6,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DataService.Models;
+using LineBotLibrary;
+using LineBotLibrary.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace WebCrawler
@@ -17,6 +19,10 @@ namespace WebCrawler
         //string baseUrl = "https://fubon-ebrokerdj.fbs.com.tw";
         string baseUrl = "http://5850web.moneydj.com";
         //string baseUrl = "https://concords.moneydj.com";
+
+        private readonly LineNotifyBotApi _lineNotifyBotApi;
+        private string _token;
+
         public ConcurrentDictionary<string, string> ErrorStocks { get; set; }
 
         [Obsolete]
@@ -30,9 +36,9 @@ namespace WebCrawler
                 .OrderByDescending(p => p.StockId).ToArrayAsync();
 
             //var stocks = await context.Stocks.FromSql(GetSql()).ToArrayAsync();
-            for (int i = stocks.Length / 2; i <= stocks.Length - 1; i++)
+            //for (int i = stocks.Length / 2; i <= stocks.Length - 1; i++)
             //for (int i = stocks.Length / 2; i >=0; i--)
-            //for (int i = 0; i <= stocks.Length-1; i++)
+            for (int i = 0; i <= stocks.Length-1; i++)
             //for (int i = stocks.Length - 1; i >=0 ; i--)
             {
                 try
@@ -45,14 +51,25 @@ namespace WebCrawler
                 }
             }
 
-            var dd = await context.Prices.Select(p => p.Datetime).Distinct().OrderByDescending(p => p).Take(2).ToArrayAsync();
-            context.Database.ExecuteSqlCommand(GetSqlToUpdate發行張數(dd[0].ToString("yyyy-MM-dd"), dd[1].ToString("yyyy-MM-dd")));
             context.Database.SetCommandTimeout(90);
-            var sql = $"exec [usp_Update_MA_And_VMA] '{DateTime.Today:yyyy-MM-dd}'";
-            context.Database.ExecuteSqlCommand(sql);
+            context.Database.ExecuteSqlCommand($"exec [usp_Update_MA_And_VMA] '{DateTime.Today:yyyy-MM-dd}'");
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
         }
+
+        private async Task NotifyAsync(StockDbContext context)
+        {
+            _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
+        }
+        private async Task NotifyBotApiAsync(string message)
+        {
+            await _lineNotifyBotApi.Notify(new NotifyRequestDTO
+            {
+                AccessToken = _token,
+                Message = message
+            });
+        }
+
         private static string GetSql()
         {
             return @$"

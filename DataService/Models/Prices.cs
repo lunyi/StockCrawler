@@ -74,5 +74,11 @@ namespace DataService.Models
         public decimal RSV { get; set; }
         public decimal K { get; set; }
         public decimal D { get; set; }
+        public string DIF1 { get; set; }
+        public string MACD1 { get; set; }
+        public string OSC1 { get; set; }
+        public string RSV1 { get; set; }
+        public string K1 { get; set; }
+        public string D1 { get; set; }
     }
 }

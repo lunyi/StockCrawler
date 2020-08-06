@@ -31,26 +31,26 @@ namespace WebAutoCrawler
             var s = Stopwatch.StartNew();
             s.Start();
             
-            await ParserAsync(context);
+            //await ParserAsync(context);
             await ParserKDAsync(context);
-            await ParserMACDAsync(context);
+            //await ParserMACDAsync(context);
 
-            var prices = context.Prices.Where(P => P.Datetime == DateTime.Today)
-                .OrderByDescending(p => p.當沖比例).Take(20).ToArray();
+            //var prices = context.Prices.Where(P => P.Datetime == DateTime.Today)
+            //    .OrderByDescending(p => p.當沖比例).Take(20).ToArray();
 
-            var msg = new StringBuilder();
-            msg.AppendLine($"當沖比例 : {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            //var msg = new StringBuilder();
+            //msg.AppendLine($"當沖比例 : {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
 
-            var index = 1;
-            foreach (var price in prices)
-            {
-                msg.AppendLine($"{index}. {price.StockId} {price.Name} {price.當沖比例}%");
-                index++;
-            }
+            //var index = 1;
+            //foreach (var price in prices)
+            //{
+            //    msg.AppendLine($"{index}. {price.StockId} {price.Name} {price.當沖比例}%");
+            //    index++;
+            //}
 
-            await NotifyBotApiAsync(msg.ToString());
-            s.Stop();
-            Console.WriteLine(s.Elapsed.TotalSeconds);
+            //await NotifyBotApiAsync(msg.ToString());
+            //s.Stop();
+            Console.WriteLine(s.Elapsed.TotalMinutes);
         }
 
         private async Task ParserKDAsync(StockDbContext contet)
@@ -59,7 +59,7 @@ namespace WebAutoCrawler
             GoToUrl(url);
             Thread.Sleep(5000);
 
-            for (int i = 0; i <= 5; i++)
+            for (int i = 0; i <= 6; i++)
             {
                 var selRANK = new SelectElement(FindElement(By.Id("selRANK")));
                 selRANK.SelectByIndex(i);
@@ -87,6 +87,9 @@ namespace WebAutoCrawler
                             price.RSV = Convert.ToDecimal(td[7].Text.Replace("↘", "").Replace("↗", "").Replace("→", ""));
                             price.K = Convert.ToDecimal(td[8].Text.Replace("↘", "").Replace("↗", "").Replace("→", ""));
                             price.D = Convert.ToDecimal(td[9].Text.Replace("↘", "").Replace("↗", "").Replace("→", ""));
+                            price.RSV1 = td[7].Text;
+                            price.K1 = td[8].Text;
+                            price.D1 = td[9].Text;
 
                             await contet.SaveChangesAsync();
                         }
@@ -105,7 +108,7 @@ namespace WebAutoCrawler
             GoToUrl(url);
             Thread.Sleep(5000);
 
-            for (int i = 0; i <= 5; i++)
+            for (int i = 0; i <= 6; i++)
             {
                 var selRANK = new SelectElement(FindElement(By.Id("selRANK")));
                 selRANK.SelectByIndex(i);
@@ -133,6 +136,9 @@ namespace WebAutoCrawler
                             price.DIF = Convert.ToDecimal(td[7].Text.Replace("↘", "").Replace("↗", "").Replace("→", ""));
                             price.MACD = Convert.ToDecimal(td[8].Text.Replace("↘", "").Replace("↗", "").Replace("→", ""));
                             price.OSC = Convert.ToDecimal(td[9].Text.Replace("↘", "").Replace("↗", "").Replace("→", ""));
+                            price.DIF1 = td[7].Text;
+                            price.MACD1 = td[8].Text;
+                            price.OSC1 = td[9].Text;
 
                             await contet.SaveChangesAsync();
                         }

@@ -47,16 +47,16 @@ namespace DataService.Services
             switch (type)
             {
                 case (int)ChooseStockType.五日漲幅排行榜:
-                    sql = 五日漲幅排行榜(datetime, 5);
+                    sql = await 五日漲幅排行榜(context, datetime, 5);
                     break;
                 case (int)ChooseStockType.二十日漲幅排行:
-                    sql = 五日漲幅排行榜(datetime, 20);
+                    sql = await 五日漲幅排行榜(context, datetime, 20);
                     break;
                 case (int)ChooseStockType.四十日漲幅排行:
-                    sql = 五日漲幅排行榜(datetime, 40);
+                    sql = await 五日漲幅排行榜(context, datetime, 40);
                     break;
                 case (int)ChooseStockType.六十日漲幅排行:
-                    sql = 五日漲幅排行榜(datetime, 60);
+                    sql = await 五日漲幅排行榜(context, datetime, 60);
                     break;
                 case (int)ChooseStockType.五日跌幅排行榜:
                     sql = 五日跌幅排行榜(datetime, 5);
@@ -894,8 +894,15 @@ order by t.[Count] desc
 drop table #tmp";
         }
 
-        private string 五日漲幅排行榜(string datetime, int days)
+        private async Task<string> 五日漲幅排行榜(StockDbContext context, string datetime, int days)
         {
+            var date = Convert.ToDateTime(datetime);
+            var dd = await context.Prices.Where(p=>p.StockId=="2330" && p.Datetime<= date)
+                .Select(p => p.Datetime)
+                .OrderByDescending(p => p).Take(days)
+                .OrderBy(p => p)
+                .FirstOrDefaultAsync();
+
             return @$"
 WITH TOPTEN as (
    SELECT *, ROW_NUMBER() 
@@ -903,7 +910,7 @@ WITH TOPTEN as (
         PARTITION BY [Name]
        order by [CreatedOn] desc
     ) AS RowNo 
-    FROM [Prices] where [Datetime] <= '{datetime}'
+    FROM [Prices] where [Datetime]>= '{dd.ToString("yyyy-MM-dd")}' and [Datetime] <= '{datetime}'
 )
 
 SELECT top 100 StockId, Name, sum(漲跌百分比) as [Description]
