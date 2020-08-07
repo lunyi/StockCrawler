@@ -38,6 +38,10 @@ namespace DataService.Models
         public decimal? 當沖總損益 { get; set; }
         public decimal? 當沖均損益 { get; set; }
         public decimal? MA3 { get; set; }
+        public string MA5_ { get; set; }
+        public string MA10_ { get; set; }
+        public string MA20_ { get; set; }
+        public string MA60_ { get; set; }
         public decimal? MA5 { get; set; }
         public decimal? MA10 { get; set; }
         public decimal? MA20 { get; set; }

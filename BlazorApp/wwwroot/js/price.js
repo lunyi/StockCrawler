@@ -251,6 +251,54 @@ function renewPrices(prices) {
         } else {
             prices[i].融券買賣超 = prices[i].融券買賣超 + " (" + prices[i].融券餘額 + ")";
         }
+
+        if (prices[i].mA5.indexOf("↗") > -1) {
+            prices[i].ma5Color = "red";
+        } else if (prices[i].mA5.indexOf("↘") > -1) {
+            prices[i].ma5Color = "green";
+        }
+
+        if (prices[i].mA10.indexOf("↗") > -1) {
+            prices[i].ma10Color = "red";
+        } else if (prices[i].mA10.indexOf("↘") > -1) {
+            prices[i].ma10Color = "green";
+        }
+
+        if (prices[i].mA20.indexOf("↗") > -1) {
+            prices[i].ma20Color = "red";
+        } else if (prices[i].mA20.indexOf("↘") > -1) {
+            prices[i].ma20Color = "green";
+        }
+
+        if (prices[i].k9.indexOf("↗") > -1) {
+            prices[i].k9Color = "red";
+        } else if (prices[i].k9.indexOf("↘") > -1) {
+            prices[i].k9Color = "green";
+        }
+
+        if (prices[i].d9.indexOf("↗") > -1) {
+            prices[i].d9Color = "red";
+        } else if (prices[i].d9.indexOf("↘") > -1) {
+            prices[i].d9Color = "green";
+        }
+
+        if (prices[i].macd.indexOf("↗") > -1) {
+            prices[i].macdColor = "red";
+        } else if (prices[i].macd.indexOf("↘") > -1) {
+            prices[i].macdColor = "green";
+        }
+
+        if (prices[i].dif.indexOf("↗") > -1) {
+            prices[i].difColor = "red";
+        } else if (prices[i].dif.indexOf("↘") > -1) {
+            prices[i].difColor = "green";
+        }
+
+        if (prices[i].osc.indexOf("↗") > -1) {
+            prices[i].oscColor = "red";
+        } else if (prices[i].osc.indexOf("↘") > -1) {
+            prices[i].oscColor = "green";
+        }
     }
     return prices;
 }

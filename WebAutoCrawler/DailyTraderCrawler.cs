@@ -30,10 +30,15 @@ namespace WebAutoCrawler
             _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
             var s = Stopwatch.StartNew();
             s.Start();
-            
+
             //await ParserAsync(context);
-            await ParserKDAsync(context);
+            //await ParserKDAsync(context);
             //await ParserMACDAsync(context);
+
+            string url1 = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E5%9D%87%E7%B7%9A%E6%AD%A3%E4%B9%96%E9%9B%A2+%285%E6%97%A5MA%29%40%40%E5%9D%87%E7%B7%9A%E6%AD%A3%E4%B9%96%E9%9B%A2%40%405%E6%97%A5MA";
+            string url2 = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E5%9D%87%E7%B7%9A%E8%B2%A0%E4%B9%96%E9%9B%A2+%285%E6%97%A5MA%29%40%40%E5%9D%87%E7%B7%9A%E8%B2%A0%E4%B9%96%E9%9B%A2%40%405%E6%97%A5MA";
+            await ParserMAAsync(context, url1);
+            await ParserMAAsync(context, url2);
 
             //var prices = context.Prices.Where(P => P.Datetime == DateTime.Today)
             //    .OrderByDescending(p => p.當沖比例).Take(20).ToArray();
@@ -91,6 +96,58 @@ namespace WebAutoCrawler
                             price.K1 = td[8].Text;
                             price.D1 = td[9].Text;
 
+                            await contet.SaveChangesAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex);
+                        }
+                    }
+                }
+            }
+        }
+
+        private async Task ParserMAAsync(StockDbContext contet, string url)
+        {
+            GoToUrl(url);
+            Thread.Sleep(5000);
+
+            var selSHEET2 = new SelectElement(FindElement(By.Id("selSHEET2")));
+            selSHEET2.SelectByIndex(0);
+            Thread.Sleep(5000);
+
+            var ss = new SelectElement(FindElement(By.Id("selRANK")));
+            int count = ss.Options.Count;
+
+            for (int i = 0; i < count; i++)
+            {
+                var selRANK = new SelectElement(FindElement(By.Id("selRANK")));
+                selRANK.SelectByIndex(i);
+                Thread.Sleep(5000);
+                var tables = FindElements(By.XPath($"/html/body/table[5]/tbody/tr/td[3]/div[2]/div/div/table/tbody"));
+                foreach (var table in tables)
+                {
+                    var tr = table.FindElements(By.TagName("tr"));
+
+                    foreach (var t in tr)
+                    {
+                        var td = t.FindElements(By.TagName("td"));
+                        try
+                        {
+                            var datetime = Convert.ToDateTime($"{DateTime.Now.Year}/{td[3].Text}");
+                            var stockId = Convert.ToString(td[1].Text);
+
+                            var price = contet.Prices.FirstOrDefault(p => p.Datetime == datetime && p.StockId == stockId);
+
+                            if (price == null)
+                                continue;
+
+                            Console.WriteLine(td[0].Text + " " + td[1].Text + " " + td[2].Text);
+                            var name = Convert.ToString(td[2].Text);
+                            price.MA5_ = td[8].Text;
+                            price.MA10_ = td[9].Text;
+                            price.MA20_ = td[10].Text;
+                            price.MA60_ = td[11].Text;
                             await contet.SaveChangesAsync();
                         }
                         catch (Exception ex)

@@ -461,9 +461,17 @@ namespace DataService.Models
 
                 entity.Property(e => e.MA10).HasColumnType("numeric(18, 2)");
 
+                entity.Property(e => e.MA10_)
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.MA120).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.MA20).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.MA20_)
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.MA240).HasColumnType("numeric(18, 2)");
 
@@ -471,7 +479,15 @@ namespace DataService.Models
 
                 entity.Property(e => e.MA5).HasColumnType("numeric(18, 2)");
 
+                entity.Property(e => e.MA5_)
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
                 entity.Property(e => e.MA60).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.MA60_)
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.MACD).HasColumnType("numeric(18, 2)");
 
