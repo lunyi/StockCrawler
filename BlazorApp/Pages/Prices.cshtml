@@ -104,12 +104,13 @@
                     <th>百分比</th>
                     @*<th>董監增減</th>*@
                     <th>融資</th>
-                    <th>融券</th>
+                    @*<th>融券</th>*@
                     <th>外資</th>
                     <th>投信</th>
                     @*<th>自營</th>*@
                     <th>主力</th>
-                    <th>籌碼集中</th>
+                    <th>當天籌碼</th>
+                    <th>10日籌碼</th>
                     <th>MA5</th>
                     <th>MA10</th>
                     <th>MA20</th>
@@ -139,7 +140,7 @@
                 <td v-bind:style="{ color: price.pColor, fontWeight: price.fontWeight}">{{price.漲跌百分比}}%</td>
                 @*<td v-bind:style="{ color: price.dColor}">{{price.董監持股}} ({{price.董監持股比例}}%)</td>*@
                 <td v-bind:style="{ color: price.lColor}">{{price.融資買賣超}}</td>
-                <td v-bind:style="{ color: price.chColor}">{{price.融券買賣超}}</td>
+                @*<td v-bind:style="{ color: price.chColor}">{{price.融券買賣超}}</td>*@
                 <td v-bind:style="{ color: price.fColor}">{{price.外資買賣超}}</td>
                 <td v-bind:style="{ color: price.tColor}">{{price.投信買賣超}} ({{price.投信持股比例}}%)</td>
                 @*<td v-bind:style="{ color: price.zColor}">{{price.自營商買賣超}}</td>*@
@@ -148,6 +149,7 @@
                 @*<td>{{price.股價淨值比}}</td>*@
                 @*<td>{{price.周轉率}}%</td>*@
                 <td v-bind:style="{ color: price.chipColor, fontWeight: price.cfontWeight}">{{price.籌碼集中度}}%</td>
+                <td v-bind:style="{ color: price.chip10Color, fontWeight: price.c10fontWeight}">{{price.十日籌碼集中度}}%</td>
                 <td v-bind:style="{ color: price.ma5Color}">{{price.mA5}}</td>
                 <td v-bind:style="{ color: price.ma10Color}">{{price.mA10}}</td>
                 <td v-bind:style="{ color: price.ma20Color}">{{price.mA20}}</td>

@@ -73,6 +73,9 @@ namespace DataService.Services
                 case (int)ChooseStockType.外資連續賣超排行榜:
                     sql = 連續賣超排行榜(datetime, "外資買賣超");
                     break;
+                case (int)ChooseStockType.MACD和KD同時轉上:
+                    sql = MACD和KD同時轉上(datetime);
+                    break;
                 case (int)ChooseStockType.融資連續買超排行榜:
                     sql = 融資連續買超排行榜(datetime, true);
                     break;
@@ -166,6 +169,9 @@ namespace DataService.Services
                 case (int)ChooseStockType.上漲破五日均:
                     sql = Get上漲破五日均SQL(datetime);
                     break;
+                case (int)ChooseStockType.上漲破月線:
+                    sql = Get上漲破月線SQL(datetime);
+                    break;
                 case (int)ChooseStockType.三天漲百分之二十:
                     sql = Get三天漲百分之二十SQL(datetime);
                     break;
@@ -186,6 +192,24 @@ namespace DataService.Services
 
             var res = await context.Stocks.FromSqlRaw(sql).ToArrayAsync();
             return res;
+        }
+
+        private string MACD和KD同時轉上(string datetime)
+        {
+            var dd = Convert.ToDateTime(datetime);
+            var datetime2 = _context.Prices.Where(p => p.StockId == "2330" && p.Datetime < dd)
+                .OrderByDescending(p => p.Datetime)
+                .Select(p => p.Datetime.ToString("yyyy-MM-dd"))
+                .FirstOrDefault();
+
+            return @$"
+  select s.* from Stocks s join (SELECT *
+  FROM [dbo].[Prices]
+  where [Datetime] ='{datetime}' and [漲跌百分比] > 2 and K < 50 and MA20_ like '%↗' and K1 like '%↗' and OSC1 like '%↗' and [Close] > MA20) a1 on s.StockId = a1.StockId
+  join  (SELECT *
+  FROM [dbo].[Prices]
+  where [Datetime] = '{datetime2}' and  K1 like '%↘' and OSC1 like '%↘') a2  on a1.StockId = a2.StockId
+  order by s.StockId";
         }
 
         private string GetMainForceSql(string mainForce)
@@ -233,8 +257,7 @@ namespace DataService.Services
                 default: break;
             }
             return $@"
-select top 300
- s.[Id]
+select s.[Id]
       ,s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
@@ -253,7 +276,7 @@ select top 300
 	  ,s.[Description]
       ,s.[股票期貨]
 from [Prices] p join [Stocks] s on s.StockId = p.StockId 
-where p.[Datetime] = '{datetime}' and VMA5 > 0 and VMA10 > 0 and VMA20 > 0 and VMA60 > 0 and p.{strVolumn} > 0
+where p.[Datetime] = '{datetime}' and [漲跌百分比] > 2 and VMA5 > 0 and VMA10 > 0 and VMA20 > 0 and VMA60 > 0 and p.{strVolumn} > 0
 order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p.{strVolumn} {orderby}
 ";
         }
@@ -301,9 +324,9 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                                     D9 = price.D1,
                                     MACD = price.MACD1,
                                     OSC = price.OSC1,
-                                    DIF = price.DIF1
+                                    DIF = price.DIF1,
                                     //五日籌碼集中度 = 100 * Math.Round(((price.五日主力買超張數 - price.五日主力賣超張數) / (5 * price.VMA5)).Value, 4),
-                                    //十日籌碼集中度 = 100 * Math.Round(((price.十日主力買超張數 - price.十日主力賣超張數) / (10 *price.VMA10)).Value, 4),
+                                    十日籌碼集中度 = 100 * Math.Round(((price.十日主力買超張數 - price.十日主力賣超張數) / (10 *price.VMA10)).Value, 4),
                                     //二十日籌碼集中度 = 100 * Math.Round(((price.二十日主力買超張數 - price.二十日主力賣超張數) / (20 * price.VMA20)).Value, 4),
                                     //六十日籌碼集中度 = 100 * Math.Round(((price.六十日主力買超張數 - price.六十日主力賣超張數) / (60 * price.VMA60)).Value, 4),
                                     //周轉率 = 100 * Math.Round(((decimal)price.成交量 / price.發行張數).Value, 5)
@@ -324,7 +347,7 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
         Task<TwStock[]> IStockQueries.GetTwStocksAsync()
         {
             var context = new StockDbContext();
-            return context.TwStock.OrderByDescending(p=>p.Datetime).Take(60).ToArrayAsync();
+            return context.TwStock.OrderByDescending(p=>p.Datetime).Take(220).ToArrayAsync();
         }
 
         private string GetLastFriday(string datetime = null)
@@ -563,7 +586,7 @@ drop table #t1, #t2, #t3, #t4
             var datetimes = await  context.Prices.Where(p=>p.StockId == "1101")
                 .GroupBy(p => p.Datetime)
                 .OrderByDescending(p => p.Key)
-                .Take(90)
+                .Take(220)
                 .Select(p=>p.Key.ToString("yyyy-MM-dd"))
                 .ToListAsync();
             var today = DateTime.Today.ToString("yyyy-MM-dd");
@@ -1451,7 +1474,7 @@ order by s.[Description] / s.每股淨值
         private static string 外資投信同步買超排行榜()
         {
             return @$"
-  and [外資買賣超] > 0 and [投信買賣超] > 0 and ([主力買超張數] - [主力賣超張數]) > 0
+  and [外資買賣超] > 0 and [投信買賣超] > 0 and ([主力買超張數] - [主力賣超張數]) > 0 and [漲跌百分比] > 2
   order by [投信買賣超] desc
 ";
         }
@@ -1640,14 +1663,13 @@ SELECT
                 .Select(p => p.Datetime)
                 .FirstOrDefault().ToString("yyyy/MM/dd");
 
-            return $@"select * from Stocks where StockId in (
-  select a.StockId from (SELECT *
+            return $@"select s.* from Stocks s join (SELECT *
   FROM [StockDb].[dbo].[Prices]
-  where [Datetime] = '{datetime}' and [漲跌百分比] > 2 and [Close] > MA5 and MA5 > MA10 and MA10 > MA20) a
+  where [Datetime] = '{datetime}' and [漲跌百分比] > 2 and [Close] > MA5 and MA5 > MA10 and MA10 > MA20) a1 on s.StockId = a1.StockId
   join  (SELECT *
   FROM [StockDb].[dbo].[Prices]
-  where [Datetime] = '{datetime2}' and not ([Close] > MA5 and MA5 > MA10 and MA10 > MA20)) b on a.StockId = b.StockId)
-  order by StockId";
+  where [Datetime] = '{datetime2}' and not ([Close] > MA5 and MA5 > MA10 and MA10 > MA20)) a2 on a1.StockId = a2.StockId
+  order by s.StockId";
         }
 
         private string Get上漲破五日均SQL(string datetime)
@@ -1674,11 +1696,36 @@ SELECT
 	  and a.[Close] > a.MA5 and a.[open] < a.MA5
 	  and a.[Close] > 20 and a.[Close] < 170
 	  and a.[Close] > b.[Open]
-      and (a.投信買賣超 > 0 or b.投信買賣超 > 0)
+--      and (a.投信買賣超 > 0 or b.投信買賣超 > 0)
   order by a.[漲跌百分比] desc";
         }
 
+        private string Get上漲破月線SQL(string datetime)
+        {
+            _context = new StockDbContext();
+            var dd = Convert.ToDateTime(datetime);
+            var datetime2 = _context.Prices.Where(p => p.StockId == "2330" && p.Datetime < dd)
+                .OrderByDescending(p => p.Datetime)
+                .Take(1)
+                .Select(p => p.Datetime)
+                .FirstOrDefault().ToString("yyyy-MM-dd");
 
+            return $@"select s.* from Stocks s join 
+(select * from [Prices] a where a.Datetime = '{datetime}') a1 on s.StockId = a1.StockId join 
+(select * from [Prices] a where a.Datetime = '{datetime2}') a2 on a1.StockId = a2.StockId
+where a1.[Close] > a1.MA20 
+	and a1.[Close] > a1.MA60 
+	and a2.[Close] < a2.MA20 
+	and a1.漲跌百分比 > 3 
+	and a1.成交量 > a2.VMA5 * 2
+	and ((a1.主力買超張數 - a1.主力賣超張數) / a1.成交量)  > 0.01
+	and a1.成交量 > 0
+	and a1.[Close] > a1.[Open]
+--	and a2.十日主力買超張數 > a2.十日主力賣超張數
+--	and a2.二十日主力買超張數 > a2.二十日主力賣超張數
+order by a1.StockId
+";
+        }
         private string Get三天漲百分之二十SQL(string datetime)
         {
             _context = new StockDbContext();
@@ -1841,7 +1888,7 @@ order by b.買超 desc
             };
             var context = new StockDbContext();
             var result = new List<string>();
-;;          var minutes = new[] { 5, 10, 30 };
+            var minutes = new[] { 5, 10, 30 };
 
             for (int i = 0; i < minutes.Length; i++)
             {

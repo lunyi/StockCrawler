@@ -59,8 +59,8 @@ document.onkeydown = function () {
         onUrlChangeAsync(9);
     } else if (event.keyCode === keyShift) {
         onUrlChangeAsync(6);
-    } else if (event.keyCode === keyEnter) {
-        onUrlChangeAsync(3);
+    //} else if (event.keyCode === keyEnter) {
+    //    onUrlChangeAsync(3);
     } else if (event.keyCode === 220) {
         onUrlChangeAsync(1);
     } else if (event.keyCode === keyDelete) {
@@ -211,6 +211,7 @@ function onFindStockId(event) {
 
                 find = true;
                 event.value = "";
+                break;
             }
         }
 

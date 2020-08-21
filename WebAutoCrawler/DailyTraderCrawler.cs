@@ -31,14 +31,14 @@ namespace WebAutoCrawler
             var s = Stopwatch.StartNew();
             s.Start();
 
-            //await ParserAsync(context);
+            await ParserAsync(context);
             //await ParserKDAsync(context);
-            //await ParserMACDAsync(context);
+            await ParserMACDAsync(context);
 
-            string url1 = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E5%9D%87%E7%B7%9A%E6%AD%A3%E4%B9%96%E9%9B%A2+%285%E6%97%A5MA%29%40%40%E5%9D%87%E7%B7%9A%E6%AD%A3%E4%B9%96%E9%9B%A2%40%405%E6%97%A5MA";
-            string url2 = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E5%9D%87%E7%B7%9A%E8%B2%A0%E4%B9%96%E9%9B%A2+%285%E6%97%A5MA%29%40%40%E5%9D%87%E7%B7%9A%E8%B2%A0%E4%B9%96%E9%9B%A2%40%405%E6%97%A5MA";
-            await ParserMAAsync(context, url1);
-            await ParserMAAsync(context, url2);
+            //string url1 = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E5%9D%87%E7%B7%9A%E6%AD%A3%E4%B9%96%E9%9B%A2+%285%E6%97%A5MA%29%40%40%E5%9D%87%E7%B7%9A%E6%AD%A3%E4%B9%96%E9%9B%A2%40%405%E6%97%A5MA";
+            //string url2 = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E5%9D%87%E7%B7%9A%E8%B2%A0%E4%B9%96%E9%9B%A2+%285%E6%97%A5MA%29%40%40%E5%9D%87%E7%B7%9A%E8%B2%A0%E4%B9%96%E9%9B%A2%40%405%E6%97%A5MA";
+            //await ParserMAAsync(context, url1);
+            //await ParserMAAsync(context, url2);
 
             //var prices = context.Prices.Where(P => P.Datetime == DateTime.Today)
             //    .OrderByDescending(p => p.當沖比例).Take(20).ToArray();
@@ -64,7 +64,10 @@ namespace WebAutoCrawler
             GoToUrl(url);
             Thread.Sleep(5000);
 
-            for (int i = 0; i <= 6; i++)
+            var ss = new SelectElement(FindElement(By.Id("selRANK")));
+            int count = ss.Options.Count;
+
+            for (int i = 0; i < count; i++)
             {
                 var selRANK = new SelectElement(FindElement(By.Id("selRANK")));
                 selRANK.SelectByIndex(i);
@@ -165,7 +168,10 @@ namespace WebAutoCrawler
             GoToUrl(url);
             Thread.Sleep(5000);
 
-            for (int i = 0; i <= 6; i++)
+            var ss = new SelectElement(FindElement(By.Id("selRANK")));
+            int count = ss.Options.Count;
+
+            for (int i = 0; i < count; i++)
             {
                 var selRANK = new SelectElement(FindElement(By.Id("selRANK")));
                 selRANK.SelectByIndex(i);

@@ -26,6 +26,7 @@ namespace WebCrawler
             //await ss.RunSingleAsync();
             //await ss.ParserMarginAsync();
 
+            //
             var s = new CnyParser();
             await s.RunAsync();
 
@@ -38,7 +39,7 @@ namespace WebCrawler
             //await s1.RunAsync();
 
 
-            //await RunAsync<MacdParser>();
+            //await RunAsync<DailyNotifier>();
 
             //InitailLineNotifyBot();
             //var s1 = new UpdateStockListParser();

@@ -37,8 +37,8 @@ namespace WebCrawler
 
             //var stocks = await context.Stocks.FromSql(GetSql()).ToArrayAsync();
             //for (int i = stocks.Length / 2; i <= stocks.Length - 1; i++)
-            for (int i = stocks.Length / 2; i >=0; i--)
-            //for (int i = 0; i <= stocks.Length-1; i++)
+            //for (int i = stocks.Length / 2; i >=0; i--)
+            for (int i = 0; i <= stocks.Length-1; i++)
             //for (int i = stocks.Length - 1; i >=0 ; i--)
             {
                 try
@@ -52,7 +52,7 @@ namespace WebCrawler
             }
 
             context.Database.SetCommandTimeout(90);
-            context.Database.ExecuteSqlCommand($"exec [usp_Update_MA_And_VMA] '{DateTime.Today:yyyy-MM-dd}'");
+            context.Database.ExecuteSqlCommand($"exec [usp_Update_MA_And_VMA] {DateTime.Today:yyyy-MM-dd}");
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
         }
