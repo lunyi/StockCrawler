@@ -35,6 +35,8 @@
                     <th>百分比</th>
                     <th>融資增減</th>
                     <th>融券增減</th>
+                    <th>上漲家數</th>
+                    <th>下跌家數</th>
                     <th>外資</th>
                     <th>投信</th>
                     <th>自營</th>
@@ -55,9 +57,13 @@
                 <td v-bind:style="{ color: price.pColor, fontWeight: price.fontWeight}">{{price.漲跌百分比}}%</td>
                 <td v-bind:style="{ color: price.dColor}">{{price.融資增加}}</td>
                 <td v-bind:style="{ color: price.lColor}">{{price.融券增加}}</td>
+
+                <td>{{price.漲停家數}}/{{price.上漲家數}}</td>
+                <td>{{price.跌停家數}}/{{price.下跌家數}}</td>
+
                 <td v-bind:style="{ color: price.fColor}">{{price.外資買賣超}}</td>
                 <td v-bind:style="{ color: price.tColor}">{{price.投信買賣超}}</td>
-                <td v-bind:style="{ color: price.zColor}">{{price.自營總}}</td>
+                <td v-bind:style="{ color: price.zColor}">{{price.自營商買賣超}}</td>
                 <td v-bind:style="{ color: price.mColor}">{{price.總計}}</td>
                 <td>{{price.外資未平倉}}</td>
                 <td>{{price.投信未平倉}}</td>

@@ -616,6 +616,14 @@ order by [股價]
 
         private string Get投信突然加入買方Sql(string datetime)
         {
+            var dd = Convert.ToDateTime(datetime);
+            var datetime2 = _context.Prices.Where(p => p.StockId == "2330" && p.Datetime < dd)
+                .OrderByDescending(p => p.Datetime)
+                .Take(5)
+                .OrderBy(p => p.Datetime)
+                .Select(p => p.Datetime.ToString("yyyy-MM-dd"))
+                .FirstOrDefault();
+
             return $@"
 
   WITH TOPTEN as (
@@ -624,7 +632,7 @@ order by [股價]
         PARTITION BY [Name] 
        order by [Datetime] desc
     ) AS RowNo 
-    FROM [Prices] where [Datetime] <= '{datetime}'
+    FROM [Prices] where [Datetime] <= '{datetime}' and [Datetime] >= '{datetime2}'
 )
 
 select s.*

@@ -423,6 +423,9 @@ namespace DataService.Models
                 entity.HasIndex(e => new { e.StockId, e.投信買賣超, e.主力買超張數, e.主力賣超張數, e.Datetime, e.外資買賣超 })
                     .HasName("Prices_MainForce_Index");
 
+                entity.HasIndex(e => new { e.StockId, e.Name, e.High, e.Low, e.Open, e.Close, e.漲跌, e.漲跌百分比, e.成交量, e.成交金額, e.本益比, e.CreatedOn, e.融資買進, e.融資賣出, e.融資現償, e.融資餘額, e.融資使用率, e.融券買進, e.融券賣出, e.融券餘額, e.資券相抵, e.外資持股, e.外資持股比例, e.外資買賣超, e.投信買賣超, e.自營商買賣超, e.當沖張數, e.當沖比例, e.當沖總損益, e.當沖均損益, e.MA3, e.MA5_, e.MA10_, e.MA20_, e.MA60_, e.MA5, e.MA10, e.MA20, e.MA60, e.MA120, e.MA240, e.VMA3, e.VMA5, e.VMA10, e.VMA20, e.VMA60, e.VMA120, e.VMA240, e.主力買超張數, e.主力賣超張數, e.五日主力買超張數, e.五日主力賣超張數, e.十日主力買超張數, e.十日主力賣超張數, e.二十日主力買超張數, e.二十日主力賣超張數, e.四十日主力買超張數, e.四十日主力賣超張數, e.六十日主力買超張數, e.六十日主力賣超張數, e.投信持股, e.投信持股比例, e.自營商持股, e.董監持股, e.董監持股比例, e.DIF, e.MACD, e.OSC, e.RSV, e.K, e.D, e.DIF1, e.MACD1, e.OSC1, e.RSV1, e.K1, e.D1, e.Datetime })
+                    .HasName("Index_Prices_Datetime");
+
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.Close).HasColumnType("numeric(18, 2)");
@@ -690,9 +693,14 @@ namespace DataService.Models
                 entity.HasIndex(e => new { e.Name, e.MarketCategory, e.Industry, e.ListingOn, e.CreatedOn, e.股價, e.每股淨值, e.每股盈餘, e.UpdatedOn, e.Status, e.Address, e.Website, e.營收比重, e.股本, e.StockId })
                     .HasName("Stocks_Index");
 
+                entity.HasIndex(e => new { e.Id, e.StockId, e.Name, e.MarketCategory, e.Industry, e.ListingOn, e.CreatedOn, e.UpdatedOn, e.Address, e.Website, e.營收比重, e.股本, e.股價, e.每股淨值, e.每股盈餘, e.Description, e.ROE, e.ROA, e.股票期貨, e.Status })
+                    .HasName("Index_Stocks_Status");
+
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.Address).HasMaxLength(256);
+
+                entity.Property(e => e.Description).HasColumnType("nvarchar(max)");
 
                 entity.Property(e => e.Industry)
                     .IsRequired()
@@ -833,7 +841,7 @@ namespace DataService.Models
             {
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
-                entity.Property(e => e.Datetime).HasColumnType("datetime");
+                entity.Property(e => e.Datetime).HasColumnType("date");
 
                 entity.Property(e => e.交易口數PC比).HasColumnType("decimal(17, 2)");
 
