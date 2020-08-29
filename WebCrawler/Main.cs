@@ -11,6 +11,7 @@ using LineBotLibrary;
 using Microsoft.Extensions.DependencyInjection;
 using WebCrawler;
 using LineBotLibrary.Models;
+using EFCore.BulkExtensions;
 
 namespace WebCrawler
 {
@@ -26,8 +27,38 @@ namespace WebCrawler
             //await ss.RunSingleAsync();
             //await ss.ParserMarginAsync();
 
-            //
-            await new CnyParser().RunAsync(args[0], args[1]);
+
+
+            var context = new StockDbContext();
+            var stocks = await context.Stocks
+                .Where(p => p.Status == 1)
+                .OrderBy(p => p.StockId)
+                .ToArrayAsync();
+
+            var prices = new List<Prices>();
+            for (int i = 0; i < stocks.Length; i++)
+            {
+                prices.Add(new Prices
+                {
+                    StockId = stocks[i].StockId,
+                    Name = stocks[i].Name,
+                    Datetime = DateTime.Today,
+                    CreatedOn = DateTime.Now,
+                    Open = 0,
+                    Close = 0,
+                    High = 0,
+                    Low = 0,
+                    DIF1 = "",
+                    MACD1 = "",
+                    OSC1 = "",
+                    RSV1 = "",
+                    K1 = "",
+                    D1 = ""
+                });
+            }
+
+            await context.BulkUpdateAsync(prices);
+            //await new CnyParser().RunAsync(args[0], args[1]);
 
 
             //await RunAsync<BrokerParser>();

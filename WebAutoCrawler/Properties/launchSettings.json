@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WebAutoCrawler": {
+      "commandName": "Project",
+      "commandLineArgs": "dailytrade"
+    }
+  }
+}

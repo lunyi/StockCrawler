@@ -6,10 +6,10 @@ using OpenQA.Selenium.Chrome;
 
 namespace WebAutoCrawler
 {
-    public abstract class BaseCrawler : IDisposable
+    public abstract class BaseCrawler2 : IDisposable
     {
-        private IWebDriver _driver;
-        public BaseCrawler()
+        private static IWebDriver _driver;
+        public BaseCrawler2()
         {
             ChromeOptions chromeBrowserOptions = new ChromeOptions();
             //需要阻擋跳出視窗時，可將下面註解移除
@@ -21,19 +21,17 @@ namespace WebAutoCrawler
             _driver.Manage().Cookies.DeleteAllCookies();
         }
 
-        public abstract Task ExecuteAsync();
-
-        protected void GoToUrl(string url)
+        protected static void GoToUrl(string url)
         {
             _driver.Navigate().GoToUrl(url);
         }
 
-        protected IWebElement FindElement(By by)
+        protected static IWebElement FindElement(By by)
         {
             return _driver.FindElement(by);
         }
 
-        protected ReadOnlyCollection<IWebElement> FindElements(By by)
+        protected static ReadOnlyCollection<IWebElement> FindElements(By by)
         {
             return _driver.FindElements(by);
         }

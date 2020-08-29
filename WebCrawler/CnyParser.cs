@@ -47,8 +47,11 @@ namespace WebCrawler
                 try
                 {
                     var price = ParseSingleHistoryPrice(stocks[i].StockId, stocks[i].Name);
-                    price =  ParserLastDay(price, stocks[i].StockId, stocks[i].Name);
-                    prices.Add(price);
+                    if (price != null)
+                    {
+                        price = ParserLastDay(price, stocks[i].StockId, stocks[i].Name);
+                        prices.Add(price);
+                    }
                 }
                 catch (Exception e)
                 {
@@ -122,65 +125,6 @@ namespace WebCrawler
 
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
-        }
-
-        public async Task ExecuteLastAsync(StockDbContext context, string stockId, string name)
-        {
-            var price = await context.Prices.FirstOrDefaultAsync(p => p.Datetime == DateTime.Today && p.StockId == stockId);
-            var isAdd = price==null;
-            //rices price = null;// ParseSingleHistoryPrice(stockId, name, price);
-
-            if (price == null)
-            {
-                return;
-            }
-
-            price = ParserLastDay(price, stockId, name);
-            var p = context.Prices.FirstOrDefault(p => p.Datetime == price.Datetime && p.StockId == stockId);
-
-            if (isAdd)
-            {
-                await context.Prices.AddAsync(price);
-                var stock = await context.Stocks.FirstOrDefaultAsync(p => p.StockId == stockId);
-                stock.Description = price.Close.ToString();
-                context.Entry<Stocks>(stock).State = EntityState.Modified;
-            }
-
-            await context.SaveChangesAsync();
-        }
-
-        [Obsolete]
-        private RawSqlString GetSqlToUpdate()
-        {
-            return new RawSqlString(@"
-Update  [Prices] set [投信買賣超] = (投信買進 - 投信賣出), [外資買賣超] = (外資買進 - 外資賣出), [自營商買賣超] = (自營商買進 - 自營商賣出)
-where ([投信買賣超] != (投信買進 - 投信賣出)) or  ([外資買賣超] != (外資買進 - 外資賣出)) or  ([自營商買賣超] != (自營商買進 - 自營商賣出))
-");
-        }
-
-        [Obsolete]
-        private RawSqlString GetSqlToUpdate發行張數(string firstDatetime, string secondDatetime)
-        {
-            return new RawSqlString(@$"
- update [Prices] set [發行張數] = c.發行張數2
- from (
-select 
-  a.stockId, a.Name, 
-  a.[Datetime] as [Datetime1], 
-  a.發行張數 as 發行張數1, 
-  b.Datetime as [Datetime2], 
-  b.發行張數 as 發行張數2 
-from (
-SELECT *
-  FROM [StockDb].[dbo].[Prices]
-  where [Datetime] = '{firstDatetime}' and ([發行張數] is null or [發行張數] = 0))  a 
-  join (SELECT *
-  FROM [StockDb].[dbo].[Prices]
-  where [Datetime] = '{secondDatetime}')  b on a.StockId = b.StockId) c 
-
-   where [Datetime] = '{firstDatetime}' and  ([發行張數] is null or [發行張數] = 0)
-
-");
         }
 
         public Prices ParserLastDay(Prices price, string stockId, string name)
@@ -269,39 +213,7 @@ SELECT *
             Console.WriteLine("外資：" + s.Elapsed.TotalSeconds);
         }
 
-        [Obsolete]
-        public async Task ParserMarginAsync()
-        {
-            var context = new StockDbContext();
-            var prices = context.Prices.Where(p => p.Datetime == DateTime.Today && p.融券買進 == null)
-                .OrderByDescending(p => p.StockId)
-                .ToList();
-
-            foreach (var price in prices)
-            {
-                var stockId = price.StockId;
-                var name = price.Name;
-
-                try
-                {
-                    ParseMargin(stockId, price);
-                    await context.SaveChangesAsync();
-                    var sql = $"exec [usp_Update_Single_MA_And_VMA] '{stockId}', '{DateTime.Today:yyyy-MM-dd}'";
-                    context.Database.ExecuteSqlCommand(sql);
-
-                    Console.WriteLine(stockId + "::" + name);
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(stockId + "::" + name + "::" + ex);
-                }
-            }
-
-            var dd = await context.Prices.Select(p => p.Datetime).Distinct().OrderByDescending(p => p).Take(2).ToArrayAsync();
-
-            context.Database.ExecuteSqlCommand(GetSqlToUpdate發行張數(dd[0].ToString("yyyy-MM-dd"), dd[1].ToString("yyyy-MM-dd")));
-            context.Database.ExecuteSqlCommand(GetSqlToUpdate());
-        }
+      
 
         public CnyParser()
         {
@@ -460,13 +372,12 @@ SELECT *
             if (dateNode == null)
                 return null;
 
-            //var date = DateTime.Today.Year + "/" + dateNode.InnerText.Replace("最近交易日:", "").Replace("&nbsp;&nbsp;&nbsp;市值單位:百萬", "");
-            //var today = Convert.ToDateTime(date);
-            var today = DateTime.Today;
-            //if (today != DateTime.Today)
-            //{
-            //    return null;
-            //}
+            var date = DateTime.Today.Year + "/" + dateNode.InnerText.Replace("最近交易日:", "").Replace("&nbsp;&nbsp;&nbsp;市值單位:百萬", "");
+            var today = Convert.ToDateTime(date);
+            if (today != DateTime.Today)
+            {
+                return null;
+            }
 
             var openNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[2]/td[2]");
             var highNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[2]/td[4]");
@@ -491,7 +402,6 @@ SELECT *
 
             var price = new Prices
             {
-                Id = Guid.NewGuid(),
                 CreatedOn = DateTime.Now
             };
 

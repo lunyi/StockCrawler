@@ -30,7 +30,13 @@ namespace WebCrawler
             //await c.ExecuteAsync();
             //Console.ReadLine();
 
-            await RunAsync<DailyTraderCrawler>();
+            if (args.Length != 1)
+            {
+                Console.WriteLine("沒有設定參數");
+                return;
+            }
+
+            await new DailyTraderCrawler().ExecuteAsync(args[0]);
         }
 
         private static ServiceCollection _serviceCollection;

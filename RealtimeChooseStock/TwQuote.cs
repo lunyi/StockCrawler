@@ -100,7 +100,6 @@ namespace RealtimeChooseStock
         {
             var p = new Prices
             {
-                Id = Guid.NewGuid(),
                 StockId = StockId,
                 Name = StockName,
                 Close = nBestAsk1 / 100,
