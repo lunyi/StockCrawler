@@ -8,7 +8,7 @@ using LineBotLibrary;
 using LineBotLibrary.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-
+using Dapper;
 namespace LineBotApi.Controllers
 {
     public class HomeController : Controller

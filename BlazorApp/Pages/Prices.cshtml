@@ -116,11 +116,12 @@
                     <th>MA20</th>
                     <th>K9</th>
                     <th>D9</th>
-                    <th>MACD</th>
-                    <th>DIF</th>
+                    @*<th>MACD</th>
+                    <th>DIF</th>*@
                     <th>OSC</th>
-                    @*<th>當沖張數</th>
-        <th>當沖比例</th>
+                    <th>當沖張數</th>
+                    <th>當沖比例</th>
+                    @*
         <th>當沖總損益</th>
         <th>當沖均損益</th>*@
                     @*<th>本益比</th>*@
@@ -155,11 +156,12 @@
                 <td v-bind:style="{ color: price.ma20Color}">{{price.mA20}}</td>
                 <td v-bind:style="{ color: price.k9Color}">{{price.k9}}</td>
                 <td v-bind:style="{ color: price.d9Color}">{{price.d9}}</td>
-                <td v-bind:style="{ color: price.macdColor}">{{price.macd}}</td>
-                <td v-bind:style="{ color: price.difColor}">{{price.dif}}</td>
+                @*<td v-bind:style="{ color: price.macdColor}">{{price.macd}}</td>
+                <td v-bind:style="{ color: price.difColor}">{{price.dif}}</td>*@
                 <td v-bind:style="{ color: price.oscColor}">{{price.osc}}</td>
-                @*<td>{{price.當沖張數}}</td>
-        <td>{{price.當沖比例}}%</td>
+                <td>{{price.當沖張數}}</td>
+                <td>{{price.當沖比例}}%</td>
+                @*
         <td>{{price.當沖總損益}}</td>
         <td>{{price.當沖均損益}}</td>*@
                 @*<td>{{price.五日籌碼集中度}}%</td>

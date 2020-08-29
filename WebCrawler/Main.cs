@@ -27,8 +27,7 @@ namespace WebCrawler
             //await ss.ParserMarginAsync();
 
             //
-            var s = new CnyParser();
-            await s.RunAsync();
+            await new UpdateStockListParser().RunAsync();
 
 
             //await RunAsync<BrokerParser>();

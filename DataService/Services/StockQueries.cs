@@ -286,7 +286,7 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
             var context = new StockDbContext();
             var prices = await (from price in context.Prices
                                 join stock in context.Stocks on price.StockId equals stock.StockId
-                                where price.StockId == stockId && (chkDate ? price.Datetime <= datetime : true) 
+                                where price.StockId == stockId && (chkDate ? price.Datetime <= datetime : true)
                                 orderby price.Datetime descending
                                 let volume = price.成交量 == 0 ? 1 : price.成交量
                                 select new PriceModel
@@ -320,13 +320,15 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                                     MA10 = price.MA10_ ?? string.Empty,
                                     MA20 = price.MA20_ ?? string.Empty,
                                     MA60 = price.MA60_ ?? string.Empty,
+                                    當沖張數 = price.當沖張數,
+                                    當沖比例 = price.當沖比例,
                                     K9 = price.K1,
                                     D9 = price.D1,
                                     MACD = price.MACD1,
                                     OSC = price.OSC1,
                                     DIF = price.DIF1,
                                     //五日籌碼集中度 = 100 * Math.Round(((price.五日主力買超張數 - price.五日主力賣超張數) / (5 * price.VMA5)).Value, 4),
-                                    十日籌碼集中度 = 100 * Math.Round(((price.十日主力買超張數 - price.十日主力賣超張數) / (10 *price.VMA10)).Value, 4),
+                                    十日籌碼集中度 = 100 * Math.Round(((price.十日主力買超張數 - price.十日主力賣超張數) / (10 * price.VMA10)).Value, 4),
                                     //二十日籌碼集中度 = 100 * Math.Round(((price.二十日主力買超張數 - price.二十日主力賣超張數) / (20 * price.VMA20)).Value, 4),
                                     //六十日籌碼集中度 = 100 * Math.Round(((price.六十日主力買超張數 - price.六十日主力賣超張數) / (60 * price.VMA60)).Value, 4),
                                     //周轉率 = 100 * Math.Round(((decimal)price.成交量 / price.發行張數).Value, 5)
@@ -1694,7 +1696,7 @@ SELECT
   from [Stocks] s 
     join
 	  (select * 
-	  from [Prices]
+	  from [Prices] with (nolock)
 	  where [Datetime] = '{datetime}') a on s.StockId = a.StockId
 	join
 	  (select * 

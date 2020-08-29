@@ -58,8 +58,8 @@
                 <td v-bind:style="{ color: price.dColor}">{{price.融資增加}}</td>
                 <td v-bind:style="{ color: price.lColor}">{{price.融券增加}}</td>
 
-                <td>{{price.漲停家數}}/{{price.上漲家數}}</td>
-                <td>{{price.跌停家數}}/{{price.下跌家數}}</td>
+                <td v-bind:style="{ color: price.upColor}">{{price.漲停家數}}/{{price.上漲家數}}</td>
+                <td v-bind:style="{ color: price.downColor}">{{price.跌停家數}}/{{price.下跌家數}}</td>
 
                 <td v-bind:style="{ color: price.fColor}">{{price.外資買賣超}}</td>
                 <td v-bind:style="{ color: price.tColor}">{{price.投信買賣超}}</td>

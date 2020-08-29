@@ -46,7 +46,9 @@ namespace DataService.DataModel
         public int? 董監持股 { get; set; }
         public decimal? 投信持股比例 { get; set; }
         public decimal? 董監持股比例 { get; set; }
-   
+        public decimal? 當沖張數 { get; set; }
+        public decimal? 當沖比例 { get; set; }
+
         public string MA5 { get; set; }
         public string MA10 { get; set; }
         public string MA20 { get; set; }

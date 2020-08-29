@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DataService.Models;
+using EFCore.BulkExtensions;
 using LineBotLibrary;
 using LineBotLibrary.Models;
 using Microsoft.EntityFrameworkCore;
@@ -35,15 +36,13 @@ namespace WebCrawler
             var stocks = await context.Stocks.Where(p => p.Status == 1)
                 .OrderByDescending(p => p.StockId).ToArrayAsync();
 
-            //var stocks = await context.Stocks.FromSql(GetSql()).ToArrayAsync();
-            //for (int i = stocks.Length / 2; i <= stocks.Length - 1; i++)
-            //for (int i = stocks.Length / 2; i >=0; i--)
+            var prices = new List<Prices>();
             for (int i = 0; i <= stocks.Length-1; i++)
-            //for (int i = stocks.Length - 1; i >=0 ; i--)
             {
                 try
                 {
-                    await ExecuteLastAsync(context, stocks[i].StockId, stocks[i].Name);
+                    var p = GetPriceForInsert(stocks[i].StockId, stocks[i].Name);
+                    prices.Add(p);
                 }
                 catch (Exception e)
                 {
@@ -52,6 +51,7 @@ namespace WebCrawler
             }
 
             context.Database.SetCommandTimeout(90);
+            await context.BulkInsertOrUpdateAsync(prices);
             context.Database.ExecuteSqlCommand($"exec [usp_Update_MA_And_VMA] {DateTime.Today:yyyy-MM-dd}");
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
@@ -113,7 +113,7 @@ namespace WebCrawler
         {
             var price = await context.Prices.FirstOrDefaultAsync(p => p.Datetime == DateTime.Today && p.StockId == stockId);
             var isAdd = price==null;
-            price = ParseSingleHistoryPrice(stockId, name, price);
+            //rices price = null;// ParseSingleHistoryPrice(stockId, name, price);
 
             if (price == null)
             {
@@ -132,6 +132,12 @@ namespace WebCrawler
             }
 
             await context.SaveChangesAsync();
+        }
+
+        public Prices GetPriceForInsert(string stockId, string name)
+        {
+            var price = ParseSingleHistoryPrice(stockId, name);
+            return ParserLastDay(price, stockId, name);
         }
 
         [Obsolete]
@@ -434,7 +440,7 @@ SELECT *
             Console.WriteLine($"{stockId}, {name}, {datetime}：" + s.Elapsed.TotalSeconds);
         }
 
-        private Prices ParseSingleHistoryPrice(string stockId, string name, Prices price)
+        private Prices ParseSingleHistoryPrice(string stockId, string name)
         {
             var s = Stopwatch.StartNew();
             s.Start();
@@ -472,14 +478,12 @@ SELECT *
             var volume = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[4]/td[8]").InnerHtml.Replace(",",""));
             var percent = Math.Round(100 * updownValue / (closeValue - updownValue),3);
 
-            if (price == null)
+
+            var price = new Prices
             {
-                price = new Prices
-                {
-                    Id = Guid.NewGuid(),
-                    CreatedOn = DateTime.Now
-                };
-            }
+                Id = Guid.NewGuid(),
+                CreatedOn = DateTime.Now
+            };
 
             price.StockId = stockId;
             price.Name = name;

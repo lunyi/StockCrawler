@@ -95,13 +95,21 @@ function renewPrices(data) {
         }
         else if (data[i].融券增加 > 0) {
             data[i].融券增加 = data[i].融券增加 + "↑";
-            data[i].chColor = "red";``
+            data[i].chColor = "red";
         }
         else if (data[i].融券增加 < 0) {
             data[i].融券增加 = data[i].融券增加 + "↓";
             data[i].chColor = "green";
         } else {
             data[i].融券增加 = data[i].融券增加;
+        }
+
+        if (data[i].上漲家數 > 900) {
+            data[i].upColor = "red";
+        }
+
+        if (data[i].下跌家數 > 900) {
+            data[i].downColor = "green";
         }
     }
     return data;
