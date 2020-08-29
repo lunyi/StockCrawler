@@ -15,16 +15,6 @@ namespace WebCrawler
             { "utf-8", 65001 },
         };
 
-        public virtual Task RunAsync()
-        {
-            return Task.FromResult(0);
-        }
-
-        public virtual Task RunAsync(int minutes)
-        {
-            return Task.FromResult(0);
-        }
-
         protected HtmlNode GetRootNoteByUrl(string url, bool isUtf8 = true)
         {
             var web = new HtmlWeb();

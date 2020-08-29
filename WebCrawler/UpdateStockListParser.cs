@@ -10,7 +10,7 @@ namespace WebCrawler
 {
     public class UpdateStockListParser : BaseParser
     {
-        public override async Task RunAsync()
+        public async Task RunAsync()
         {
             var s = Stopwatch.StartNew();
             s.Start();

@@ -67,7 +67,7 @@ namespace WebCrawler
             await context.SaveChangesAsync();
         }
 
-        public override async Task RunAsync()
+        public async Task RunAsync()
         {
             var startDate = "2020-3-1";
             var endDate = "2020-7-17";

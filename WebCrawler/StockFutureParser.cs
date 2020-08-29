@@ -26,7 +26,7 @@ namespace WebCrawler
         {
         }
 
-        public override async Task RunAsync()
+        public async Task RunAsync()
         {
             var url = "https://www.taifex.com.tw/cht/2/stockLists";
 

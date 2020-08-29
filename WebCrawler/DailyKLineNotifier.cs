@@ -21,8 +21,7 @@ namespace WebCrawler
             _lineNotifyBotApi = lineNotifyBotApi;
         }
 
-        [Obsolete]
-        public override async Task RunAsync(int minutes)
+        public async Task RunAsync(int minutes)
         {
             var context = new StockDbContext();
             _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();

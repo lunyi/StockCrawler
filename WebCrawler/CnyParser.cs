@@ -27,22 +27,28 @@ namespace WebCrawler
         public ConcurrentDictionary<string, string> ErrorStocks { get; set; }
 
         [Obsolete]
-        public override async Task RunAsync()
+        public async Task RunAsync(string part, string insertOrUpdate)
         {
             var context = new StockDbContext();
             var s = Stopwatch.StartNew();
             s.Start();
 
-            var stocks = await context.Stocks.Where(p => p.Status == 1)
-                .OrderByDescending(p => p.StockId).ToArrayAsync();
+            var stocks = await context.Stocks
+                .Where(p => p.Status == 1)
+                .OrderBy(p => p.StockId)
+                .ToArrayAsync();
+
+            int start = part == "1" ? 0 : (stocks.Length - 1) / 2;
+            int end = part == "1" ? (stocks.Length - 1) / 2 : stocks.Length - 1;
 
             var prices = new List<Prices>();
-            for (int i = 0; i <= stocks.Length-1; i++)
+            for (int i = start; i < end; i++)
             {
                 try
                 {
-                    var p = GetPriceForInsert(stocks[i].StockId, stocks[i].Name);
-                    prices.Add(p);
+                    var price = ParseSingleHistoryPrice(stocks[i].StockId, stocks[i].Name);
+                    price =  ParserLastDay(price, stocks[i].StockId, stocks[i].Name);
+                    prices.Add(price);
                 }
                 catch (Exception e)
                 {
@@ -51,7 +57,16 @@ namespace WebCrawler
             }
 
             context.Database.SetCommandTimeout(90);
-            await context.BulkInsertOrUpdateAsync(prices);
+
+            if (insertOrUpdate == "insert")
+            {
+                await context.BulkInsertAsync(prices);
+            }
+            else 
+            {
+                await context.BulkUpdateAsync(prices);
+            }
+
             context.Database.ExecuteSqlCommand($"exec [usp_Update_MA_And_VMA] {DateTime.Today:yyyy-MM-dd}");
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
@@ -132,12 +147,6 @@ namespace WebCrawler
             }
 
             await context.SaveChangesAsync();
-        }
-
-        public Prices GetPriceForInsert(string stockId, string name)
-        {
-            var price = ParseSingleHistoryPrice(stockId, name);
-            return ParserLastDay(price, stockId, name);
         }
 
         [Obsolete]
@@ -451,12 +460,13 @@ SELECT *
             if (dateNode == null)
                 return null;
 
-            var date = DateTime.Today.Year + "/" + dateNode.InnerText.Replace("最近交易日:", "").Replace("&nbsp;&nbsp;&nbsp;市值單位:百萬", "");
-            var today = Convert.ToDateTime(date);
-            if (today != DateTime.Today)
-            {
-                return null;
-            }
+            //var date = DateTime.Today.Year + "/" + dateNode.InnerText.Replace("最近交易日:", "").Replace("&nbsp;&nbsp;&nbsp;市值單位:百萬", "");
+            //var today = Convert.ToDateTime(date);
+            var today = DateTime.Today;
+            //if (today != DateTime.Today)
+            //{
+            //    return null;
+            //}
 
             var openNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[2]/td[2]");
             var highNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[2]/td[4]");
