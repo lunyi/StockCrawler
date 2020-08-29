@@ -5,7 +5,6 @@ namespace DataService.Models
 {
     public partial class MonthData
     {
-        public Guid Id { get; set; }
         public string StockId { get; set; }
         public string Name { get; set; }
         public DateTime Datetime { get; set; }

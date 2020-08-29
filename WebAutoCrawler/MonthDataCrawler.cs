@@ -77,7 +77,6 @@ namespace WebAutoCrawler
 
                 return new MonthData
                 {
-                    Id = Guid.NewGuid(),
                     StockId = stockId,
                     Name = name,
                     CreatedOn = DateTime.Now,
@@ -109,7 +108,6 @@ namespace WebAutoCrawler
 
                 monthData.Add(new MonthData
                 {
-                    Id = Guid.NewGuid(),
                     StockId = stockId,
                     Name = name,
                     CreatedOn = DateTime.Now,

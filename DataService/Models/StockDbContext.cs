@@ -358,23 +358,23 @@ namespace DataService.Models
 
             modelBuilder.Entity<MonthData>(entity =>
             {
+                entity.HasKey(e => new { e.StockId, e.Datetime })
+                    .HasName("PK_MonthData_1");
+
                 entity.HasIndex(e => new { e.StockId, e.Name, e.單月年增率, e.Datetime })
                     .HasName("MonthData_StockId_Name");
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
-                entity.Property(e => e.CreatedOn).HasColumnType("datetime");
+                entity.Property(e => e.StockId)
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.Datetime).HasColumnType("datetime");
+
+                entity.Property(e => e.CreatedOn).HasColumnType("datetime");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50);
-
-                entity.Property(e => e.StockId)
-                    .IsRequired()
-                    .HasMaxLength(8)
-                    .IsUnicode(false);
 
                 entity.Property(e => e.去年同月營收).HasColumnType("decimal(18, 2)");
 
@@ -424,6 +424,9 @@ namespace DataService.Models
 
                 entity.HasIndex(e => new { e.StockId, e.投信買賣超, e.主力買超張數, e.主力賣超張數, e.Datetime, e.外資買賣超 })
                     .HasName("Prices_MainForce_Index");
+
+                entity.HasIndex(e => new { e.Open, e.Close, e.MA20, e.MA60, e.主力買超張數, e.主力賣超張數, e.Datetime, e.漲跌百分比, e.成交量 })
+                    .HasName("Index_Prices_Datetime_成交量");
 
                 entity.HasIndex(e => new { e.StockId, e.Name, e.High, e.Low, e.Open, e.Close, e.漲跌, e.漲跌百分比, e.成交量, e.成交金額, e.本益比, e.CreatedOn, e.融資買進, e.融資賣出, e.融資現償, e.融資餘額, e.融資使用率, e.融券買進, e.融券賣出, e.融券餘額, e.資券相抵, e.外資持股, e.外資持股比例, e.外資買賣超, e.投信買賣超, e.自營商買賣超, e.當沖張數, e.當沖比例, e.當沖總損益, e.當沖均損益, e.MA3, e.MA5_, e.MA10_, e.MA20_, e.MA60_, e.MA5, e.MA10, e.MA20, e.MA60, e.MA120, e.MA240, e.VMA3, e.VMA5, e.VMA10, e.VMA20, e.VMA60, e.VMA120, e.VMA240, e.主力買超張數, e.主力賣超張數, e.五日主力買超張數, e.五日主力賣超張數, e.十日主力買超張數, e.十日主力賣超張數, e.二十日主力買超張數, e.二十日主力賣超張數, e.四十日主力買超張數, e.四十日主力賣超張數, e.六十日主力買超張數, e.六十日主力賣超張數, e.投信持股, e.投信持股比例, e.自營商持股, e.董監持股, e.董監持股比例, e.DIF, e.MACD, e.OSC, e.RSV, e.K, e.D, e.DIF1, e.MACD1, e.OSC1, e.RSV1, e.K1, e.D1, e.Datetime })
                     .HasName("Index_Prices_Datetime");
@@ -611,11 +614,16 @@ namespace DataService.Models
 
             modelBuilder.Entity<SeasonData>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.HasKey(e => new { e.StockId, e.Datetime })
+                    .HasName("PK_SeasonData_1");
 
-                entity.Property(e => e.CreatedOn).HasColumnType("datetime");
+                entity.Property(e => e.StockId)
+                    .HasMaxLength(10)
+                    .IsFixedLength();
 
                 entity.Property(e => e.Datetime).HasColumnType("datetime");
+
+                entity.Property(e => e.CreatedOn).HasColumnType("datetime");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -624,11 +632,6 @@ namespace DataService.Models
                 entity.Property(e => e.ROA).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.ROE).HasColumnType("decimal(18, 2)");
-
-                entity.Property(e => e.StockId)
-                    .IsRequired()
-                    .HasMaxLength(10)
-                    .IsFixedLength();
 
                 entity.Property(e => e.公告每股淨值).HasColumnType("decimal(18, 2)");
 
@@ -737,17 +740,22 @@ namespace DataService.Models
 
             modelBuilder.Entity<Thousand>(entity =>
             {
+                entity.HasKey(e => new { e.StockId, e.Datetime })
+                    .HasName("PK_Thousand_1");
+
                 entity.HasIndex(e => new { e.Name, e.PUnder100, e.P200, e.P400, e.S600, e.S800, e.S1000, e.SOver1000, e.SUnder100, e.P600, e.P800, e.P1000, e.POver1000, e.S200, e.S400, e.StockId, e.Datetime })
                     .HasName("Thousand_Index");
 
                 entity.HasIndex(e => new { e.StockId, e.Name, e.CreatedOn, e.PPUnder100, e.PUnder100, e.P1, e.P5, e.P10, e.P15, e.P20, e.P30, e.P40, e.P50, e.P100, e.P200, e.P400, e.P600, e.P800, e.P1000, e.PPOver1000, e.POver1000, e.C1, e.C5, e.C10, e.C15, e.C20, e.C30, e.C40, e.C50, e.C100, e.C200, e.C400, e.C600, e.C800, e.C1000, e.COver1000, e.S1, e.S5, e.S10, e.S15, e.S20, e.S30, e.S40, e.S50, e.S100, e.S200, e.S400, e.S600, e.S800, e.S1000, e.SOver1000, e.TotalCount, e.TotalStock, e.CUnder100, e.SUnder100, e.Datetime })
                     .HasName("Index_Thousand_Datetime");
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
-                entity.Property(e => e.CreatedOn).HasColumnType("datetime");
+                entity.Property(e => e.StockId)
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.Datetime).HasColumnType("datetime");
+
+                entity.Property(e => e.CreatedOn).HasColumnType("datetime");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -820,11 +828,6 @@ namespace DataService.Models
                 entity.Property(e => e.SOver1000).HasColumnType("decimal(18, 3)");
 
                 entity.Property(e => e.SUnder100).HasColumnType("decimal(18, 3)");
-
-                entity.Property(e => e.StockId)
-                    .IsRequired()
-                    .HasMaxLength(8)
-                    .IsUnicode(false);
 
                 entity.Property(e => e.TotalStock).HasColumnType("decimal(18, 3)");
             });

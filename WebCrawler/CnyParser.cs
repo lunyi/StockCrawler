@@ -399,24 +399,22 @@ namespace WebCrawler
             var volume = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[4]/td[8]").InnerHtml.Replace(",",""));
             var percent = Math.Round(100 * updownValue / (closeValue - updownValue),3);
 
-
             var price = new Prices
             {
-                CreatedOn = DateTime.Now
+                CreatedOn = DateTime.Now,
+                StockId = stockId,
+                Name = name,
+                Datetime = today,
+                Open = Convert.ToDecimal(openNode.InnerHtml),
+                High = Convert.ToDecimal(highNode.InnerHtml),
+                Low = Convert.ToDecimal(lowNode.InnerHtml),
+                Close = closeValue,
+                漲跌 = updownValue,
+                漲跌百分比 = percent,
+                成交量 = volume,
+                成交金額 = (int)(volume * closeValue),
+                本益比 = costPercentNode
             };
-
-            price.StockId = stockId;
-            price.Name = name;
-            price.Datetime = today;
-            price.Open = Convert.ToDecimal(openNode.InnerHtml);
-            price.High = Convert.ToDecimal(highNode.InnerHtml);
-            price.Low = Convert.ToDecimal(lowNode.InnerHtml);
-            price.Close = closeValue;
-            price.漲跌 = updownValue;
-            price.漲跌百分比 = percent;
-            price.成交量 = volume;
-            price.成交金額 = (int)(volume * closeValue);
-            price.本益比 = costPercentNode;
 
             s.Stop();
             Console.WriteLine($"基本資料：{stockId}, {name}：" + s.Elapsed.TotalSeconds);

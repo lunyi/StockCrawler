@@ -47,7 +47,6 @@ namespace WebCrawler
                 {
                     var mm = new MonthData
                     {
-                        Id = Guid.NewGuid(),
                         StockId = stock.StockId,
                         Name = stock.Name,
                         CreatedOn = DateTime.Now,

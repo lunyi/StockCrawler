@@ -94,7 +94,6 @@ namespace WebAutoCrawler
                     {
                         var s = new Thousand
                         {
-                            Id = Guid.NewGuid(),
                             StockId = stock.StockId,
                             Name = stock.Name,       
                             Datetime = Convert.ToDateTime(titles[i].Text + "/01"),

@@ -168,7 +168,6 @@ where t.[Datetime] = '{datetime}'
             Thread.Sleep(100);
 
             var t = new Thousand();
-            t.Id = Guid.NewGuid();
             t.StockId = stockId;
             t.Name = name;
             t.Datetime = Convert.ToDateTime(date);
