@@ -205,7 +205,7 @@ namespace DataService.Services
             return @$"
   select s.* from Stocks s join (SELECT *
   FROM [dbo].[Prices]
-  where [Datetime] ='{datetime}' and [漲跌百分比] > 2 and K < 50 and MA20_ like '%↗' and K1 like '%↗' and OSC1 like '%↗' and [Close] > MA20) a1 on s.StockId = a1.StockId
+  where [Datetime] ='{datetime}' and [漲跌百分比] > 2 and MA20_ like '%↗' and K1 like '%↗' and OSC1 like '%↗' and [Close] > MA20) a1 on s.StockId = a1.StockId
   join  (SELECT *
   FROM [dbo].[Prices]
   where [Datetime] = '{datetime2}' and  K1 like '%↘' and OSC1 like '%↘') a2  on a1.StockId = a2.StockId
@@ -257,8 +257,7 @@ namespace DataService.Services
                 default: break;
             }
             return $@"
-select s.[Id]
-      ,s.[StockId]
+select s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
       ,s.[Industry]
@@ -566,7 +565,7 @@ drop table #t1, #t2, #t3, #t4
         async Task IStockQueries.SetBestStockAsync(string stockId, string type)
         {
             var context = new StockDbContext();
-            var stock = context.Stocks.FirstOrDefault(p => p.StockId == stockId);
+            var stock = context.BestStocks.FirstOrDefault(p => p.StockId == stockId && p.Type == type);
             if (stock != null)
             {
                 var best = new BestStocks
@@ -691,8 +690,7 @@ group by a.StockId,a.Name
 having count(1) >= 1
 order by count(1) desc
 
-select s.[Id]
-      ,s.[StockId]
+select s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
       ,s.[Industry]
@@ -734,8 +732,7 @@ into #tmp
 from [TOPTEN]
 where RowNo = 1 and (POver1000 - PPOver1000) > 0.5 and (PUnder100 < PPUnder100) 
 
-select s.[Id]
-      ,s.[StockId]
+select s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
       ,s.[Industry]
@@ -782,8 +779,7 @@ drop table #t1";
 
         private string 投量比加主力買超(string datetime)
         {
-            return $@"select s.[Id]
-      ,s.[StockId]
+            return $@"select s.[StockId]
       ,s.[Name]
       ,[MarketCategory]
       ,[Industry]
@@ -817,8 +813,7 @@ drop table #t1";
             var lastMonday = GetLastMonday(lastThousandDay);
 
             var res = $@"select 
-	 ss.[Id]
-	,ss.[StockId]
+    ss.[StockId]
 	,ss.[Name]
 	,ss.[MarketCategory]
 	,ss.[Industry]
@@ -907,8 +902,7 @@ group by a.StockId,a.Name
 having count(1) >= 3
 order by count(1) desc
 
-select s.[Id]
-      ,s.[StockId]
+select s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
       ,s.[Industry]
@@ -958,8 +952,7 @@ WHERE RowNo <= {days}
 Group by StockId, Name
 order by sum(漲跌百分比) desc
 
-select s.[Id]
-      ,s.[StockId]
+select s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
       ,s.[Industry]
@@ -1002,8 +995,7 @@ Group by StockId, Name
 order by sum(漲跌百分比) asc
 
 
-select s.[Id]
-      ,s.[StockId]
+select s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
       ,s.[Industry]
@@ -1052,8 +1044,7 @@ group by a.StockId,a.Name
 having count(1) >= 2
 order by count(1) desc
 
-select s.[Id]
-      ,s.[StockId]
+select s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
       ,s.[Industry]
@@ -1100,7 +1091,7 @@ join [Stocks] s on s.StockId = p.StockId
 cross apply (select 成交量 as Vol2 from Prices where StockId = p.StockId and [Datetime] >= '{datetime2[8]}' and [Datetime] < '{datetime2[3]}') as t
 where p.[Datetime] <= '{datetime}' and p.[Datetime] >= '{datetime2[3]}'
 group by p.StockId, p.Name) a join [Stocks] s on s.StockId = a.StockId
-where a.成交量 > (a.成交量2 * 2) and a.投信買賣超 > 0 
+where a.成交量 > (a.成交量2 * 2) and a.投信買賣超 > 0 and s.[股價] < 150 and  s.[股價] > 10
 order by a.成交量 / a.成交量2 desc
 ";
         }
@@ -1132,8 +1123,7 @@ group by a.StockId,a.Name
 having count(1) >= 2
 order by count(1) desc
 
-select s.[Id]
-      ,s.[StockId]
+select s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
       ,s.[Industry]
@@ -1184,8 +1174,7 @@ group by a.StockId,a.Name
 having count(1) >= 2
 order by count(1) desc
 
-select s.[Id]
-      ,s.[StockId]
+select s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
       ,s.[Industry]
@@ -1235,8 +1224,7 @@ group by a.StockId,a.Name
 having count(1) >= 2
 order by count(1) desc
 
-select s.[Id]
-      ,s.[StockId]
+select s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
       ,s.[Industry]
@@ -1286,8 +1274,7 @@ group by a.StockId,a.Name
 having count(1) >= 2
 order by count(1) asc
 
-select s.[Id]
-      ,s.[StockId]
+select s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
       ,s.[Industry]
@@ -1340,8 +1327,7 @@ order by  (t1.[POver1000] -  t2.[POver1000]) desc
         {
             var d = Convert.ToDateTime(datetime).AddMonths(-1).ToString("yyyy-MM-01");
             return $@"
- select s.[Id]
-      ,s.[StockId]
+ select s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
       ,s.[Industry]
@@ -1754,8 +1740,7 @@ order by a1.StockId
     FROM [Prices] where [Datetime] <= '{datetime}' and [Datetime] >= '{datetime2}'
 )
 
-select  s.[Id]
-      ,s.[StockId]
+select s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
       ,s.[Industry]
@@ -1797,8 +1782,7 @@ order by a.漲跌百分比 desc";
     FROM [Prices] where [Datetime] <= '{datetime}' and [Datetime] >= '{datetime2}'
 )
 
-select  s.[Id]
-      ,s.[StockId]
+select s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
       ,s.[Industry]
@@ -1833,8 +1817,7 @@ order by a.漲跌百分比 desc";
                 .FirstOrDefault().ToString("yyyy/MM/dd");
 
             return $@"
-select s.[Id]
-      ,s.[StockId]
+select s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
       ,s.[Industry]

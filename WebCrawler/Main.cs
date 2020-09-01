@@ -27,38 +27,7 @@ namespace WebCrawler
             //await ss.RunSingleAsync();
             //await ss.ParserMarginAsync();
 
-
-
-            var context = new StockDbContext();
-            var stocks = await context.Stocks
-                .Where(p => p.Status == 1)
-                .OrderBy(p => p.StockId)
-                .ToArrayAsync();
-
-            var prices = new List<Prices>();
-            for (int i = 0; i < stocks.Length; i++)
-            {
-                prices.Add(new Prices
-                {
-                    StockId = stocks[i].StockId,
-                    Name = stocks[i].Name,
-                    Datetime = DateTime.Today,
-                    CreatedOn = DateTime.Now,
-                    Open = 0,
-                    Close = 0,
-                    High = 0,
-                    Low = 0,
-                    DIF1 = "",
-                    MACD1 = "",
-                    OSC1 = "",
-                    RSV1 = "",
-                    K1 = "",
-                    D1 = ""
-                });
-            }
-
-            await context.BulkUpdateAsync(prices);
-            //await new CnyParser().RunAsync(args[0], args[1]);
+            await new CnyParser().RunAsync(int.Parse(args[0]), int.Parse(args[1]));
 
 
             //await RunAsync<BrokerParser>();
@@ -82,7 +51,7 @@ namespace WebCrawler
             //await ss.ParserMarginAsync();
             //var ss =  s.ParseTrust("2330", "2017-01-01", "2019-10-29");
 
-            //Console.ReadLine();
+            Console.ReadLine();
         }
 
         private static ServiceCollection _serviceCollection;

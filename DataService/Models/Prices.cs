@@ -71,12 +71,12 @@ namespace DataService.Models
         public int? 自營商持股 { get; set; }
         public int? 董監持股 { get; set; }
         public decimal? 董監持股比例 { get; set; }
-        public decimal DIF { get; set; }
-        public decimal MACD { get; set; }
-        public decimal OSC { get; set; }
-        public decimal RSV { get; set; }
-        public decimal K { get; set; }
-        public decimal D { get; set; }
+        public decimal? DIF { get; set; }
+        public decimal? MACD { get; set; }
+        public decimal? OSC { get; set; }
+        public decimal? RSV { get; set; }
+        public decimal? K { get; set; }
+        public decimal? D { get; set; }
         public string DIF1 { get; set; }
         public string MACD1 { get; set; }
         public string OSC1 { get; set; }

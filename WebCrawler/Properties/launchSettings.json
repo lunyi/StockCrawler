@@ -2,7 +2,7 @@
   "profiles": {
     "WebCrawler": {
       "commandName": "Project",
-      "commandLineArgs": "1 insert"
+      "commandLineArgs": "6 6"
     }
   }
 }

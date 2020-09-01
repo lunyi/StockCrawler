@@ -84,7 +84,6 @@ namespace WebCrawler
         {
             foreach (var stock in stockToAdd)
             {
-                stock.Id = Guid.NewGuid();
                 stock.Status = 1;
 
                 Console.WriteLine($"Create Stocks:{stock.StockId} {stock.Name}");

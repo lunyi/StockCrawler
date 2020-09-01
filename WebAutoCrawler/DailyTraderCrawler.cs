@@ -4,15 +4,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using OpenQA.Selenium.Support.UI;
 using DataService.Models;
-using OpenQA.Selenium;
-using LineBotLibrary;
-using LineBotLibrary.Models;
-using Microsoft.EntityFrameworkCore;
-using System.Text;
-using System.Globalization;
 using EFCore.BulkExtensions;
+using Microsoft.EntityFrameworkCore;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
 
 namespace WebAutoCrawler
 {
@@ -31,14 +27,24 @@ namespace WebAutoCrawler
 
             var context = new StockDbContext();
 
-            var prices = await context.Prices.Where(p => p.Datetime == DateTime.Today)
+            var prices = await context.Prices
+                .Where(p => p.Datetime == DateTime.Today)
                 .ToListAsync();
-            var ss = funcMap[type];
+            var func = funcMap[type];
 
-            var pricesToUpdate = funcMap[type](prices);
-            await context.BulkUpdateAsync(pricesToUpdate);
+            var pricesToUpdate = func(prices);
+          
+            context.Database.SetCommandTimeout(180);
 
-            Console.WriteLine(s.Elapsed.TotalMinutes);
+            try
+            {
+                await context.BulkUpdateAsync(pricesToUpdate);
+                Console.WriteLine(s.Elapsed.TotalMinutes);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error {e}");
+            }
         }
 
         static Dictionary<string, Func<List<Prices>, List<Prices>>> funcMap = new Dictionary<string, Func<List<Prices>, List<Prices>>>
@@ -53,7 +59,7 @@ namespace WebAutoCrawler
             {
                 string url = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E5%BC%B5%E6%95%B8+%28%E7%95%B6%E6%97%A5%29%40%40%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E5%BC%B5%E6%95%B8%40%40%E7%95%B6%E6%97%A5";
                 var updatedPrices = new List<Prices>();
-                prices = prices.Where(p => p.當沖張數 == null).ToList();
+                //prices = prices.Where(p => p.當沖張數 == null).ToList();
                 GoToUrl(url);
                 Thread.Sleep(5000);
 
@@ -118,7 +124,7 @@ namespace WebAutoCrawler
 
         static Func<string, List<Prices>, List<Prices>> dailyMaFunc = (url, prices) =>
         {
-            prices = prices.Where(p => p.MA10_ == null).ToList();
+            //prices = prices.Where(p => p.MA10_ == null).ToList();
             var updatedPrices = new List<Prices>();
 
             GoToUrl(url);
@@ -175,7 +181,7 @@ namespace WebAutoCrawler
 
         static Func<List<Prices>, List<Prices>> dailyMacdFunc = (prices) =>
         {
-            prices = prices.Where(p => p.MACD == 0).ToList();
+            //prices = prices.Where(p => p.MACD == null).ToList();
             string url = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E6%97%A5DIF+%28%E4%BD%8E%E2%86%92%E9%AB%98%29%40%40%E6%97%A5MACD%40%40DIF+%28%E4%BD%8E%E2%86%92%E9%AB%98%29";
             var updatedPrices = new List<Prices>();
 
@@ -232,7 +238,7 @@ namespace WebAutoCrawler
 
         static Func<List<Prices>, List<Prices>> dailyKdFunc = (prices) =>
         {
-            prices = prices.Where(p => p.K == 0).ToList();
+            //prices = prices.Where(p => p.K == null).ToList();
             string url = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E6%97%A5RSV+%28%E4%BD%8E%E2%86%92%E9%AB%98%29%40%40%E6%97%A5KD%E6%8C%87%E6%A8%99%40%40RSV+%28%E4%BD%8E%E2%86%92%E9%AB%98%29";
             var updatedPrices = new List<Prices>();
 

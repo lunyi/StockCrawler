@@ -20,15 +20,14 @@ namespace WebCrawler
         //string baseUrl = "https://fubon-ebrokerdj.fbs.com.tw";
         string baseUrl = "http://5850web.moneydj.com";
         //string baseUrl = "https://concords.moneydj.com";
-
-        private readonly LineNotifyBotApi _lineNotifyBotApi;
         private string _token;
 
         public ConcurrentDictionary<string, string> ErrorStocks { get; set; }
 
         [Obsolete]
-        public async Task RunAsync(string part, string insertOrUpdate)
+        public async Task RunAsync(int index, int partition)
         {
+            //ExecuteByStock("2642", "2642");
             var context = new StockDbContext();
             var s = Stopwatch.StartNew();
             s.Start();
@@ -38,20 +37,25 @@ namespace WebCrawler
                 .OrderBy(p => p.StockId)
                 .ToArrayAsync();
 
-            int start = part == "1" ? 0 : (stocks.Length - 1) / 2;
-            int end = part == "1" ? (stocks.Length - 1) / 2 : stocks.Length - 1;
+            var oldPrices = await context.Prices
+              .Where(p => p.Datetime == DateTime.Today)
+              .ToArrayAsync();
+
+
+            int start = (index - 1) * stocks.Length / partition;
+            int end = index * stocks.Length / partition;
 
             var prices = new List<Prices>();
+            var seq = 0;
             for (int i = start; i < end; i++)
             {
                 try
                 {
-                    var price = ParseSingleHistoryPrice(stocks[i].StockId, stocks[i].Name);
-                    if (price != null)
-                    {
-                        price = ParserLastDay(price, stocks[i].StockId, stocks[i].Name);
-                        prices.Add(price);
-                    }
+                    var oldPrice = oldPrices.FirstOrDefault(p => p.StockId == stocks[i].StockId);
+                    var price = ExecuteByStock(oldPrice, stocks[i].StockId, stocks[i].Name);
+                    prices.Add(price);
+
+                    Console.WriteLine($"{index}/{partition}  {seq++}/{end - start}  {stocks[i].StockId} {stocks[i].Name}");
                 }
                 catch (Exception e)
                 {
@@ -59,33 +63,44 @@ namespace WebCrawler
                 }
             }
 
-            context.Database.SetCommandTimeout(90);
+            context.Database.SetCommandTimeout(180);
 
-            if (insertOrUpdate == "insert")
+            prices = prices.Where(p => p != null).ToList();
+            try 
             {
-                await context.BulkInsertAsync(prices);
+                await context.BulkInsertOrUpdateAsync(prices);
             }
-            else 
+            catch (Exception e)
             {
-                await context.BulkUpdateAsync(prices);
+                Console.WriteLine($"{index}/{partition}");
+                Console.WriteLine($"Error {e}");
+
             }
 
             context.Database.ExecuteSqlCommand($"exec [usp_Update_MA_And_VMA] {DateTime.Today:yyyy-MM-dd}");
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
+            Console.ReadLine();
+        }
+
+        private Prices ExecuteByStock(Prices oldPrice, string stockid, string name)
+        {
+            if (oldPrice != null)
+            {
+                return ParserLastDay(oldPrice, stockid, name);
+            }
+                
+            var price = ParseSingleHistoryPrice(stockid, name);
+            if (price != null)
+            {
+                return ParserLastDay(price, stockid, name);
+            }
+            return null;
         }
 
         private async Task NotifyAsync(StockDbContext context)
         {
             _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
-        }
-        private async Task NotifyBotApiAsync(string message)
-        {
-            await _lineNotifyBotApi.Notify(new NotifyRequestDTO
-            {
-                AccessToken = _token,
-                Message = message
-            });
         }
 
         private static string GetSql()
@@ -131,7 +146,6 @@ namespace WebCrawler
         {
             try
             {
-                Console.WriteLine($"{stockId} : Thread ID: {Thread.CurrentThread.ManagedThreadId}");
                 ParseMargin(stockId, price);
                 ParseInst(stockId, price);
                 ParseMainForce(stockId, DateTime.Today.ToString("yyyy/MM/dd"), price);
@@ -191,8 +205,7 @@ namespace WebCrawler
             var htmlNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/form/table/tr/td/table/tr[8]");
             if (htmlNode == null)
             {
-                htmlNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/form/table/tr/td/table/tr[8]");
-                                                      
+                htmlNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/form/table/tr/td/table/tr[8]");                                        
             }
 
             var dateArray = htmlNode.ChildNodes[1].InnerHtml.Split(new[] { '/' });
@@ -231,7 +244,15 @@ namespace WebCrawler
 
             var instPercent = rootNode.SelectSingleNode("//*[@id='SysJustIFRAMEDIV']/table/tr[2]/td[2]/table/tr/td/table/tr/td/table/tr[5]/td[4]").InnerHtml;
             price.董監持股 = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id='SysJustIFRAMEDIV']/table/tr[2]/td[2]/table/tr/td/table/tr/td/table/tr[3]/td[2]").InnerHtml.Replace(",", ""));
-            price.董監持股比例 = Convert.ToDecimal(rootNode.SelectSingleNode("//*[@id='SysJustIFRAMEDIV']/table/tr[2]/td[2]/table/tr/td/table/tr/td/table/tr[3]/td[4]").InnerHtml.Replace(",", "").Replace("%", ""));
+
+            try
+            {
+                price.董監持股比例 = Convert.ToDecimal(rootNode.SelectSingleNode("//*[@id='SysJustIFRAMEDIV']/table/tr[2]/td[2]/table/tr/td/table/tr/td/table/tr[3]/td[4]").InnerHtml.Replace(",", "").Replace("%", ""));
+            }
+            catch { 
+            
+            }
+           
             price.董監持股 = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id='SysJustIFRAMEDIV']/table/tr[2]/td[2]/table/tr/td/table/tr/td/table/tr[3]/td[2]").InnerHtml.Replace(",", ""));
             price.外資持股 = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id='SysJustIFRAMEDIV']/table/tr[2]/td[2]/table/tr/td/table/tr/td/table/tr[4]/td[2]").InnerHtml.Replace(",", ""));
             price.投信持股 = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id='SysJustIFRAMEDIV']/table/tr[2]/td[2]/table/tr/td/table/tr/td/table/tr[5]/td[2]").InnerHtml.Replace(",", ""));
@@ -417,7 +438,7 @@ namespace WebCrawler
             };
 
             s.Stop();
-            Console.WriteLine($"基本資料：{stockId}, {name}：" + s.Elapsed.TotalSeconds);
+            //Console.WriteLine($"基本資料：{stockId}, {name}：" + s.Elapsed.TotalSeconds);
 
             return price;
         }

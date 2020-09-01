@@ -271,53 +271,67 @@ function renewPrices(prices) {
             prices[i].mA5 = prices[i].mA5.replace("↘", "↓")
         }
 
-        if (prices[i].mA10.indexOf("↗") > -1) {
-            prices[i].ma10Color = "red";
-        } else if (prices[i].mA10.indexOf("↘") > -1) {
-            prices[i].ma10Color = "green";
-            prices[i].mA10 = prices[i].mA10.replace("↘", "↓")
+        if (prices[i].mA10 !== null) {
+            if (prices[i].mA10.indexOf("↗") > -1) {
+                prices[i].ma10Color = "red";
+            } else if (prices[i].mA10.indexOf("↘") > -1) {
+                prices[i].ma10Color = "green";
+                prices[i].mA10 = prices[i].mA10.replace("↘", "↓")
+            }
         }
 
-        if (prices[i].mA20.indexOf("↗") > -1) {
-            prices[i].ma20Color = "red";
-        } else if (prices[i].mA20.indexOf("↘") > -1) {
-            prices[i].ma20Color = "green";
-            prices[i].mA20 = prices[i].mA20.replace("↘", "↓")
+        if (prices[i].mA20 !== null) {
+            if (prices[i].mA20.indexOf("↗") > -1) {
+                prices[i].ma20Color = "red";
+            } else if (prices[i].mA20.indexOf("↘") > -1) {
+                prices[i].ma20Color = "green";
+                prices[i].mA20 = prices[i].mA20.replace("↘", "↓")
+            }
         }
 
-        if (prices[i].k9.indexOf("↗") > -1) {
-            prices[i].k9Color = "red";
-        } else if (prices[i].k9.indexOf("↘") > -1) {
-            prices[i].k9Color = "green";
-            prices[i].k9 = prices[i].k9.replace("↘", "↓")
+        if (prices[i].k9 !== null) {
+            if (prices[i].k9.indexOf("↗") > -1) {
+                prices[i].k9Color = "red";
+            } else if (prices[i].k9.indexOf("↘") > -1) {
+                prices[i].k9Color = "green";
+                prices[i].k9 = prices[i].k9.replace("↘", "↓")
+            }
         }
 
-        if (prices[i].d9.indexOf("↗") > -1) {
-            prices[i].d9Color = "red";
-        } else if (prices[i].d9.indexOf("↘") > -1) {
-            prices[i].d9Color = "green";
-            prices[i].d9 = prices[i].d9.replace("↘", "↓")
+        if (prices[i].d9 !== null) {
+            if (prices[i].d9.indexOf("↗") > -1) {
+                prices[i].d9Color = "red";
+            } else if (prices[i].d9.indexOf("↘") > -1) {
+                prices[i].d9Color = "green";
+                prices[i].d9 = prices[i].d9.replace("↘", "↓")
+            }
         }
 
-        if (prices[i].macd.indexOf("↗") > -1) {
-            prices[i].macdColor = "red";
-        } else if (prices[i].macd.indexOf("↘") > -1) {
-            prices[i].macdColor = "green";
-            prices[i].macd = prices[i].macd.replace("↘", "↓");
+        if (prices[i].macd !== null) {
+            if (prices[i].macd.indexOf("↗") > -1) {
+                prices[i].macdColor = "red";
+            } else if (prices[i].macd.indexOf("↘") > -1) {
+                prices[i].macdColor = "green";
+                prices[i].macd = prices[i].macd.replace("↘", "↓");
+            }
         }
 
-        if (prices[i].dif.indexOf("↗") > -1) {
-            prices[i].difColor = "red";
-        } else if (prices[i].dif.indexOf("↘") > -1) {
-            prices[i].difColor = "green";
-            prices[i].dif = prices[i].dif.replace("↘", "↓");
+        if (prices[i].dif !== null) {
+            if (prices[i].dif.indexOf("↗") > -1) {
+                prices[i].difColor = "red";
+            } else if (prices[i].dif.indexOf("↘") > -1) {
+                prices[i].difColor = "green";
+                prices[i].dif = prices[i].dif.replace("↘", "↓");
+            }
         }
 
-        if (prices[i].osc.indexOf("↗") > -1) {
-            prices[i].oscColor = "red";
-        } else if (prices[i].osc.indexOf("↘") > -1) {
-            prices[i].oscColor = "green";
-            prices[i].osc = prices[i].osc.replace("↘", "↓");
+        if (prices[i].osc !== null) {
+            if (prices[i].osc.indexOf("↗") > -1) {
+                prices[i].oscColor = "red";
+            } else if (prices[i].osc.indexOf("↘") > -1) {
+                prices[i].oscColor = "green";
+                prices[i].osc = prices[i].osc.replace("↘", "↓");
+            }
         }
     }
     return prices;

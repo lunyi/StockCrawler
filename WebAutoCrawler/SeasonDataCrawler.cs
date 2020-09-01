@@ -61,7 +61,6 @@ namespace WebAutoCrawler
 
                 seasonData.Add(new SeasonData
                 {
-                    Id = Guid.NewGuid(),
                     StockId = stockId,
                     Name = name,
                     CreatedOn = DateTime.Now,
