@@ -17,8 +17,8 @@ namespace WebCrawler
         [Obsolete]
         static async Task Main(string[] args)
         {
-            var p = new StockPrint();
-            p.Test();
+            var p = new StockPrintCrawler();
+            await p.ExecuteAsync();
 
             //var c = new ThousandDataCrawlerV2();
             //await c.ExecuteLastAsync();

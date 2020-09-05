@@ -21,4 +21,8 @@
     <ProjectReference Include="..\DataService\DataService.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="wwwroot\photo\" />
+  </ItemGroup>
+
 </Project>

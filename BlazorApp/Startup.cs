@@ -17,6 +17,9 @@ using BlazorApp.Shared;
 using BlazorApp.Areas.Identity;
 using Microsoft.EntityFrameworkCore;
 using DataService.Services;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace BlazorApp
 {
@@ -33,6 +36,7 @@ namespace BlazorApp
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            //services.AddDirectoryBrowser();
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddDefaultIdentity<IdentityUser>()
@@ -64,6 +68,44 @@ namespace BlazorApp
             }
 
             app.UseHttpsRedirection();
+
+
+            //var provider = new FileExtensionContentTypeProvider();
+            //// Add new mappings
+            //provider.Mappings[".myapp"] = "application/x-msdownload";
+            //provider.Mappings[".htm3"] = "text/html";
+            //provider.Mappings[".image"] = "image/png";
+            //// Replace an existing mapping
+            //provider.Mappings[".rtf"] = "application/x-msdownload";
+            //// Remove MP4 videos.
+            //provider.Mappings.Remove(".mp4");
+
+            //app.UseStaticFiles(new StaticFileOptions
+            //{
+            //    FileProvider = new PhysicalFileProvider(
+            //        Path.Combine(env.WebRootPath, "photo")),
+            //    RequestPath = "/photo",
+            //    ContentTypeProvider = provider
+            //});
+
+            //app.UseDirectoryBrowser(new DirectoryBrowserOptions
+            //{
+            //    FileProvider = new PhysicalFileProvider(
+            //        Path.Combine(env.WebRootPath, "photo")),
+            //    RequestPath = "/photo"
+            //});
+
+
+
+        //    app.UseFileServer(new FileServerOptions
+        //    {
+        //        FileProvider = new PhysicalFileProvider(
+        //Path.Combine(env.ContentRootPath, "photo")),
+        //        RequestPath = "/photo",
+        //        EnableDirectoryBrowsing = true
+        //    });
+
+            //app.UseFileServer(enableDirectoryBrowsing: true);
             app.UseStaticFiles();
 
             app.UseRouting();
