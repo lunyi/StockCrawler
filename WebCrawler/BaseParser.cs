@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -29,6 +30,16 @@ namespace WebCrawler
             StreamWriter w = new StreamWriter($"D:\\Code\\{DateTime.Today.ToString("yyyy-MM-dd")}.txt", true, Encoding.UTF8);
             w.WriteLine(message);
             w.Close();
+        }
+
+        public virtual async Task RunAsync()
+        {
+            await Task.FromResult(0);
+        }
+
+        public virtual async Task RunAsync(int minutes)
+        {
+            await Task.FromResult(0);
         }
     }
 }

@@ -97,7 +97,7 @@ namespace WebAutoCrawler
 select s.* from [Stocks] s 
 left join (select * from [Thousand] where [Datetime] = '{datetime}')  a 
 on s.StockId = a.StockId 
-where a.Id is null and s.Status = 1
+where a.StockId is null and s.Status = 1
 order by s.StockId
 ";
         }

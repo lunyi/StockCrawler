@@ -132,7 +132,7 @@ var urls = {
     //3: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zca_{0}.djhtm',
     4: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zca/zco_{0}.djhtm',
     5: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcl/zcl_{0}.djhtm',
-    6: 'https://www.cmoney.tw/finance/f00025.aspx?s={0}',
+    22: 'https://www.cmoney.tw/finance/f00025.aspx?s={0}',
     3: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=r',
     7: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=l',
     8: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=mf',

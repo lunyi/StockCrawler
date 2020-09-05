@@ -55,7 +55,7 @@ namespace WebAutoCrawler
             return @$"
     select s.* from [Stocks]  s 
   left join (select * from [MonthData] where [Datetime] = '{datetime}') p on s.StockId = p.StockId
-  where  s.Status = 1 and p.Id is null
+  where  s.Status = 1 and p.StockId is null
   order by s.StockId
 ";
         }

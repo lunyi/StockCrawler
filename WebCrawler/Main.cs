@@ -27,7 +27,7 @@ namespace WebCrawler
             //await ss.RunSingleAsync();
             //await ss.ParserMarginAsync();
 
-            await new CnyParser().RunAsync(int.Parse(args[0]), int.Parse(args[1]));
+            //await new CnyParser().RunAsync(int.Parse(args[0]), int.Parse(args[1]));
 
 
             //await RunAsync<BrokerParser>();
@@ -51,6 +51,8 @@ namespace WebCrawler
             //await ss.ParserMarginAsync();
             //var ss =  s.ParseTrust("2330", "2017-01-01", "2019-10-29");
 
+            await RunAsync<RealtimeParser>();
+
             Console.ReadLine();
         }
 
@@ -60,8 +62,8 @@ namespace WebCrawler
         {
             _serviceCollection = new ServiceCollection();
             // 2. 註冊服務
-            //_serviceCollection.AddTransient<RealtimeParser>();
-            //_serviceCollection.AddTransient<DailyNotifier>();
+            _serviceCollection.AddTransient<RealtimeParser>();
+            _serviceCollection.AddTransient<DailyNotifier>();
             _serviceCollection.AddTransient<T>();
 
             //serviceCollection.AddTransient<IService, ChtService>();
@@ -78,21 +80,21 @@ namespace WebCrawler
             });
         }
 
-        //private static async Task RunAsync<T>() where T : BaseParser
-        //{
-        //    InitailLineNotifyBot<T>();
-        //    var serviceProvider = _serviceCollection.BuildServiceProvider();
-        //    // 3. 執行主服務
-        //    await serviceProvider.GetRequiredService<T>().RunAsync();
-        //}
+        private static async Task RunAsync<T>() where T : BaseParser
+        {
+            InitailLineNotifyBot<T>();
+            var serviceProvider = _serviceCollection.BuildServiceProvider();
+            // 3. 執行主服務
+            await serviceProvider.GetRequiredService<T>().RunAsync();
+        }
 
-        //private static async Task RunAsync<T>(int minute) where T:BaseParser
-        //{
-        //    InitailLineNotifyBot<T>();
-        //    var serviceProvider = _serviceCollection.BuildServiceProvider();
-        //    // 3. 執行主服務
-        //   await serviceProvider.GetRequiredService<T>().RunAsync(minute);
-        //}
+        private static async Task RunAsync<T>(int minute) where T : BaseParser
+        {
+            InitailLineNotifyBot<T>();
+            var serviceProvider = _serviceCollection.BuildServiceProvider();
+            // 3. 執行主服務
+            await serviceProvider.GetRequiredService<T>().RunAsync(minute);
+        }
 
         //private static async Task DailyNotifyAsync()
         //{
@@ -100,7 +102,7 @@ namespace WebCrawler
         //    var serviceProvider = _serviceCollection.BuildServiceProvider();
         //    // 3. 執行主服務
         //    await serviceProvider.GetRequiredService<DailyNotifier>().RunAsync();
-        //    //await serviceProvider.GetRequiredService<RealtimeParser>().RunAsync();
+        //    await serviceProvider.GetRequiredService<RealtimeParser>().RunAsync();
         //}
     }
 }

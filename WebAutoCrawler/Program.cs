@@ -17,6 +17,9 @@ namespace WebCrawler
         [Obsolete]
         static async Task Main(string[] args)
         {
+            var p = new StockPrint();
+            p.Test();
+
             //var c = new ThousandDataCrawlerV2();
             //await c.ExecuteLastAsync();
 
@@ -30,13 +33,13 @@ namespace WebCrawler
             //await c.ExecuteAsync();
             //Console.ReadLine();
 
-            if (args.Length != 1)
-            {
-                Console.WriteLine("沒有設定參數");
-                return;
-            }
+            //if (args.Length != 1)
+            //{
+            //    Console.WriteLine("沒有設定參數");
+            //    return;
+            //}
 
-            await new DailyTraderCrawler().ExecuteAsync(args[0]);
+            //await new DailyTraderCrawler().ExecuteAsync(args[0]);
         }
 
         private static ServiceCollection _serviceCollection;

@@ -1661,10 +1661,10 @@ SELECT
 
             return $@"select s.* from Stocks s join (SELECT *
   FROM [StockDb].[dbo].[Prices]
-  where [Datetime] = '{datetime}' and [漲跌百分比] > 2 and [Close] > MA5 and MA5 > MA10 and MA10 > MA20) a1 on s.StockId = a1.StockId
+  where [Datetime] = '{datetime}' and MA5 > MA10 and MA10 > MA20 and MA20 > MA60) a1 on s.StockId = a1.StockId
   join  (SELECT *
   FROM [StockDb].[dbo].[Prices]
-  where [Datetime] = '{datetime2}' and not ([Close] > MA5 and MA5 > MA10 and MA10 > MA20)) a2 on a1.StockId = a2.StockId
+  where [Datetime] = '{datetime2}' and not (MA5 > MA10 and MA10 > MA20 and MA20 > MA60)) a2 on a1.StockId = a2.StockId
   order by s.StockId";
         }
 

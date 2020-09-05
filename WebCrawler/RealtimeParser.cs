@@ -20,7 +20,7 @@ namespace WebCrawler
             _lineNotifyBotApi = lineNotifyBotApi;
         }
 
-        public async Task RunAsync()
+        public override async Task RunAsync()
         {
             var url = $"https://histock.tw/app/table.aspx";
             var rootNode = GetRootNoteByUrl(url);
