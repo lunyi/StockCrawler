@@ -133,7 +133,13 @@ var urls = {
     //3: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zca_{0}.djhtm',
     4: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zca/zco_{0}.djhtm',
     5: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcl/zcl_{0}.djhtm',
-    22: 'https://www.cmoney.tw/finance/f00025.aspx?s={0}',
+    6: 'https://www.wantgoo.com/stock/{0}/technical-chart',
+    20: 'StockPhoto?stockId={0}&datetime={1}&type=daily',
+    21: 'StockPhoto?stockId={0}&datetime={1}&type=weekly',
+    22: 'StockPhoto?stockId={0}&datetime={1}&type=five-minutes',
+    23: 'StockPhoto?stockId={0}&datetime={1}&type=quarter-hour',
+    24: 'StockPhoto?stockId={0}&datetime={1}&type=half-hour',
+    25: 'StockPhoto?stockId={0}&datetime={1}&type=hour',
     7: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=l',
     8: 'https://www.cmoney.tw/follow/channel/stock-{0}?chart=mf',
     9: 'https://www.cmoney.tw/finance/technicalanalysis.aspx?s={0}',
@@ -145,10 +151,11 @@ var urls = {
     15: 'https://www.cnyes.com/twstock/Margin/{0}.htm',
     16: 'https://www.moneydj.com/KMDJ/search/list.aspx?_Query_={0}&_QueryType_=NW',
     17: 'https://goodinfo.tw/StockInfo/StockDividendPolicy.asp?STOCK_ID={0}',
-    18: 'https://statementdog.com/analysis/tpe/{0}/stock-health-check',
-    19: 'http://www.fortunengine.com.tw/evaluator.aspx?menu=on&scode={0}',
-    20: 'https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm',
-    21: 'http://' + window.location.hostname + ':8081/stock/minuteKLines',
+    30: 'https://statementdog.com/analysis/tpe/{0}/stock-health-check',
+    31: 'http://www.fortunengine.com.tw/evaluator.aspx?menu=on&scode={0}',
+    32: 'https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm',
+    33: 'http://' + window.location.hostname + ':8081/stock/minuteKLines',
+    34: 'https://www.cmoney.tw/finance/f00025.aspx?s={0}',
 };
 //個股新聞 https://www.moneydj.com/KMDJ/search/list.aspx?_Query_=6449&_QueryType_=NW
 //https://www.moneydj.com/KMDJ/Common/ListNewArticles.aspx?svc=NW&a=X0200000
@@ -158,7 +165,7 @@ var currentUrlIndex = 1;
 var currentStockId = "1101";
 var currentSelectedDate = "";
 var currentUrl = "https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCX/ZCX_{0}.djhtm";
-var urlIndexNewTab = 18;
+var urlIndexNewTab = 30;
 
 function onStockChangeAsync(obj) {
     currentStockId = obj.value;
@@ -196,6 +203,7 @@ function goToUrl() {
         window.open(url, '_blank').focus();
     }
     else {
+        console.log(url);
         $("#StockPage").attr("src",url);
     }
 }
@@ -311,6 +319,13 @@ function onGetStocksByDate(val) {
         if (currentUrlIndex === 4) {
             var selectedDay = moment(date.val()).format('YYYY-M-D');
             var _url = "https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco.djhtm?a=" + currentStockId + "&e=" + selectedDay + "&f=" + selectedDay;
+            console.log(_url);
+            $("#StockPage").attr("src", _url);
+            return;
+        }
+
+        if (currentUrlIndex === 3) {
+            _url = "StockPhoto?stockId=" + currentStockId + "&datetime=" + moment(date.val()).format('YYYY-MM-DD') ;
             console.log(_url);
             $("#StockPage").attr("src", _url);
             return;

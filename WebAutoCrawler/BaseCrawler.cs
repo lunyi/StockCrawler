@@ -8,7 +8,7 @@ namespace WebAutoCrawler
 {
     public abstract class BaseCrawler : IDisposable
     {
-        private IWebDriver _driver;
+        protected IWebDriver _driver;
         public BaseCrawler()
         {
             ChromeOptions chromeBrowserOptions = new ChromeOptions();

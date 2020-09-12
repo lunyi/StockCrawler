@@ -19,6 +19,7 @@ namespace WebAutoCrawler
             _driver = new ChromeDriver(@"D:\Code\StockCrawlerNew\BrowserPath", chromeBrowserOptions);
             //可避免網頁被cache住，一直查到舊資料(需不斷重複查詢同一網頁時就會用到)
             _driver.Manage().Cookies.DeleteAllCookies();
+            _driver.Manage().Window.Maximize();
         }
 
         protected static void GoToUrl(string url)
@@ -36,8 +37,19 @@ namespace WebAutoCrawler
             return _driver.FindElements(by);
         }
 
+        protected IJavaScriptExecutor GetJavaScriptExecutor()
+        {
+            return (IJavaScriptExecutor)_driver;
+        }
+
+        protected Screenshot GetScreenshot()
+        {
+            return ((ITakesScreenshot)_driver).GetScreenshot();
+        }
+
         public void Dispose()
         {
+            _driver.Quit();
             _driver.Close();
             _driver.Dispose();
         }

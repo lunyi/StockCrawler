@@ -565,8 +565,9 @@ drop table #t1, #t2, #t3, #t4
         async Task IStockQueries.SetBestStockAsync(string stockId, string type)
         {
             var context = new StockDbContext();
-            var stock = context.BestStocks.FirstOrDefault(p => p.StockId == stockId && p.Type == type);
-            if (stock != null)
+            var stock =  await context.Stocks.FirstOrDefaultAsync(p => p.StockId == stockId);
+            var bestStock = await context.BestStocks.FirstOrDefaultAsync(p => p.StockId == stockId && p.Type == type);
+            if (bestStock == null && stock != null)
             {
                 var best = new BestStocks
                 {

@@ -86,8 +86,8 @@ namespace WebCrawler
             _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
             await NotifyBotApiAsync(context, "突破整理區間");
             await NotifyBotApiAsync(context, "多頭吞噬");
-            await NotifyBotApiAsync(context, "突破季線");
-            await NotifyBotApiAsync(context, "爆量長紅");
+            //await NotifyBotApiAsync(context, "突破季線");
+            //await NotifyBotApiAsync(context, "爆量長紅");
         }
 
         private async Task NotifyBotApiAsync(StockDbContext context, string type)

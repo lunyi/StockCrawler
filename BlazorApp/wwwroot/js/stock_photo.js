@@ -1,10 +1,11 @@
-﻿(function () {
+﻿$(function () {
     var datetime = getUrlParameter('datetime');
     var stockid = getUrlParameter('stockId');
-    var url = "http://" + window.location.hostname + "/photo/" + datetime + "/" + stockid + ".png"
+    var type = getUrlParameter('type');
+    var url = "http://" + window.location.hostname + "/photo/" + datetime + "/" + type + "/"+ stockid + ".png"
     console.log(url);
     $("#imgPhoto").attr("src", url)
-})();
+});
 
 
 function getUrlParameter(sParam) {

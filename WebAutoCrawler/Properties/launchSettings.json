@@ -2,7 +2,7 @@
   "profiles": {
     "WebAutoCrawler": {
       "commandName": "Project",
-      "commandLineArgs": "macd"
+      "commandLineArgs": "7"
     }
   }
 }

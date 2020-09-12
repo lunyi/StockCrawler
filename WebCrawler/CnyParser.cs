@@ -41,7 +41,6 @@ namespace WebCrawler
               .Where(p => p.Datetime == DateTime.Today)
               .ToArrayAsync();
 
-
             int start = (index - 1) * stocks.Length / partition;
             int end = index * stocks.Length / partition;
 
@@ -80,7 +79,6 @@ namespace WebCrawler
             context.Database.ExecuteSqlCommand($"exec [usp_Update_MA_And_VMA] {DateTime.Today:yyyy-MM-dd}");
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
-            Console.ReadLine();
         }
 
         private Prices ExecuteByStock(Prices oldPrice, string stockid, string name)

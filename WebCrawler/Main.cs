@@ -46,14 +46,13 @@ namespace WebCrawler
             //s1.Test_usp_Update_MA_And_VMA();
             //s1.ParserLastDay("8913", "恩得利");
 
+            new CopyImage().Run();
 
-
+            Console.ReadLine();
             //await ss.ParserMarginAsync();
             //var ss =  s.ParseTrust("2330", "2017-01-01", "2019-10-29");
 
-            await RunAsync<RealtimeParser>();
-
-            Console.ReadLine();
+            //await RunAsync<RealtimeParser>();
         }
 
         private static ServiceCollection _serviceCollection;

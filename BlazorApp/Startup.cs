@@ -97,15 +97,15 @@ namespace BlazorApp
 
 
 
-        //    app.UseFileServer(new FileServerOptions
-        //    {
-        //        FileProvider = new PhysicalFileProvider(
-        //Path.Combine(env.ContentRootPath, "photo")),
-        //        RequestPath = "/photo",
-        //        EnableDirectoryBrowsing = true
-        //    });
+            //    app.UseFileServer(new FileServerOptions
+            //    {
+            //        FileProvider = new PhysicalFileProvider(
+            //Path.Combine(env.ContentRootPath, "photo")),
+            //        RequestPath = "/photo",
+            //        EnableDirectoryBrowsing = true
+            //    });
 
-            //app.UseFileServer(enableDirectoryBrowsing: true);
+            //app.UseFileServer(enableDirectoryBrowsing: true);UseStaticFiles
             app.UseStaticFiles();
 
             app.UseRouting();
