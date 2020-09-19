@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using DataService.Models;
-using EFCore.BulkExtensions;
 using LineBotLibrary;
 using LineBotLibrary.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,11 +12,11 @@ namespace WebCrawler
         [Obsolete]
         static async Task Main(string[] args)
         {
-            var p = new StockPrintCrawler();
-            await p.ExecuteAsync(int.Parse(args[0]));
+            //var p = new StockPrintCrawler();
+            //await p.ExecuteAsync(int.Parse(args[0]));
 
-            //var c = new ThousandDataCrawlerV2();
-            //await c.ExecuteLastAsync();
+            var c = new ThousandDataCrawlerV2();
+            await c.ExecuteLastAsync();
 
             //var c = new MonthDataCrawler();
             //await c.ExecuteAsync();

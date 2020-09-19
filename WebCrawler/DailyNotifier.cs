@@ -74,8 +74,7 @@ namespace WebCrawler
                 .FirstOrDefault().ToString("yyyy/MM/dd");
 
             var sql = $@"
-select s.[Id]
-      ,s.[StockId]
+select s.[StockId]
       ,s.[Name]
       ,s.[MarketCategory]
       ,s.[Industry]
@@ -100,7 +99,7 @@ where [Datetime] = '{datetime}' ) a
 join (
 select * from [Prices] 
 where [Datetime] = '{datetime2}' ) b  on a.StockId = b.StockId
-where a.[董監持股] !=  b.[董監持股]) b on s.StockId = b.StockId
+where a.[董監持股] -  b.[董監持股] > 100) b on s.StockId = b.StockId
 order by b.買超 desc
 ";
 
@@ -141,7 +140,24 @@ order by b.買超 desc
     FROM [Prices] where [Datetime] <= '{datetime}' and [Datetime] >= '{datetime2}'
 )
 
-select s.*
+select 
+      s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
+	  ,CAST(t1.[投信買賣超] AS nvarchar(30)) AS [Description]
+      ,股票期貨
 from [Stocks]s 
 join TOPTEN t1 on s.StockId = t1.StockId
 join TOPTEN t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
@@ -156,7 +172,6 @@ t3.[投信買賣超] <= 0 and
 t4.[投信買賣超] <= 0 and
 t5.[投信買賣超] <= 0 and
 t6.[投信買賣超] <= 0
-order by t1.[Close]  
 ";
 
             var stocks = await context.Stocks.FromSqlRaw(sql).ToArrayAsync();

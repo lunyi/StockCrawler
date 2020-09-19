@@ -20,7 +20,7 @@ namespace WebCrawler
 
         public void Run()
         {
-            var today = DateTime.Today.ToString("yyyy-MM-dd");
+            var today = "2020-09-15";
             var path = $@"\\192.168.9.102\Deploy\photo\{today}\";
             var credentials = new UserCredentials("192.168.9.102", "admin", "53773222");
             var target = $@"G:\Deploy\BlazorWeb\wwwroot\photo\{today}";

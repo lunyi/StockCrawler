@@ -20,6 +20,7 @@ namespace WebCrawler
         [Obsolete]
         static async Task Main(string[] args)
         {
+            new CopyImage().Run();
             //await DailyNotifyAsync();
 
 
@@ -46,13 +47,15 @@ namespace WebCrawler
             //s1.Test_usp_Update_MA_And_VMA();
             //s1.ParserLastDay("8913", "恩得利");
 
-            new CopyImage().Run();
+            //await new DailyNotifier().RunAsync();
 
-            Console.ReadLine();
+            // Console.ReadLine();
             //await ss.ParserMarginAsync();
             //var ss =  s.ParseTrust("2330", "2017-01-01", "2019-10-29");
 
-            //await RunAsync<RealtimeParser>();
+            //await RunAsync<DailyNotifier>();
+
+            //await DailyNotifyAsync();
         }
 
         private static ServiceCollection _serviceCollection;
@@ -95,13 +98,13 @@ namespace WebCrawler
             await serviceProvider.GetRequiredService<T>().RunAsync(minute);
         }
 
-        //private static async Task DailyNotifyAsync()
-        //{
-        //    InitailLineNotifyBot();
-        //    var serviceProvider = _serviceCollection.BuildServiceProvider();
-        //    // 3. 執行主服務
-        //    await serviceProvider.GetRequiredService<DailyNotifier>().RunAsync();
-        //    await serviceProvider.GetRequiredService<RealtimeParser>().RunAsync();
-        //}
+        private static async Task DailyNotifyAsync()
+        {
+            InitailLineNotifyBot<DailyNotifier>();
+            var serviceProvider = _serviceCollection.BuildServiceProvider();
+            // 3. 執行主服務
+            await serviceProvider.GetRequiredService<DailyNotifier>().RunAsync();
+            //await serviceProvider.GetRequiredService<RealtimeParser>().RunAsync();
+        }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using Dapper;
 using DataService.DataModel;
 using DataService.Enums;
 using DataService.Models;
@@ -76,6 +78,9 @@ namespace DataService.Services
                 case (int)ChooseStockType.MACD和KD同時轉上:
                     sql = MACD和KD同時轉上(datetime);
                     break;
+                case (int)ChooseStockType.盤整突破:
+                    sql = $"exec [usp_GetBreakThrough] '{datetime}'";
+                    break;                 
                 case (int)ChooseStockType.融資連續買超排行榜:
                     sql = 融資連續買超排行榜(datetime, true);
                     break;
@@ -652,7 +657,6 @@ t3.[投信買賣超] <= 0 and
 t4.[投信買賣超] <= 0 and
 t5.[投信買賣超] <= 0 and
 t6.[投信買賣超] <= 0
-order by t1.[Close]  
 ";
         }
 
@@ -1093,7 +1097,7 @@ cross apply (select 成交量 as Vol2 from Prices where StockId = p.StockId and 
 where p.[Datetime] <= '{datetime}' and p.[Datetime] >= '{datetime2[3]}'
 group by p.StockId, p.Name) a join [Stocks] s on s.StockId = a.StockId
 where a.成交量 > (a.成交量2 * 2) and a.投信買賣超 > 0 and s.[股價] < 150 and  s.[股價] > 10
-order by a.成交量 / a.成交量2 desc
+--order by a.成交量 / a.成交量2 desc
 ";
         }
 

@@ -33,7 +33,8 @@ namespace WebAutoCrawler
         {
             var sw = Stopwatch.StartNew();
             sw.Start();
-            var path = $"G:\\Deploy\\BlazorWeb\\wwwroot\\photo\\{DateTime.Now:yyyy-MM-dd}";
+            //var path = $"G:\\Deploy\\BlazorWeb\\wwwroot\\photo\\{DateTime.Now:yyyy-MM-dd}";
+            var path = $"D:\\Deploy\\photo\\{DateTime.Now:yyyy-MM-dd}";
 
             if (!Directory.Exists(path))
             {
@@ -47,6 +48,7 @@ namespace WebAutoCrawler
             var context = new StockDbContext();
             var stocks = await context.Stocks
                 .Where(p => p.Status == 1)
+                .OrderByDescending(p=>p.StockId)
                 .ToArrayAsync();
 
             //int start = (index - 1) * stocks.Length / partition;
@@ -98,10 +100,16 @@ namespace WebAutoCrawler
             {
                 var close2 = FindElement(By.ClassName("_hj-2SATB__styles__minimized"));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var close3 = FindElement(By.XPath("/html/body/div[5]/div/div/button"));
-                close3.Click();
+                try
+                {
+                    var close3 = FindElement(By.XPath("/html/body/div[5]/div/div/button"));
+                    close3.Click();
+                }
+                catch (Exception)
+                { 
+                }
             }
         }
     }
