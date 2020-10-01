@@ -173,6 +173,56 @@ function onStockChangeAsync(obj) {
     goToUrl();
 }
 
+var b = null;
+var bhid = null;
+
+function onPeriodChangeAsync(obj) {
+    DotNet.invokeMethodAsync('BlazorApp', 'GetBrokersAsync', currentStockId, currentSelectedDate, parseInt(obj.value))
+        .then(data => {
+            $("#brokerList option").remove();
+            for (var i = 0; i < data.length; i++) {
+                $("#brokerList").append($("<option></option>").attr("value", data[i].b + "=" +  data[i].bhid).text(data[i].name + "(" + data[i].val + ")"));
+            }
+        });
+}
+
+function getBroker() {
+    if (currentStockId === "") {
+        alert("請選擇股票!!");
+        return;
+    }
+
+    var date = $("#selectDateList");
+    var selectedDay = moment(date.val()).format('YYYY-M-D');
+    var bhid = $("#brokerList").val();
+    var tmpUrl = "https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco0/zco0.djhtm?A={0}&BHID={1}&b={2}&C=1&D={3}&E={4}&ver=V3";
+    tmpUrl = tmpUrl.replace("{0}", currentStockId)
+        .replace("{1}", bhid.split('=')[1])
+        .replace("{2}", bhid.split('=')[0])
+        .replace("{3}", "2020-1-1" )
+        .replace("{4}", selectedDay);
+    console.log(tmpUrl);
+    $("#StockPage").attr("src", tmpUrl);
+}
+
+function getBrokerBuy() {
+    if (currentStockId === "") {
+        alert("請選擇股票!!");
+        return;
+    }
+
+    var date = $("#selectDateList");
+    var selectedDay = moment(date.val()).format('YYYY-M-D');
+    var bhid = $("#brokerList").val();
+    var tmpUrl = "https://fubon-ebrokerdj.fbs.com.tw/z/zg/zgb/zgb0.djhtm?a={0}&b={1}&c=E&e={2}&f={3}";
+    tmpUrl = tmpUrl.replace("{0}", bhid.split('=')[1])
+        .replace("{1}", bhid.split('=')[0])
+        .replace("{2}", "2020-1-1")
+        .replace("{3}", selectedDay);
+    console.log(tmpUrl);
+    $("#StockPage").attr("src", tmpUrl);
+}
+
 function onUrlChangeAsync(index) {
     if (index === undefined)
         return;
@@ -197,7 +247,7 @@ function goToUrl() {
     currentUrl = urls[currentUrlIndex];
     var url = currentUrl.replace('{0}', currentStockId);
     currentSelectedDate = currentSelectedDate || moment($("#selectDateList option").eq(0).val()).format('YYYY-MM-DD');
-    url = url.replace('{1}', currentSelectedDate).replace('{2}', $("#chkDate").prop('checked'));;
+    url = url.replace('{1}', currentSelectedDate).replace('{2}', $("#chkDate").prop('checked'));
 
     if (currentUrlIndex >= urlIndexNewTab) {
         window.open(url, '_blank').focus();
@@ -222,7 +272,6 @@ function onFindStockId(event) {
                 break;
             }
         }
-
         currentStockId = stockId;
         goToUrl();
 
@@ -323,9 +372,14 @@ function onGetStocksByDate(val) {
             $("#StockPage").attr("src", _url);
             return;
         }
+        var photoIndex = [3, 20, 21, 22, 23, 24, 25];
+        if (photoIndex.indexOf(currentUrlIndex)>0) {
+           // _url = "StockPhoto?stockId=" + currentStockId + "&datetime=" + moment(date.val()).format('YYYY-MM-DD');
 
-        if (currentUrlIndex === 3) {
-            _url = "StockPhoto?stockId=" + currentStockId + "&datetime=" + moment(date.val()).format('YYYY-MM-DD') ;
+            _url = urls[currentUrlIndex]
+                .replace('{0}', currentStockId)
+                .replace('{1}', currentSelectedDate);
+
             console.log(_url);
             $("#StockPage").attr("src", _url);
             return;

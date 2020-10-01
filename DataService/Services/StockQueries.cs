@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using Dapper;
 using DataService.DataModel;
 using DataService.Enums;
 using DataService.Models;
+using HtmlAgilityPack;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataService.Services
@@ -27,6 +29,8 @@ namespace DataService.Services
         Task<TwStock[]> GetTwStocksAsync();
         Task<string> GetTokenAsync();
         Task<string[]> GetMinuteKLinesAsync();
+
+        Task<BrokerInfo[]> GetBrokersAsync(string stockId, string datetime, int days);
     }
     public class StockQueries : IStockQueries
     {
@@ -277,11 +281,11 @@ select s.[StockId]
       ,s.[股價]
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA]
-	  ,s.[Description]
+      ,CAST((p.[{strDays}主力買超張數] / p.[{strDays}主力賣超張數]) AS nvarchar(30)) AS [Description]
       ,s.[股票期貨]
 from [Prices] p join [Stocks] s on s.StockId = p.StockId 
-where p.[Datetime] = '{datetime}' and [漲跌百分比] > 2 and VMA5 > 0 and VMA10 > 0 and VMA20 > 0 and VMA60 > 0 and p.{strVolumn} > 0
-order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p.{strVolumn} {orderby}
+where p.[Datetime] = '{datetime}' and p.[{strDays}主力賣超張數] > 0 and (p.[{strDays}主力買超張數] / p.[{strDays}主力賣超張數]) > 1.5
+order by (p.[{strDays}主力買超張數] / p.[{strDays}主力賣超張數]) {orderby}
 ";
         }
 
@@ -293,6 +297,8 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                                 where price.StockId == stockId && (chkDate ? price.Datetime <= datetime : true)
                                 orderby price.Datetime descending
                                 let volume = price.成交量 == 0 ? 1 : price.成交量
+                                let 十日主力賣超張數 = price.十日主力賣超張數 == 0 ? 1 : price.十日主力賣超張數
+                                let 主力賣超張數 = price.主力賣超張數 == 0 ? 1 : price.主力賣超張數
                                 select new PriceModel
                                 {
                                     StockId = price.StockId,
@@ -320,6 +326,9 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                                     投信買賣超 = price.投信買賣超,
                                     主力買賣超 = price.主力買超張數 - price.主力賣超張數,
                                     籌碼集中度 = 100 * Math.Round(((price.主力買超張數 - price.主力賣超張數) / volume).Value, 4),
+                                    十日籌碼集中度 = 100 * Math.Round(((price.十日主力買超張數 - price.十日主力賣超張數) / (10 * price.VMA10)).Value, 4),
+                                    主力買賣比例 = Math.Round((price.主力買超張數 / 主力賣超張數).Value, 2),
+                                    十日主力買賣比例 = Math.Round((price.十日主力買超張數 / 十日主力賣超張數).Value, 2),
                                     MA5 = price.MA5_ ?? string.Empty,
                                     MA10 = price.MA10_ ?? string.Empty,
                                     MA20 = price.MA20_ ?? string.Empty,
@@ -331,11 +340,6 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / p
                                     MACD = price.MACD1,
                                     OSC = price.OSC1,
                                     DIF = price.DIF1,
-                                    //五日籌碼集中度 = 100 * Math.Round(((price.五日主力買超張數 - price.五日主力賣超張數) / (5 * price.VMA5)).Value, 4),
-                                    十日籌碼集中度 = 100 * Math.Round(((price.十日主力買超張數 - price.十日主力賣超張數) / (10 * price.VMA10)).Value, 4),
-                                    //二十日籌碼集中度 = 100 * Math.Round(((price.二十日主力買超張數 - price.二十日主力賣超張數) / (20 * price.VMA20)).Value, 4),
-                                    //六十日籌碼集中度 = 100 * Math.Round(((price.六十日主力買超張數 - price.六十日主力賣超張數) / (60 * price.VMA60)).Value, 4),
-                                    //周轉率 = 100 * Math.Round(((decimal)price.成交量 / price.發行張數).Value, 5)
                                 }).ToArrayAsync();
 
             var datetimeString = datetime.ToString("yyyy-MM-dd");
@@ -1901,7 +1905,73 @@ order by b.買超 desc
             }
             return result.ToArray();       
         }
+
+        Task<BrokerInfo[]> IStockQueries.GetBrokersAsync(string stockId, string datetime, int days)
+        {
+            _context = new StockDbContext();
+            var endDay = Convert.ToDateTime(datetime);
+            var startDay = endDay.AddDays(days);
+            var endDayString = endDay.ToString("yyyy-M-d");
+            var startDayString = startDay.ToString("yyyy-M-d");
+
+            var brokers = new List<BrokerInfo>();
+            var url = $@"https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco.djhtm?a={stockId}&e={startDayString}&f={endDayString}";
+            var rootNode = GetRootNoteByUrl(url, false);
+            var nodes = rootNode.SelectNodes("/html[1]/body[1]/div[1]/table[1]/tr[2]/td[2]/form[1]/table[1]/tr[1]/td[1]/table[1]/tr");
+
+            for (int i = 6; i < nodes.Count - 1; i++)
+            {
+                var node = nodes[i];
+                try
+                {
+                    var broker = GetBrokerInfo(node);
+                    broker.Val = node.ChildNodes[7].InnerHtml.Replace(",", "");
+                    brokers.Add(broker);
+                }
+                catch (Exception ex)
+                {
+
+                }
+            }
+            return Task.FromResult(brokers.ToArray());
+        }
+
+        private BrokerInfo GetBrokerInfo(HtmlNode node)
+        {
+            var html = node.ChildNodes[1].InnerHtml.Replace("<a href=\"/z/zc/zco/zco0/zco0.djhtm?", "");
+            var k = html.IndexOf('>');
+            var tmp = html.Substring(0, k - 1);
+            var tmp2 = tmp.Split('&');
+            var a = tmp2[0].Split("=")[1];
+            var b = tmp2[1].Split("=")[1];
+            var bhid = tmp2[2].Split("=")[1];
+            var name = html.Substring(k + 1, html.IndexOf('<') - k - 1);
+            return new BrokerInfo(b, bhid, name);
+        }
+
+        protected HtmlNode GetRootNoteByUrl(string url, bool isUtf8 = true)
+        {
+            var web = new HtmlWeb();
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            web.OverrideEncoding = isUtf8 ? Encoding.GetEncoding(65001) : Encoding.GetEncoding("big5");
+            var res = web.Load(url).DocumentNode;
+            return res;
+        }
         #endregion
+    }
+
+    public class BrokerInfo
+    {
+        public BrokerInfo(string _b, string bhid, string name) 
+        {
+            b = _b;
+            BHID = bhid;
+            Name = name;
+        }
+        public string b { get; set; }
+        public string BHID { get; set; }
+        public string Name { get; set; }
+        public string Val { get; set; }
     }
 }
 

@@ -20,7 +20,7 @@ namespace WebCrawler
         [Obsolete]
         static async Task Main(string[] args)
         {
-            new CopyImage().Run();
+            await new WangooParser().RunAsync(1,1);
             //await DailyNotifyAsync();
 
 

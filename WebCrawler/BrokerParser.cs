@@ -48,12 +48,12 @@ namespace WebCrawler
 
                     broker = new Broker
                     {
-                        Id = Guid.NewGuid(),
-                        BrokerId = col[0],
-                        BrokerName = col[1],
-                        BusinessDay = date,
-                        Address = col[3],
-                        Tel = col[4]
+                        //Id = Guid.NewGuid(),
+                        //BrokerId = col[0],
+                        //BrokerName = col[1],
+                        //BusinessDay = date,
+                        //Address = col[3],
+                        //Tel = col[4]
                     };
 
                     context.Broker.Add(broker);

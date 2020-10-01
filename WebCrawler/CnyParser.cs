@@ -3,12 +3,9 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using DataService.Models;
 using EFCore.BulkExtensions;
-using LineBotLibrary;
-using LineBotLibrary.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace WebCrawler
@@ -73,7 +70,6 @@ namespace WebCrawler
             {
                 Console.WriteLine($"{index}/{partition}");
                 Console.WriteLine($"Error {e}");
-
             }
 
             context.Database.ExecuteSqlCommand($"exec [usp_Update_MA_And_VMA] {DateTime.Today:yyyy-MM-dd}");
@@ -256,8 +252,6 @@ namespace WebCrawler
             price.投信持股 = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id='SysJustIFRAMEDIV']/table/tr[2]/td[2]/table/tr/td/table/tr/td/table/tr[5]/td[2]").InnerHtml.Replace(",", ""));
             price.投信持股比例 = instPercent == "" ? 0 : Convert.ToDecimal(instPercent.Replace(",", "").Replace("%", ""));
             price.自營商持股 = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id='SysJustIFRAMEDIV']/table/tr[2]/td[2]/table/tr/td/table/tr/td/table/tr[6]/td[2]").InnerHtml.Replace(",", ""));
-
-
             s.Stop();
             Console.WriteLine("持股：" + s.Elapsed.TotalSeconds);
         }

@@ -39,6 +39,8 @@ namespace DataService.DataModel
         public decimal? 主力買賣超 { get; set; }
         public decimal? 籌碼集中度 { get; set; }
         public decimal? 五日籌碼集中度 { get; set; }
+        public decimal? 主力買賣比例 { get; set; }
+        public decimal? 十日主力買賣比例 { get; set; }
         public decimal? 十日籌碼集中度 { get; set; }
         public decimal? 二十日籌碼集中度 { get; set; }
         public decimal? 六十日籌碼集中度 { get; set; }

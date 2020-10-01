@@ -111,15 +111,17 @@
                     <th>主力</th>
                     <th>當天籌碼</th>
                     <th>10日籌碼</th>
+                    <th>當天主力</th>
+                    <th>10日主力</th>
                     <th>MA5</th>
                     <th>MA10</th>
                     <th>MA20</th>
                     <th>K9</th>
                     <th>D9</th>
                     @*<th>MACD</th>
-                    <th>DIF</th>*@
+        <th>DIF</th>*@
                     <th>OSC</th>
-                    <th>當沖張數</th>
+                    @*<th>當沖張數</th>*@
                     <th>當沖比例</th>
                     @*
         <th>當沖總損益</th>
@@ -151,15 +153,19 @@
                 @*<td>{{price.周轉率}}%</td>*@
                 <td v-bind:style="{ color: price.chipColor, fontWeight: price.cfontWeight}">{{price.籌碼集中度}}%</td>
                 <td v-bind:style="{ color: price.chip10Color, fontWeight: price.c10fontWeight}">{{price.十日籌碼集中度}}%</td>
+
+                <td v-bind:style="{ color: price.chipPColor, fontWeight: price.cfontPWeight}">{{price.主力買賣比例}}</td>
+                <td v-bind:style="{ color: price.chipP10Color, fontWeight: price.c10fontPWeight}">{{price.十日主力買賣比例}}</td>
+
                 <td v-bind:style="{ color: price.ma5Color}">{{price.mA5}}</td>
                 <td v-bind:style="{ color: price.ma10Color}">{{price.mA10}}</td>
                 <td v-bind:style="{ color: price.ma20Color}">{{price.mA20}}</td>
                 <td v-bind:style="{ color: price.k9Color}">{{price.k9}}</td>
                 <td v-bind:style="{ color: price.d9Color}">{{price.d9}}</td>
                 @*<td v-bind:style="{ color: price.macdColor}">{{price.macd}}</td>
-                <td v-bind:style="{ color: price.difColor}">{{price.dif}}</td>*@
+        <td v-bind:style="{ color: price.difColor}">{{price.dif}}</td>*@
                 <td v-bind:style="{ color: price.oscColor}">{{price.osc}}</td>
-                <td>{{price.當沖張數}}</td>
+                @*<td>{{price.當沖張數}}</td>*@
                 <td>{{price.當沖比例}}%</td>
                 @*
         <td>{{price.當沖總損益}}</td>

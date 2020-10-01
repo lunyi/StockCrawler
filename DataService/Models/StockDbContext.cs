@@ -152,17 +152,13 @@ namespace DataService.Models
 
             modelBuilder.Entity<Broker>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.HasKey(e => new { e.BrokerId, e.BrokerName });
+
+                entity.Property(e => e.BrokerId).HasMaxLength(32);
+
+                entity.Property(e => e.BrokerName).HasMaxLength(64);
 
                 entity.Property(e => e.Address).HasMaxLength(1024);
-
-                entity.Property(e => e.BrokerId)
-                    .IsRequired()
-                    .HasMaxLength(32);
-
-                entity.Property(e => e.BrokerName)
-                    .IsRequired()
-                    .HasMaxLength(64);
 
                 entity.Property(e => e.BusinessDay).HasColumnType("datetime");
 

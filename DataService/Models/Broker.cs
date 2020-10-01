@@ -5,7 +5,6 @@ namespace DataService.Models
 {
     public partial class Broker
     {
-        public Guid Id { get; set; }
         public string BrokerId { get; set; }
         public string BrokerName { get; set; }
         public DateTime? BusinessDay { get; set; }

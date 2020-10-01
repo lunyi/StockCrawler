@@ -166,13 +166,26 @@ function renewPrices(prices) {
             prices[i].chipColor = "green";
         }
 
+        if (prices[i].主力買賣比例 > 1) {
+            prices[i].chipPColor = "red";
+        }
+        else if (prices[i].主力買賣比例 < 1) {
+            prices[i].chipPColor = "green";
+        }
+
+        if (prices[i].主力買賣比例 > 1.5 || prices[i].主力買賣比例 < 0.5) {
+            prices[i].cfontPWeight = "bold";
+        }
+        else {
+            prices[i].cfontPWeight = "normal";
+        }
+
         if (prices[i].籌碼集中度 > 25 || prices[i].籌碼集中度 < -25) {
             prices[i].cfontWeight = "bold";
         }
         else {
             prices[i].cfontWeight = "normal";
         }
-
 
         if (prices[i].十日籌碼集中度 > 0) {
             prices[i].chip10Color = "red";
@@ -181,11 +194,25 @@ function renewPrices(prices) {
             prices[i].chip10Color = "green";
         }
 
+        if (prices[i].十日主力買賣比例 > 1) {
+            prices[i].chipP10Color = "red";
+        }
+        else if (prices[i].十日主力買賣比例 < 1) {
+            prices[i].chipP10Color = "green";
+        }
+
         if (prices[i].十日籌碼集中度 > 10 || prices[i].十日籌碼集中度 < -10) {
             prices[i].c10fontWeight = "bold";
         }
         else {
             prices[i].c10fontWeight = "normal";
+        }
+
+        if (prices[i].十日主力買賣比例 > 1.3 || prices[i].十日主力買賣比例 < 0.7) {
+            prices[i].c10fontPWeight = "bold";
+        }
+        else {
+            prices[i].c10fontPWeight = "normal";
         }
 
         if (prices[i].外資買賣超 > 0) {

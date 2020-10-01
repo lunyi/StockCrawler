@@ -31,6 +31,13 @@ namespace BlazorApp.Shared
         }
 
         [JSInvokable]
+        public static Task<BrokerInfo[]> GetBrokersAsync(string stock, string date, int days)
+        {
+            IStockQueries dataLayer = new StockQueries();
+            return dataLayer.GetBrokersAsync(stock, date, days);
+        }
+
+        [JSInvokable]
         public static async Task<Stocks[]> GetStocksDateAsync(string datetime, int type)
         {
             IStockQueries dataLayer = new StockQueries();
