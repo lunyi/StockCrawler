@@ -10,5 +10,6 @@ namespace DataService.Models
         public DateTime? BusinessDay { get; set; }
         public string Address { get; set; }
         public string Tel { get; set; }
+        public string b { get; set; }
     }
 }

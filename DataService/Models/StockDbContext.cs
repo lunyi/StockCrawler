@@ -30,6 +30,7 @@ namespace DataService.Models
         public virtual DbSet<Prices> Prices { get; set; }
         public virtual DbSet<RealtimeBestStocks> RealtimeBestStocks { get; set; }
         public virtual DbSet<SeasonData> SeasonData { get; set; }
+        public virtual DbSet<StockBrokers> StockBrokers { get; set; }
         public virtual DbSet<StockHistory> StockHistory { get; set; }
         public virtual DbSet<Stocks> Stocks { get; set; }
         public virtual DbSet<Thousand> Thousand { get; set; }
@@ -165,6 +166,8 @@ namespace DataService.Models
                 entity.Property(e => e.Tel)
                     .HasMaxLength(64)
                     .IsUnicode(false);
+
+                entity.Property(e => e.b).HasMaxLength(32);
             });
 
             modelBuilder.Entity<BrokerTransaction>(entity =>
@@ -652,6 +655,34 @@ namespace DataService.Models
                 entity.Property(e => e.負債總計).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.資產總計).HasColumnType("decimal(18, 2)");
+            });
+
+            modelBuilder.Entity<StockBrokers>(entity =>
+            {
+                entity.Property(e => e.Id).ValueGeneratedNever();
+
+                entity.Property(e => e.BrokerId)
+                    .IsRequired()
+                    .HasMaxLength(32);
+
+                entity.Property(e => e.BrokerName)
+                    .IsRequired()
+                    .HasMaxLength(64);
+
+                entity.Property(e => e.EndDate).HasColumnType("date");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.StartDate).HasColumnType("date");
+
+                entity.Property(e => e.StockId)
+                    .IsRequired()
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Volume).HasColumnType("decimal(18, 0)");
             });
 
             modelBuilder.Entity<StockHistory>(entity =>

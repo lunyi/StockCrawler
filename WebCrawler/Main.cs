@@ -20,7 +20,7 @@ namespace WebCrawler
         [Obsolete]
         static async Task Main(string[] args)
         {
-            await new WangooParser().RunAsync(1,1);
+            //await new WangooParser().RunAsync(1,1);
             //await DailyNotifyAsync();
 
 
@@ -42,8 +42,8 @@ namespace WebCrawler
             //await RunAsync<DailyNotifier>();
 
             //InitailLineNotifyBot();
-            //var s1 = new UpdateStockListParser();
-            //await s1.RunAsync();
+            var s1 = new StockBrokerParser();
+            await s1.RunAsync();
             //s1.Test_usp_Update_MA_And_VMA();
             //s1.ParserLastDay("8913", "恩得利");
 
