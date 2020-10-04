@@ -343,7 +343,9 @@ order by (p.[{strDays}主力買超張數] / p.[{strDays}主力賣超張數]) {or
                                 }).ToArrayAsync();
 
             var datetimeString = datetime.ToString("yyyy-MM-dd");
-            var weeklyChip = await context._WeekyChip.FromSqlRaw(GetWeekAnalyst(stockId, GetLastFriday(datetimeString), chkDate)).ToArrayAsync();
+
+            var sql = GetWeekAnalyst(stockId, datetimeString, chkDate);
+            var weeklyChip = await context._WeekyChip.FromSqlRaw(sql).ToArrayAsync();
             var monthData = await context._MonthData.FromSqlRaw("exec [usp_GetMonthData] {0}, {1}", stockId, datetimeString).ToArrayAsync();
 
             return new StockeModel
@@ -425,7 +427,10 @@ select
 	cast(t.[SUnder400] - t1.[SUnder400] as int) as [SUnder400],
 	t.[POver400],
 	cast(t.[SOver400] - t1.[SOver400] as int) as [SOver400],
-	p.[Close]
+	p.[Close],
+	(select sum(投信買賣超) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) as 投信買賣超,
+	(select sum(外資買賣超) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) as 外資買賣超,
+	(select sum(五日主力買超張數 - 五日主力賣超張數) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) as 主力買賣超
 from #t3 t 
 join #t3  t1 on t.RowNo +1 = t1.RowNo 
 join (select * from [Prices] where StockID = @stockid) p on p.StockId = t.StockId and p.[Datetime] = t.[Datetime]

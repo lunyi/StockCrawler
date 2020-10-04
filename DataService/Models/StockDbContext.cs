@@ -1031,6 +1031,8 @@ namespace DataService.Models
                     .IsRequired()
                     .HasMaxLength(8)
                     .IsUnicode(false);
+
+                entity.Property(e => e.主力買賣超).HasColumnType("decimal(18, 3)");
             });
 
             OnModelCreatingPartial(modelBuilder);

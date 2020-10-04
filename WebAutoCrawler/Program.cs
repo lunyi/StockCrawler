@@ -15,8 +15,8 @@ namespace WebCrawler
             //var p = new StockPrintCrawler();
             //await p.ExecuteAsync(int.Parse(args[0]));
 
-            var c = new ThousandDataCrawlerV2();
-            await c.ExecuteLastAsync();
+            var c = new DirectorSupervisorCrawler();
+            await c.ExecuteAsync();
 
             //var c = new MonthDataCrawler();
             //await c.ExecuteAsync();

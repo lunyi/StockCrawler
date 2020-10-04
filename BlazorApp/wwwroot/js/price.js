@@ -102,6 +102,27 @@ function renewWeekChip(weekChips) {
             weekChips[i].pUnder400 = weekChips[i].pUnder400 + "↓ (" + weekChips[i].sUnder400 + ")";
             weekChips[i].p400DownColor = "green";
         }
+
+        if (weekChips[i].主力買賣超 > 0) {
+            weekChips[i].mmColor = "red";
+        }
+        else if (weekChips[i].主力買賣超 < 0) {
+            weekChips[i].mmColor = "green";
+        }
+
+        if (weekChips[i].外資買賣超 > 0) {
+            weekChips[i].ffColor = "red";
+        }
+        else if (weekChips[i].外資買賣超 < 0) {
+            weekChips[i].ffColor = "green";
+        }
+
+        if (weekChips[i].投信買賣超 > 0) {
+            weekChips[i].iiColor = "red";
+        }
+        else if (weekChips[i].投信買賣超 < 0) {
+            weekChips[i].iiColor = "green";
+        }
     }
     return weekChips;
 }

@@ -75,6 +75,9 @@
                                 <th style="border: 1px solid orange">400~1000</th>
                                 <th style="border: 1px solid orange">1000張↑</th>
                                 <th style="border: 1px solid orange">收盤價</th>
+                                <th style="border: 1px solid orange">主力買賣超</th>
+                                <th style="border: 1px solid orange">外資買賣超</th>
+                                <th style="border: 1px solid orange">投信買賣超</th>
                             </tr>
                         </thead>
                         <tr v-for="weekChip in WeekChips">
@@ -84,6 +87,9 @@
                             <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.p400UpColor}">{{weekChip.pOver400}}</td>
                             <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.bColor}">{{weekChip.pOver1000}}</td>
                             <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.updownColor}">{{weekChip.close}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.mmColor}">{{weekChip.主力買賣超}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.ffColor}">{{weekChip.外資買賣超}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.iiColor}">{{weekChip.投信買賣超}}</td>
                         </tr>
                     </table>
                 </div>
