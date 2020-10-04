@@ -395,7 +395,12 @@ SELECT s.*
 
         private string GetWeekAnalyst(string stockId, string datetime, bool chkDate)
         {
+            var limitDate = chkDate ? 1 : 0;
             var sql =  $@"DECLARE @MaxDate AS DATETIME = '{datetime}';
+DECLARE @chkDate AS bit = {limitDate};
+if @chkDate = 1 
+    set @MaxDate = (select top 1 [Datetime] from Thousand where [Datetime] <= @MaxDate order by [Datetime] desc)
+
 DECLARE @stockid AS nvarchar(10) = '{stockId}';
 select
 	ROW_NUMBER() over (order by [Datetime] desc) as RowNo,
