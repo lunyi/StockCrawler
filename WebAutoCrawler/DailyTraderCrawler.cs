@@ -79,15 +79,14 @@ namespace WebAutoCrawler
                         {
                             var td = t.FindElements(By.TagName("td"));
 
-                            if (td[10].Text.Trim() == "-")
+                            if (td.Count >= 10 && td[10].Text.Trim() == "-")
                                 continue;
 
-                            var year = Convert.ToInt16(td[10].Text.Substring(0, 2)) >= 10 ? DateTime.Now.Year - 1 : DateTime.Now.Year;
+                            var year = DateTime.Now.Year;
                             try
                             {
                                 var datetime = Convert.ToDateTime($"{year}/{td[10].Text}");
                                 var stockId = Convert.ToString(td[1].Text);
-
                                 var updatedPrice = prices.FirstOrDefault(p => p.Datetime == datetime && p.StockId == stockId);
 
                                 if (updatedPrice == null)

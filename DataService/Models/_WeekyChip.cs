@@ -21,5 +21,6 @@ namespace DataService.Models
         public decimal 主力買賣超 { get; set; }
         public int 外資買賣超 { get; set; }
         public int 投信買賣超 { get; set; }
+        public int 融資買賣超 { get; set; }
     }
 }

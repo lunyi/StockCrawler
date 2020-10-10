@@ -13,5 +13,8 @@ namespace DataService.Models
         public decimal? 累積年增率 { get; set; }
         public decimal? ROE { get; set; }
         public decimal? ROA { get; set; }
+        public decimal? 董監持股增減 { get; set; }
+        public decimal? Close { get; set; }
+        public decimal? Percent { get; set; }
     }
 }

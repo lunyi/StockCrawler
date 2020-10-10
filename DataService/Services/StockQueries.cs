@@ -82,6 +82,15 @@ namespace DataService.Services
                 case (int)ChooseStockType.MACD和KD同時轉上:
                     sql = MACD和KD同時轉上(datetime);
                     break;
+                case (int)ChooseStockType.主力外資融資買進:
+                    sql = 主力外資融資買進(datetime);
+                    break;
+                case (int)ChooseStockType.融資突然買進:
+                    sql = Get融資突然加入買方Sql(datetime);
+                    break;
+                case (int)ChooseStockType.MA5和MA10上彎:
+                    sql = GetMA5和MA10上彎Sql(datetime);
+                    break;
                 case (int)ChooseStockType.盤整突破:
                     sql = $"exec [usp_GetBreakThrough] '{datetime}'";
                     break;                 
@@ -435,7 +444,8 @@ select
 	p.[Close],
 	(select sum(投信買賣超) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) as 投信買賣超,
 	(select sum(外資買賣超) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) as 外資買賣超,
-	(select sum(五日主力買超張數 - 五日主力賣超張數) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) as 主力買賣超
+	(select sum(五日主力買超張數 - 五日主力賣超張數) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) as 主力買賣超,
+    (select sum(融資買進 - 融資賣出) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) as 融資買賣超
 from #t3 t 
 join #t3  t1 on t.RowNo +1 = t1.RowNo 
 join (select * from [Prices] where StockID = @stockid) p on p.StockId = t.StockId and p.[Datetime] = t.[Datetime]
@@ -445,53 +455,16 @@ drop table #t3
             return sql;
         }
 
-        private string GetWeekAnalystOld(string stockId, string datetime)
+        private string 主力外資融資買進(string datetime)
         {
             return $@"
-
-DECLARE @MaxDate AS DATETIME = '{datetime}';
-DECLARE @stockid AS nvarchar(10) = '{stockId}';
-
-WITH cte
-AS
-(
-    SELECT
-        [Datetime], 
-		DATEDIFF(DAY,  [Datetime], @MaxDate) AS NoDays,
-        DATEDIFF(DAY,  [Datetime], @MaxDate)/7 AS NoGroup,
-        [外資買賣超],  [投信買賣超] , [自營商買賣超] , ([融資買進] - [融資賣出]) as 融資買賣超, 成交量
-    FROM [Prices]
-	where StockID = @stockid and [Datetime] <= @MaxDate
-)
-
-SELECT  
-    DATEADD(DAY, NoGroup*-7, @MaxDate) AS [Datetime],
-    SUM([外資買賣超]) as [外資買賣超],
-	SUM([投信買賣超]) as [投信買賣超],
-	SUM([自營商買賣超]) as [自營商買賣超],
-	SUM(融資買賣超) as 融資買賣超,
-    SUM(成交量) as 成交量
-into #t1
-FROM cte 
-GROUP BY NoGroup
-
-
-select 
-	StockId,
-	[Name],
-	[Datetime],
-	[Close],
-	cast([五日主力買超張數]-[五日主力賣超張數] as int)  as [主力買賣超],
-	[董監持股]
-into #t2
-from [Prices]
-where [StockId] = @stockid and [Datetime] <= @MaxDate
+declare @MaxDate as Datetime = '{datetime}'
 
 select
-	ROW_NUMBER() over (order by [Datetime] desc) as RowNo,
+	ROW_NUMBER() over (partition by [StockId] order by [Datetime] desc) as RowNo,
 	StockId,
 	[Name],
-	[Datetime],
+	CONVERT(nvarchar,[Datetime], 23) as [Datetime],
 	[PUnder100],
 	[SUnder100],
 	[POver1000],
@@ -502,49 +475,19 @@ select
 	[S600] + [S800] + [S1000] as [SOver400]
 into #t3
 from [Thousand] t 
-where [StockId] = @stockid and [Datetime] <= @MaxDate
+where [Datetime] <= @MaxDate and [Datetime] >= DATEADD(DD,-14,@MaxDate)
 
 select 
-	t.[Datetime],
-	t.[PUnder100],
-	cast(t.[SUnder100] - t1.[SUnder100] as int) as [SUnder100],
-	t.[POver1000],
-	cast(t.[SOver1000] - t1.[SOver1000] as int) as [SOver1000],
-	t.[PUnder400],
-	cast(t.[SUnder400] - t1.[SUnder400] as int) as [SUnder400],
-	t.[POver400],
-	cast(t.[SOver400] - t1.[SOver400] as int) as [SOver400]
-into #t4
-from #t3 t 
-join #t3  t1 on t.RowNo +1 = t1.RowNo 
-
-select
-    newid() as Id,
-	#t2.StockId,
-	#t2.[Name],
-    CONVERT(nvarchar,#t1.[Datetime], 23) as [Datetime],
-	#t4.[PUnder100],
-	#t4.[SUnder100],
-	#t4.[POver1000],
-	#t4.[SOver1000],
-	#t4.[PUnder400],
-	#t4.[SUnder400],
-	#t4.[POver400],
-	#t4.[SOver400],
-	#t1.[外資買賣超],
-    #t1.[融資買賣超],
-    #t1.[投信買賣超],
-    #t1.[自營商買賣超],
-    #t2.[主力買賣超],
-    #t2.[Close],
-    #t2.[董監持股],
-    #t1.[成交量]
-from #t1 
-join #t2 on #t1.Datetime = #t2.Datetime
-join #t4 on #t1.Datetime = #t4.Datetime
-order by #t1.Datetime desc
-
-drop table #t1, #t2, #t3, #t4
+ s.* 
+ from #t3 t 
+join #t3  t1 on t.RowNo +1 = t1.RowNo and t.StockId = t1.StockId
+join Stocks s on s.StockId = t.StockId
+where t.PUnder100 < t1.PUnder100 and t.POver1000 > t1.POver1000 and 
+(select sum(投信買賣超) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) > 0 and 
+(select sum(外資買賣超) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) > 0 and 
+(select sum(五日主力買超張數 - 五日主力賣超張數) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) > 0 and 
+(select sum(融資買進 - 融資賣出) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) > 0
+drop table #t3
 ";
         }
         Task<Stocks[]> IStockQueries.GetActiveStocksAsync()
@@ -671,6 +614,80 @@ t3.[投信買賣超] <= 0 and
 t4.[投信買賣超] <= 0 and
 t5.[投信買賣超] <= 0 and
 t6.[投信買賣超] <= 0
+";
+        }
+
+        private string Get融資突然加入買方Sql(string datetime)
+        {
+            var dd = Convert.ToDateTime(datetime);
+            var datetime2 = _context.Prices.Where(p => p.StockId == "2330" && p.Datetime < dd)
+                .OrderByDescending(p => p.Datetime)
+                .Take(8)
+                .OrderBy(p => p.Datetime)
+                .Select(p => p.Datetime.ToString("yyyy-MM-dd"))
+                .FirstOrDefault();
+
+            return $@"
+
+  WITH TOPTEN as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY [Name] 
+       order by [Datetime] desc
+    ) AS RowNo 
+    FROM [Prices] where [Datetime] <= '{datetime}' and [Datetime] >= '{datetime2}'
+)
+
+select s.*
+from [Stocks]s 
+join TOPTEN t1 on s.StockId = t1.StockId
+join TOPTEN t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
+join TOPTEN t3 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
+join TOPTEN t4 on t1.StockId = t4.StockId and t1.RowNo + 3 = t4.RowNo
+join TOPTEN t5 on t1.StockId = t5.StockId and t1.RowNo + 4 = t5.RowNo
+join TOPTEN t6 on t1.StockId = t6.StockId and t1.RowNo + 5 = t6.RowNo
+join TOPTEN t7 on t1.StockId = t7.StockId and t1.RowNo + 6 = t7.RowNo
+join TOPTEN t8 on t1.StockId = t8.StockId and t1.RowNo + 7 = t8.RowNo
+WHERE t1.RowNo=1 and 
+t1.[融資買進] - t1.[融資賣出] > 0 and 
+t2.[融資買進] - t2.[融資賣出] <= 0 and
+t3.[融資買進] - t3.[融資賣出] <= 0 and
+t4.[融資買進] - t4.[融資賣出] <= 0 and
+t5.[融資買進] - t5.[融資賣出] <= 0 and
+t6.[融資買進] - t6.[融資賣出] <= 0 and
+t7.[融資買進] - t7.[融資賣出] <= 0 and 
+t8.[融資買進] - t8.[融資賣出] <= 0 
+";
+        }
+
+        private string GetMA5和MA10上彎Sql(string datetime)
+        {
+            var dd = Convert.ToDateTime(datetime);
+            var datetime2 = _context.Prices.Where(p => p.StockId == "2330" && p.Datetime < dd)
+                .OrderByDescending(p => p.Datetime)
+                .Take(2)
+                .OrderBy(p => p.Datetime)
+                .Select(p => p.Datetime.ToString("yyyy-MM-dd"))
+                .FirstOrDefault();
+
+            return $@"
+  WITH TOPTEN as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY [Name] 
+       order by [Datetime] desc
+    ) AS RowNo 
+    FROM [Prices] where [Datetime] <= '{datetime}' and [Datetime] >= '{datetime2}'
+)
+
+select 
+s.*
+from [Stocks]s 
+join TOPTEN t1 on s.StockId = t1.StockId
+join TOPTEN t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
+WHERE t1.RowNo=1 and 
+t1.MA5_ like '%↗' and t1.MA10_ like '%↗' and
+t2.MA5_ like '%↘' and t2.MA10_ like '%↘'
 ";
         }
 

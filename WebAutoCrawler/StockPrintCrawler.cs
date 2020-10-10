@@ -71,11 +71,15 @@ namespace WebAutoCrawler
                     Thread.Sleep(2000);
 
                     var element = FindElement(By.Id("technical-chart"));
+                    Console.WriteLine($"找技術圖形");
 
                     var ele = FindElement(By.XPath($"//*[@id=\"candlestick-types\"]/li[{type}]/button"));
+                    Console.WriteLine($"找週期年月日分");
+
                     ele.Click();
                     Thread.Sleep(1000);
                     var ss = FindElements(By.ClassName($"highcharts-button"));
+                    Console.WriteLine($"全部時間找三選一");
                     ss[2].Click();
                     Thread.Sleep(1000);
                     CloseDialog();
@@ -86,12 +90,13 @@ namespace WebAutoCrawler
                 catch (Exception ex)
                 {
                     Console.WriteLine($"{stocks[i].StockId} : {ex.Message}");
+                    Dispose();
+                    Intial();
                 }
             }
 
             sw.Stop();
-            Console.WriteLine(sw.Elapsed.TotalMinutes);
-            Dispose();
+            Console.WriteLine(sw.Elapsed.TotalMinutes);  
         }
 
         private void CloseDialog()

@@ -52,6 +52,7 @@
                                 <th style="border: 1px solid orange">累積年增率</th>
                                 <th style="border: 1px solid orange">ROE</th>
                                 <th style="border: 1px solid orange">ROA</th>
+                                <th style="border: 1px solid orange">董監持股增減</th>
                             </tr>
                         </thead>
                         <tr v-for="month in Months">
@@ -60,6 +61,7 @@
                             <td style="border: 1px solid orange" v-bind:style="{ color: month.cColor}">{{month.累積年增率}}</td>
                             <td style="border: 1px solid orange">{{month.roe}}</td>
                             <td style="border: 1px solid orange">{{month.roa}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: month.iColor}">{{month.董監持股增減}}</td>
                         </tr>
                     </table>
                 </div>
@@ -78,6 +80,7 @@
                                 <th style="border: 1px solid orange">主力買賣超</th>
                                 <th style="border: 1px solid orange">外資買賣超</th>
                                 <th style="border: 1px solid orange">投信買賣超</th>
+                                <th style="border: 1px solid orange">融資買賣超</th>
                             </tr>
                         </thead>
                         <tr v-for="weekChip in WeekChips">
@@ -90,6 +93,7 @@
                             <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.mmColor}">{{weekChip.主力買賣超}}</td>
                             <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.ffColor}">{{weekChip.外資買賣超}}</td>
                             <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.iiColor}">{{weekChip.投信買賣超}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.zzColor}">{{weekChip.融資買賣超}}</td>
                         </tr>
                     </table>
                 </div>

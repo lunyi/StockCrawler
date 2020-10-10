@@ -123,6 +123,13 @@ function renewWeekChip(weekChips) {
         else if (weekChips[i].投信買賣超 < 0) {
             weekChips[i].iiColor = "green";
         }
+
+        if (weekChips[i].融資買賣超 > 0) {
+            weekChips[i].zzColor = "red";
+        }
+        else if (weekChips[i].融資買賣超 < 0) {
+            weekChips[i].zzColor = "green";
+        }
     }
     return weekChips;
 }
@@ -145,6 +152,13 @@ function renewMonth(months) {
         else {
             months[i].累積年增率 = months[i].累積年增率 + "↓";
             months[i].cColor = "green";
+        }
+
+        if (months[i].董監持股增減 > 0) {
+            months[i].iColor = "red";
+        }
+        else if (months[i].董監持股增減 < 0) {
+            months[i].iColor = "green";
         }
         months[i].datetime = formatDate(months[i].datetime);
     }

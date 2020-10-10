@@ -369,11 +369,15 @@ namespace DataService.Models
 
                 entity.Property(e => e.Datetime).HasColumnType("datetime");
 
+                entity.Property(e => e.Close).HasColumnType("decimal(18, 2)");
+
                 entity.Property(e => e.CreatedOn).HasColumnType("datetime");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50);
+
+                entity.Property(e => e.Percent).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.去年同月營收).HasColumnType("decimal(18, 2)");
 
@@ -388,6 +392,10 @@ namespace DataService.Models
                 entity.Property(e => e.累積年增率).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.累計營收).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.董監持股增減).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.董監持股比例).HasColumnType("decimal(18, 2)");
             });
 
             modelBuilder.Entity<Prices>(entity =>
@@ -981,6 +989,8 @@ namespace DataService.Models
             {
                 entity.HasNoKey();
 
+                entity.Property(e => e.Close).HasColumnType("decimal(18, 2)");
+
                 entity.Property(e => e.Datetime)
                     .IsRequired()
                     .HasMaxLength(10);
@@ -988,6 +998,8 @@ namespace DataService.Models
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(50);
+
+                entity.Property(e => e.Percent).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.ROA).HasColumnType("decimal(18, 2)");
 
@@ -1003,6 +1015,8 @@ namespace DataService.Models
                 entity.Property(e => e.單月月增率).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.累積年增率).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.董監持股增減).HasColumnType("decimal(18, 2)");
             });
 
             modelBuilder.Entity<_WeekyChip>(entity =>
