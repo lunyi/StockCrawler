@@ -48,11 +48,14 @@
                         <thead>
                             <tr>
                                 <th style="border: 1px solid orange">日期</th>
-                                <th style="border: 1px solid orange">單月年增率</th>
-                                <th style="border: 1px solid orange">累積年增率</th>
+                                <th style="border: 1px solid orange">單月年增</th>
+                                <th style="border: 1px solid orange">累積年增</th>
                                 <th style="border: 1px solid orange">ROE</th>
                                 <th style="border: 1px solid orange">ROA</th>
-                                <th style="border: 1px solid orange">董監持股增減</th>
+                                <th style="border: 1px solid orange">董監增減</th>
+                                <th style="border: 1px solid orange">董監比例</th>
+                                <th style="border: 1px solid orange">收盤</th>
+                                <th style="border: 1px solid orange">漲幅</th>
                             </tr>
                         </thead>
                         <tr v-for="month in Months">
@@ -62,6 +65,9 @@
                             <td style="border: 1px solid orange">{{month.roe}}</td>
                             <td style="border: 1px solid orange">{{month.roa}}</td>
                             <td style="border: 1px solid orange" v-bind:style="{ color: month.iColor}">{{month.董監持股增減}}</td>
+                            <td style="border: 1px solid orange">{{month.董監持股比例}}%</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: month.pColor}">{{month.close}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: month.pColor}">{{month.percent}}%</td>
                         </tr>
                     </table>
                 </div>
@@ -77,10 +83,10 @@
                                 <th style="border: 1px solid orange">400~1000</th>
                                 <th style="border: 1px solid orange">1000張↑</th>
                                 <th style="border: 1px solid orange">收盤價</th>
-                                <th style="border: 1px solid orange">主力買賣超</th>
-                                <th style="border: 1px solid orange">外資買賣超</th>
-                                <th style="border: 1px solid orange">投信買賣超</th>
-                                <th style="border: 1px solid orange">融資買賣超</th>
+                                <th style="border: 1px solid orange">主力</th>
+                                <th style="border: 1px solid orange">外資</th>
+                                <th style="border: 1px solid orange">投信</th>
+                                <th style="border: 1px solid orange">融資</th>
                             </tr>
                         </thead>
                         <tr v-for="weekChip in WeekChips">

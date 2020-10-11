@@ -30,36 +30,43 @@ namespace WebAutoCrawler
                 Thread.Sleep(3000);
 
                 Console.WriteLine($"{stocks[i].StockId}");
-                var trs = FindElements(By.XPath($"/html/body/table[2]/tbody/tr/td[3]/div/div/table/tbody[1]/tr"));
 
-                try
+                var tables = FindElements(By.XPath($"/html/body/table[2]/tbody/tr/td[3]/div/div/table/tbody"));
+
+                for (int ii = 0; ii < tables.Count; ii++)
                 {
-                    for (int j = 1; j < trs.Count; j++)
+                    var trs = tables[ii].FindElements(By.TagName("tr"));
+                    //var trs = FindElements(By.XPath($"/html/body/table[2]/tbody/tr/td[3]/div/div/table/tbody[1]/tr"));
+
+                    try
                     {
-                        var tds = trs[j].FindElements(By.XPath("td"));
-                        var date = Convert.ToDateTime(tds[0].Text + "/01");
-                        var monthData = context.MonthData.FirstOrDefault(p => p.StockId == stocks[i].StockId && p.Datetime == date);
-
-                        if (monthData != null)
+                        for (int j = 1; j < trs.Count; j++)
                         {
-                            if (tds[1].Text == "-")
-                            {
-                                continue;
-                            }
-                            monthData.Close = Convert.ToDecimal(tds[1].Text.Replace(",", ""));
-                            monthData.Percent = Convert.ToDecimal(tds[3].Text);
-                            monthData.董監持股比例 = Convert.ToDecimal(tds[16].Text);
-                            monthData.董監持股增減 = Convert.ToDecimal(tds[17].Text);
-                            Console.WriteLine($"{stocks[i].StockId} Updated");
-                        }
-                    }
+                            var tds = trs[j].FindElements(By.XPath("td"));
+                            var date = Convert.ToDateTime(tds[0].Text + "/01");
+                            var monthData = context.MonthData.FirstOrDefault(p => p.StockId == stocks[i].StockId && p.Datetime == date);
 
-                    await context.SaveChangesAsync();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"{stocks[i].StockId} : {ex.Message}");
-                    Console.WriteLine(ex.StackTrace);
+                            if (monthData != null)
+                            {
+                                if (tds[16].Text == "-")
+                                {
+                                    continue;
+                                }
+                                monthData.Close = Convert.ToDecimal(tds[1].Text.Replace(",", ""));
+                                monthData.Percent = Convert.ToDecimal(tds[3].Text);
+                                monthData.董監持股比例 = Convert.ToDecimal(tds[16].Text);
+                                monthData.董監持股增減 = Convert.ToDecimal(tds[17].Text);
+                                Console.WriteLine($"{stocks[i].StockId} {tds[0].Text} Updated");
+                            }
+                        }
+
+                        await context.SaveChangesAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"{stocks[i].StockId} : {ex.Message}");
+                        Console.WriteLine(ex.StackTrace);
+                    }
                 }
             }
         }
@@ -68,10 +75,10 @@ namespace WebAutoCrawler
         {
             return $@"
 select s.* from [Stocks] s 
-left join (select * from [MonthData] where [Datetime] ='2020-08-01')  a 
+left join (select * from [MonthData] where [Datetime] ='2018-08-01')  a 
 on s.StockId = a.StockId 
 where a.董監持股增減 is null and s.Status = 1
-order by s.StockId
+order by s.StockId desc
 ";
         }
     }

@@ -16,5 +16,6 @@ namespace DataService.Models
         public decimal? 董監持股增減 { get; set; }
         public decimal? Close { get; set; }
         public decimal? Percent { get; set; }
+        public decimal? 董監持股比例 { get; set; }
     }
 }

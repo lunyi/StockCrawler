@@ -160,6 +160,13 @@ function renewMonth(months) {
         else if (months[i].董監持股增減 < 0) {
             months[i].iColor = "green";
         }
+
+        if (months[i].percent > 0) {
+            months[i].pColor = "red";
+        }
+        else if (months[i].percent < 0) {
+            months[i].pColor = "green";
+        }
         months[i].datetime = formatDate(months[i].datetime);
     }
     return months;

@@ -85,6 +85,9 @@ namespace DataService.Services
                 case (int)ChooseStockType.主力外資融資買進:
                     sql = 主力外資融資買進(datetime);
                     break;
+                case (int)ChooseStockType.連續三個月董資持股增加:
+                    sql = 連續三個月董資持股增加(datetime);
+                    break;
                 case (int)ChooseStockType.融資突然買進:
                     sql = Get融資突然加入買方Sql(datetime);
                     break;
@@ -308,6 +311,7 @@ order by (p.[{strDays}主力買超張數] / p.[{strDays}主力賣超張數]) {or
                                 let volume = price.成交量 == 0 ? 1 : price.成交量
                                 let 十日主力賣超張數 = price.十日主力賣超張數 == 0 ? 1 : price.十日主力賣超張數
                                 let 主力賣超張數 = price.主力賣超張數 == 0 ? 1 : price.主力賣超張數
+                                let VMA10 = price.VMA10 == 0 ? 1 : price.VMA10
                                 select new PriceModel
                                 {
                                     StockId = price.StockId,
@@ -335,7 +339,7 @@ order by (p.[{strDays}主力買超張數] / p.[{strDays}主力賣超張數]) {or
                                     投信買賣超 = price.投信買賣超,
                                     主力買賣超 = price.主力買超張數 - price.主力賣超張數,
                                     籌碼集中度 = 100 * Math.Round(((price.主力買超張數 - price.主力賣超張數) / volume).Value, 4),
-                                    十日籌碼集中度 = 100 * Math.Round(((price.十日主力買超張數 - price.十日主力賣超張數) / (10 * price.VMA10)).Value, 4),
+                                    十日籌碼集中度 = 100 * Math.Round(((price.十日主力買超張數 - price.十日主力賣超張數) / (10 * VMA10)).Value, 4),
                                     主力買賣比例 = Math.Round((price.主力買超張數 / 主力賣超張數).Value, 2),
                                     十日主力買賣比例 = Math.Round((price.十日主力買超張數 / 十日主力賣超張數).Value, 2),
                                     MA5 = price.MA5_ ?? string.Empty,
@@ -355,7 +359,8 @@ order by (p.[{strDays}主力買超張數] / p.[{strDays}主力賣超張數]) {or
 
             var sql = GetWeekAnalyst(stockId, datetimeString, chkDate);
             var weeklyChip = await context._WeekyChip.FromSqlRaw(sql).ToArrayAsync();
-            var monthData = await context._MonthData.FromSqlRaw("exec [usp_GetMonthData] {0}, {1}", stockId, datetimeString).ToArrayAsync();
+            var oldDate = chkDate ? datetimeString : DateTime.Now.ToString("yyyy-MM-dd");
+            var monthData = await context._MonthData.FromSqlRaw("exec [usp_GetMonthData] {0}, {1}", stockId, oldDate).ToArrayAsync();
 
             return new StockeModel
             {
@@ -409,6 +414,8 @@ SELECT s.*
 DECLARE @chkDate AS bit = {limitDate};
 if @chkDate = 1 
     set @MaxDate = (select top 1 [Datetime] from Thousand where [Datetime] <= @MaxDate order by [Datetime] desc)
+else 
+	set @MaxDate = (select top 1 [Datetime] from Thousand where [Datetime] <= getdate() order by [Datetime] desc)
 
 DECLARE @stockid AS nvarchar(10) = '{stockId}';
 select
@@ -488,6 +495,34 @@ where t.PUnder100 < t1.PUnder100 and t.POver1000 > t1.POver1000 and
 (select sum(五日主力買超張數 - 五日主力賣超張數) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) > 0 and 
 (select sum(融資買進 - 融資賣出) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) > 0
 drop table #t3
+";
+        }
+
+        private string 連續三個月董資持股增加(string datetime)
+        {
+            return $@"
+  declare @datetime as [Datetime] = '{datetime}';
+
+   WITH TOPTEN as (
+   SELECT *, ROW_NUMBER() 
+    over (
+        PARTITION BY [Name] 
+       order by [Datetime] desc
+    ) AS RowNo 
+    FROM [MonthData] where [Datetime] <= @datetime and [董監持股增減] is not null and [Datetime] >= DATEADD(day,-150, @datetime)  
+	)
+
+	select 
+	s.*
+	from [Stocks]s 
+		join TOPTEN t1 on s.StockId = t1.StockId
+		join TOPTEN t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
+		join TOPTEN t3 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
+	WHERE t1.RowNo=1 and 
+		t1.[董監持股增減] > 0  and
+		t2.[董監持股增減] > 0 and
+		t3.[董監持股增減] > 0
+	order by s.StockId
 ";
         }
         Task<Stocks[]> IStockQueries.GetActiveStocksAsync()
@@ -608,7 +643,7 @@ join TOPTEN t4 on t1.StockId = t4.StockId and t1.RowNo + 3 = t4.RowNo
 join TOPTEN t5 on t1.StockId = t5.StockId and t1.RowNo + 4 = t5.RowNo
 join TOPTEN t6 on t1.StockId = t6.StockId and t1.RowNo + 5 = t6.RowNo
 WHERE t1.RowNo=1 and 
-t1.[投信買賣超] > 0 and 
+t1.[投信買賣超] > 10 and 
 t2.[投信買賣超] <= 0 and
 t3.[投信買賣超] <= 0 and
 t4.[投信買賣超] <= 0 and
@@ -649,7 +684,7 @@ join TOPTEN t6 on t1.StockId = t6.StockId and t1.RowNo + 5 = t6.RowNo
 join TOPTEN t7 on t1.StockId = t7.StockId and t1.RowNo + 6 = t7.RowNo
 join TOPTEN t8 on t1.StockId = t8.StockId and t1.RowNo + 7 = t8.RowNo
 WHERE t1.RowNo=1 and 
-t1.[融資買進] - t1.[融資賣出] > 0 and 
+t1.[融資買進] - t1.[融資賣出] > 10 and 
 t2.[融資買進] - t2.[融資賣出] <= 0 and
 t3.[融資買進] - t3.[融資賣出] <= 0 and
 t4.[融資買進] - t4.[融資賣出] <= 0 and

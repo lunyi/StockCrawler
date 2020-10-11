@@ -1017,6 +1017,8 @@ namespace DataService.Models
                 entity.Property(e => e.累積年增率).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.董監持股增減).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.董監持股比例).HasColumnType("decimal(18, 2)");
             });
 
             modelBuilder.Entity<_WeekyChip>(entity =>
