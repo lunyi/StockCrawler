@@ -19,6 +19,7 @@ namespace WebAutoCrawler
             if (!funcMap.Keys.Any(p => p == type))
             {
                 Console.WriteLine("不合法參數");
+                base.Dispose();
                 return;
             }
 
@@ -33,7 +34,7 @@ namespace WebAutoCrawler
             var func = funcMap[type];
 
             var pricesToUpdate = func(prices);
-          
+
             context.Database.SetCommandTimeout(180);
 
             try
@@ -46,6 +47,8 @@ namespace WebAutoCrawler
             {
                 Console.WriteLine($"Error {e}");
             }
+
+            base.Dispose();
         }
 
         static Dictionary<string, Func<List<Prices>, List<Prices>>> funcMap = new Dictionary<string, Func<List<Prices>, List<Prices>>>
@@ -77,14 +80,16 @@ namespace WebAutoCrawler
 
                         foreach (var t in tr)
                         {
-                            var td = t.FindElements(By.TagName("td"));
-
-                            if (td.Count >= 10 && td[10].Text.Trim() == "-")
-                                continue;
-
-                            var year = DateTime.Now.Year;
                             try
                             {
+                                var td = t.FindElements(By.TagName("td"));
+                                if (td.Count >= 10 && td[10].Text.Trim() == "-")
+                                    continue;
+                                if (td.Count <= 3)
+                                    continue;
+
+                                var year = DateTime.Now.Year;
+                         
                                 var datetime = Convert.ToDateTime($"{year}/{td[10].Text}");
                                 var stockId = Convert.ToString(td[1].Text);
                                 var updatedPrice = prices.FirstOrDefault(p => p.Datetime == datetime && p.StockId == stockId);
@@ -143,16 +148,20 @@ namespace WebAutoCrawler
                 selRANK.SelectByIndex(i);
                 Thread.Sleep(5000);
                 var tables = FindElements(By.XPath($"/html/body/table[5]/tbody/tr/td[3]/div[2]/div/div/table/tbody"));
-                foreach (var table in tables)
-                {
-                    var tr = table.FindElements(By.TagName("tr"));
 
-                    foreach (var t in tr)
+                for (int j = 0; j < tables.Count; j++)
+                {
+                    var tr = tables[j].FindElements(By.TagName("tr"));
+                    for (int k = 0; k < tr.Count; k++)
                     {
-                        var td = t.FindElements(By.TagName("td"));
+                        var td = tr[k].FindElements(By.TagName("td"));
                         try
                         {
-                            var datetime = Convert.ToDateTime($"{DateTime.Now.Year}/{td[3].Text}");
+                            if (td.Count <= 3)
+                                continue;
+
+                            var date = td[3].Text;
+                            var datetime = Convert.ToDateTime($"{DateTime.Now.Year}/{date}");
                             var stockId = Convert.ToString(td[1].Text);
 
                             var price = prices.FirstOrDefault(p => p.Datetime == datetime && p.StockId == stockId);

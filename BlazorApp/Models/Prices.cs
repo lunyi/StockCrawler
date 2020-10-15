@@ -5,7 +5,6 @@ namespace BlazorApp.Models
 {
     public partial class Prices
     {
-        public Guid Id { get; set; }
         public string StockId { get; set; }
         public string Name { get; set; }
         public DateTime Datetime { get; set; }
@@ -31,10 +30,6 @@ namespace BlazorApp.Models
         public int? 外資持股 { get; set; }
         public decimal? 外資持股比例 { get; set; }
         public int? 外資買賣超 { get; set; }
-        public int? 外資買進 { get; set; }
-        public int? 外資賣出 { get; set; }
-        public int? 尚可投資張數 { get; set; }
-        public int? 發行張數 { get; set; }
         public int? 投信買賣超 { get; set; }
         public int? 自營商買賣超 { get; set; }
         public decimal? 當沖張數 { get; set; }
@@ -42,6 +37,10 @@ namespace BlazorApp.Models
         public decimal? 當沖總損益 { get; set; }
         public decimal? 當沖均損益 { get; set; }
         public decimal? MA3 { get; set; }
+        public string MA5_ { get; set; }
+        public string MA10_ { get; set; }
+        public string MA20_ { get; set; }
+        public string MA60_ { get; set; }
         public decimal? MA5 { get; set; }
         public decimal? MA10 { get; set; }
         public decimal? MA20 { get; set; }
@@ -68,7 +67,22 @@ namespace BlazorApp.Models
         public decimal? 六十日主力買超張數 { get; set; }
         public decimal? 六十日主力賣超張數 { get; set; }
         public int? 投信持股 { get; set; }
+        public decimal? 投信持股比例 { get; set; }
         public int? 自營商持股 { get; set; }
         public int? 董監持股 { get; set; }
+        public decimal? 董監持股比例 { get; set; }
+        public decimal? DIF { get; set; }
+        public decimal? MACD { get; set; }
+        public decimal? OSC { get; set; }
+        public decimal? RSV { get; set; }
+        public decimal? K { get; set; }
+        public decimal? D { get; set; }
+        public string DIF1 { get; set; }
+        public string MACD1 { get; set; }
+        public string OSC1 { get; set; }
+        public string RSV1 { get; set; }
+        public string K1 { get; set; }
+        public string D1 { get; set; }
+        public int? 董監持股買賣 { get; set; }
     }
 }

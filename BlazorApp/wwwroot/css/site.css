@@ -175,6 +175,7 @@ input[type=search] {
 #selectStockType,
 #selectDateList,
 #selectBestType,
+#selectAvgType,
 #selectRankType {
     width: 250px;
     text-align-last: center

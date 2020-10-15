@@ -53,16 +53,19 @@ namespace DataService.Services
             switch (type)
             {
                 case (int)ChooseStockType.五日漲幅排行榜:
-                    sql = await 五日漲幅排行榜(context, datetime, 5);
+                    sql = await N日漲幅排行榜(context, datetime, 5);
+                    break;
+                case (int)ChooseStockType.十日漲幅排行榜:
+                    sql = await N日漲幅排行榜(context, datetime, 10);
                     break;
                 case (int)ChooseStockType.二十日漲幅排行:
-                    sql = await 五日漲幅排行榜(context, datetime, 20);
+                    sql = await N日漲幅排行榜(context, datetime, 20);
                     break;
                 case (int)ChooseStockType.四十日漲幅排行:
-                    sql = await 五日漲幅排行榜(context, datetime, 40);
+                    sql = await N日漲幅排行榜(context, datetime, 40);
                     break;
                 case (int)ChooseStockType.六十日漲幅排行:
-                    sql = await 五日漲幅排行榜(context, datetime, 60);
+                    sql = await N日漲幅排行榜(context, datetime, 60);
                     break;
                 case (int)ChooseStockType.五日跌幅排行榜:
                     sql = 五日跌幅排行榜(datetime, 5);
@@ -353,6 +356,7 @@ order by (p.[{strDays}主力買超張數] / p.[{strDays}主力賣超張數]) {or
                                     MACD = price.MACD1,
                                     OSC = price.OSC1,
                                     DIF = price.DIF1,
+                                    AvgDays = price.AvgUpDays
                                 }).ToArrayAsync();
 
             var datetimeString = datetime.ToString("yyyy-MM-dd");
@@ -452,7 +456,8 @@ select
 	(select sum(投信買賣超) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) as 投信買賣超,
 	(select sum(外資買賣超) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) as 外資買賣超,
 	(select sum(五日主力買超張數 - 五日主力賣超張數) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) as 主力買賣超,
-    (select sum(融資買進 - 融資賣出) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) as 融資買賣超
+    (select sum(融資買進 - 融資賣出) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) as 融資買賣超,
+    (select sum(董監持股買賣) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) as 董監買賣超
 from #t3 t 
 join #t3  t1 on t.RowNo +1 = t1.RowNo 
 join (select * from [Prices] where StockID = @stockid) p on p.StockId = t.StockId and p.[Datetime] = t.[Datetime]
@@ -721,8 +726,10 @@ from [Stocks]s
 join TOPTEN t1 on s.StockId = t1.StockId
 join TOPTEN t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
 WHERE t1.RowNo=1 and 
-t1.MA5_ like '%↗' and t1.MA10_ like '%↗' and
-t2.MA5_ like '%↘' and t2.MA10_ like '%↘'
+((t1.MA5_ like '%↗' and t1.MA10_ like '%↗') and t2.MA5_ like '%↘' and t2.MA10_ like '%↘' and t2.MA20_ like '%↘')
+or 
+((t1.MA20_ like '%↗' and t1.MA10_ like '%↗') and t2.MA5_ like '%↘' and t2.MA10_ like '%↘' and t2.MA20_ like '%↘')
+
 ";
         }
 
@@ -997,7 +1004,7 @@ order by t.[Count] desc
 drop table #tmp";
         }
 
-        private async Task<string> 五日漲幅排行榜(StockDbContext context, string datetime, int days)
+        private async Task<string> N日漲幅排行榜(StockDbContext context, string datetime, int days)
         {
             var date = Convert.ToDateTime(datetime);
             var dd = await context.Prices.Where(p=>p.StockId=="2330" && p.Datetime<= date)
@@ -1467,6 +1474,15 @@ order by s.[Description] / s.每股淨值
 
         private Dictionary<ChooseStockType, Func<string>> DateFunc = new Dictionary<ChooseStockType, Func<string>>
         {
+             { ChooseStockType.均線上揚第1天 , ()=>" and [AvgUpdays] = 1 order by [漲跌百分比] desc" },
+             { ChooseStockType.均線上揚第2天 , ()=>" and [AvgUpdays] = 2 order by [漲跌百分比] desc"},
+             { ChooseStockType.均線上揚第3天 , ()=>" and [AvgUpdays] = 3 order by [漲跌百分比] desc"},
+             { ChooseStockType.均線上揚第4天 , ()=>" and [AvgUpdays] = 4 order by [漲跌百分比] desc"},
+             { ChooseStockType.均線上揚第5天 , ()=>" and [AvgUpdays] = 5 order by [漲跌百分比] desc" },
+             { ChooseStockType.均線上揚第6天 , ()=>" and [AvgUpdays] = 6 order by [漲跌百分比] desc" },
+             { ChooseStockType.均線上揚第7天 , ()=>" and [AvgUpdays] >= 7 and [AvgUpdays] <= 12 order by [漲跌百分比] desc" },
+             { ChooseStockType.均線上揚第12天 , ()=>" and [AvgUpdays] >12  order by [漲跌百分比] desc" },
+
             { ChooseStockType.一日漲幅排行榜 , ()=>一日漲幅排行榜() },
             { ChooseStockType.外資投信同步買超排行榜 , ()=>外資投信同步買超排行榜() },
             { ChooseStockType.外資主力同步買超排行榜 , ()=>外資主力同步買超排行榜() },

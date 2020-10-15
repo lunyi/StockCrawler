@@ -5,7 +5,6 @@ namespace BlazorApp.Models
 {
     public partial class Thousand
     {
-        public Guid Id { get; set; }
         public string StockId { get; set; }
         public string Name { get; set; }
         public DateTime Datetime { get; set; }

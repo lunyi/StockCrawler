@@ -20,7 +20,7 @@ namespace WebAutoCrawler
             ChromeOptions chromeBrowserOptions = new ChromeOptions();
             //需要阻擋跳出視窗時，可將下面註解移除
             chromeBrowserOptions.AddArgument("--disable-popup-blocking");
-            chromeBrowserOptions.AddArgument("no-sandbox");
+            //chromeBrowserOptions.AddArgument("no-sandbox");
             //要節省流量，不載入圖片的時候，可將下面註解移除
             //chromeBrowserOptions.AddExtension(@"ChromeDriver\Block-image_v1.1.crx"); // 載入阻擋圖片外掛程式
             _driver = new ChromeDriver(@"D:\Code\StockCrawlerNew\BrowserPath", chromeBrowserOptions, TimeSpan.FromMinutes(3));

@@ -5,6 +5,16 @@
         <select id="selectStockType" onchange="onSelectTypeChange()"></select>
         <select id="selectDateList" onchange="onGetStocksByDate(0)"></select>
         <select id="selectBestType" onchange="onGetStocksByDate(1)"></select>
+        <select id="selectAvgType" onchange="onGetStocksByAvg()">
+            <option value="57">均線上揚第1天</option>
+            <option value="58">均線上揚第2天</option>
+            <option value="59">均線上揚第3天</option>
+            <option value="60">均線上揚第4天</option>
+            <option value="61">均線上揚第5天</option>
+            <option value="62">均線上揚第6天</option>
+            <option value="63">均線上揚第7~12天</option>
+            <option value="64">均線上揚超過12天</option>
+        </select>
         <select id="selectRankType" onchange="onGetStocksByDate(2)">
             <option value="0">----選股----</option>
             <option value="36">★每周投信買散戶賣★</option>
@@ -19,6 +29,7 @@
             <option value="52">★盤整突破★</option>
             <option value="1">一日漲幅排行</option>
             <option value="2">五日漲幅排行</option>
+            <option value="10">十日漲幅排行</option>
             <option value="23">二十日漲幅排行</option>
 
             <option value="30">四十日漲幅排行</option>
@@ -30,7 +41,7 @@
             <option value="53">主力外資融資買進</option>
             <option value="54">MA5和MA10上彎</option>
             <option value="55">融資突然買進</option>
-            <option value="56">連續三個月董資持股增加</option>       
+            <option value="56">連續三個月董資持股增加</option>
             <option value="29">每周成交量增長排行榜</option>
             <option value="45">多頭開始排列</option>
             <option value="46">三天漲20%</option>
@@ -39,8 +50,8 @@
             <option value="33">ROE大於15且股價小於50</option>
             @*<option value="34">淨值比小於2且ROE大於10</option>*@
             @*<option value="42">==當沖比例==</option>
-        <option value="43">==當沖總損益==</option>
-        <option value="44">==當沖均損益==</option>*@
+            <option value="43">==當沖總損益==</option>
+            <option value="44">==當沖均損益==</option>*@
             <option value="35">投信突然加入買方</option>
             <option value="39">外資突然進前20名</option>
             <option value="21">外資主力同步買超排行</option>

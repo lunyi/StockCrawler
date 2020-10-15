@@ -60,5 +60,6 @@ namespace DataService.DataModel
         public string MACD { get; set; }
         public string DIF { get; set; }
         public string OSC { get; set; }
+        public int? AvgDays { get; set; }
     }
 }

@@ -87,6 +87,7 @@
                                 <th style="border: 1px solid orange">外資</th>
                                 <th style="border: 1px solid orange">投信</th>
                                 <th style="border: 1px solid orange">融資</th>
+                                <th style="border: 1px solid orange">董監</th>
                             </tr>
                         </thead>
                         <tr v-for="weekChip in WeekChips">
@@ -100,6 +101,7 @@
                             <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.ffColor}">{{weekChip.外資買賣超}}</td>
                             <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.iiColor}">{{weekChip.投信買賣超}}</td>
                             <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.zzColor}">{{weekChip.融資買賣超}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: weekChip.ddColor}">{{weekChip.董監買賣超}}</td>
                         </tr>
                     </table>
                 </div>
@@ -139,6 +141,7 @@
                     <th>OSC</th>
                     @*<th>當沖張數</th>*@
                     <th>當沖比例</th>
+                    <th>Day</th>
                     @*
         <th>當沖總損益</th>
         <th>當沖均損益</th>*@
@@ -183,6 +186,7 @@
                 <td v-bind:style="{ color: price.oscColor}">{{price.osc}}</td>
                 @*<td>{{price.當沖張數}}</td>*@
                 <td>{{price.當沖比例}}%</td>
+                <td>{{price.avgDays}}</td>
                 @*
         <td>{{price.當沖總損益}}</td>
         <td>{{price.當沖均損益}}</td>*@

@@ -399,6 +399,17 @@ function onGetStocksByDate(val) {
     }
 }
 
+function onGetStocksByAvg() {
+    $("#selectStockType").val(0);
+    var date = $("#selectDateList");
+    currentSelectedDate = date.val();
+
+    DotNet.invokeMethodAsync('BlazorApp', 'GetStocksDateAsync', date.val(), parseInt($("#selectAvgType").val()))
+        .then(data => {
+            setStocks(data);
+        });
+}
+
 function onClear() {
     $("#txtChosenStockType").val("");
 }

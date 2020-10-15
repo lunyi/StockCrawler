@@ -5,7 +5,6 @@ namespace BlazorApp.Models
 {
     public partial class Stocks
     {
-        public Guid Id { get; set; }
         public string StockId { get; set; }
         public string Name { get; set; }
         public string MarketCategory { get; set; }

@@ -18,5 +18,10 @@ namespace BlazorApp.Models
         public int SUnder400 { get; set; }
         public int SOver400 { get; set; }
         public int SOver1000 { get; set; }
+        public decimal 主力買賣超 { get; set; }
+        public int 外資買賣超 { get; set; }
+        public int 投信買賣超 { get; set; }
+        public int? 融資買賣超 { get; set; }
+        public int? 董監買賣超 { get; set; }
     }
 }

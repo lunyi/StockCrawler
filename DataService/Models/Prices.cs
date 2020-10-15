@@ -83,5 +83,7 @@ namespace DataService.Models
         public string RSV1 { get; set; }
         public string K1 { get; set; }
         public string D1 { get; set; }
+        public int? 董監持股買賣 { get; set; }
+        public int? AvgUpDays { get; set; }
     }
 }

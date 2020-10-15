@@ -130,6 +130,13 @@ function renewWeekChip(weekChips) {
         else if (weekChips[i].融資買賣超 < 0) {
             weekChips[i].zzColor = "green";
         }
+
+        if (weekChips[i].董監買賣超 > 0) {
+            weekChips[i].ddColor = "red";
+        }
+        else if (weekChips[i].董監買賣超 < 0) {
+            weekChips[i].ddColor = "green";
+        }
     }
     return weekChips;
 }

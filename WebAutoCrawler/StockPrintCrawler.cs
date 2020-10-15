@@ -71,18 +71,13 @@ namespace WebAutoCrawler
                     Thread.Sleep(2000);
 
                     var element = FindElement(By.Id("technical-chart"));
-                    Console.WriteLine($"找技術圖形");
-
-                    var ele = FindElement(By.XPath($"//*[@id=\"candlestick-types\"]/li[{type}]/button"));
-                    Console.WriteLine($"找週期年月日分");
-
+                    var ele = FindElement(By.XPath($"//*[@id=\"candlestick-types\"]/li[{type}]/button"));;
                     ele.Click();
                     Thread.Sleep(1000);
                     var ss = FindElements(By.ClassName($"highcharts-button"));
-                    Console.WriteLine($"全部時間找三選一");
                     ss[2].Click();
                     Thread.Sleep(1000);
-                    CloseDialog();
+                    //CloseDialog();
                     GetJavaScriptExecutor().ExecuteScript(String.Format("window.scrollTo({0}, {1})", 0, element.Location.Y - 100));
                     GetScreenshot().SaveAsFile(tagetPath, ScreenshotImageFormat.Png);
                     Console.WriteLine($"{type}  {stocks[i].StockId} {stocks[i].Name} copied");
@@ -96,7 +91,8 @@ namespace WebAutoCrawler
             }
 
             sw.Stop();
-            Console.WriteLine(sw.Elapsed.TotalMinutes);  
+            Console.WriteLine(sw.Elapsed.TotalMinutes);
+            Dispose();
         }
 
         private void CloseDialog()
