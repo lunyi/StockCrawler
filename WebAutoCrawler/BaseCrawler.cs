@@ -51,8 +51,8 @@ namespace WebAutoCrawler
 
         public void Dispose()
         {
-            _driver.Close();
-            _driver.Dispose();
+            if (_driver != null)
+                _driver.Quit();
         }
     }
 }

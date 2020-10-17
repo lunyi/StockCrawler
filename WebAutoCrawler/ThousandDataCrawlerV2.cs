@@ -58,6 +58,8 @@ namespace WebAutoCrawler
                     Console.WriteLine($"{stock.StockId} {stock.Name} Parser Failed {ex}!");
                 }
             }
+
+            Dispose();
         }
 
         [Obsolete]
@@ -102,12 +104,6 @@ order by s.StockId
 ";
         }
 
-        private string GetLastFriday()
-        {
-            int days = DateTime.Today.DayOfWeek == DayOfWeek.Saturday ? 1 : 1 * ((int)DateTime.Today.DayOfWeek + 2);
-            return DateTime.Today.AddDays(days * -1).ToString("yyyy-MM-dd");
-        }
-
         private string GetSqlToUpdate(string datetime)
         {
             return $@"
@@ -117,7 +113,7 @@ WITH TOPTEN1 as (
         PARTITION BY [Name] 
        order by [Datetime] desc
     ) AS RowNo 
-    FROM [Thousand]
+    FROM [Thousand]  where [Datetime] <= '{datetime}' and [Datetime] >= DATEADD(DD, -10,'{datetime}')
 )
 
 update [Thousand] set [PPUnder100] = t1.[PPUnder100], [PPOver1000] = t1.[PPOver1000]

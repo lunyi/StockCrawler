@@ -1,7 +1,9 @@
 ﻿using DataService.Models;
 using Microsoft.EntityFrameworkCore;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -12,6 +14,68 @@ namespace WebAutoCrawler
     public class DirectorSupervisorCrawler : BaseCrawler
     {
         public override async Task ExecuteAsync()
+        {
+            string url = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E5%85%A8%E9%AB%94%E8%91%A3%E7%9B%A3%E6%8C%81%E8%82%A1%E6%AF%94%E4%BE%8B%28%25%29%40%40%E5%85%A8%E9%AB%94%E8%91%A3%E7%9B%A3%40%40%E6%8C%81%E8%82%A1%E6%AF%94%E4%BE%8B%28%25%29";
+            GoToUrl(url);
+            Thread.Sleep(5000);
+
+            //for (int i = 0; i <= 5; i++)
+            //{
+            //    var selRANK = new SelectElement(FindElement(By.Id("selRANK")));
+            //    selRANK.SelectByIndex(i);
+            //    Thread.Sleep(10000);
+
+            //    var tables = FindElements(By.XPath($"/html/body/table[5]/tbody/tr/td[3]/div[2]/div/div/table/tbody"));
+            //    foreach (var table in tables)
+            //    {
+            //        var tr = table.FindElements(By.TagName("tr"));
+
+            //        foreach (var t in tr)
+            //        {
+            //            try
+            //            {
+            //                var td = t.FindElements(By.TagName("td"));
+            //                if (td.Count >= 10 && td[10].Text.Trim() == "-")
+            //                    continue;
+            //                if (td.Count <= 3)
+            //                    continue;
+
+            //                var year = DateTime.Now.Year;
+
+            //                var datetime = Convert.ToDateTime($"{year}/{td[10].Text}");
+            //                var stockId = Convert.ToString(td[1].Text);
+            //                var updatedPrice = prices.FirstOrDefault(p => p.Datetime == datetime && p.StockId == stockId);
+
+            //                if (updatedPrice == null)
+            //                    continue;
+
+            //                Console.WriteLine($"DailyTrader {td[10].Text} {td[0].Text} {td[1].Text} {td[2].Text}");
+
+            //                var name = Convert.ToString(td[2].Text);
+            //                updatedPrice.當沖張數 = Convert.ToInt32(td[11].Text.Replace(",", ""));
+            //                updatedPrice.當沖比例 = Convert.ToDecimal(td[12].Text);
+            //                updatedPrice.當沖總損益 = Convert.ToDecimal(td[17].Text);
+            //                updatedPrice.當沖均損益 = td[18].Text == "" ? 0 : Convert.ToDecimal(td[18].Text);
+            //                updatedPrices.Add(updatedPrice);
+
+            //                monthData.Close = Convert.ToDecimal(tds[1].Text.Replace(",", ""));
+            //                monthData.Percent = Convert.ToDecimal(tds[3].Text);
+            //                monthData.董監持股比例 = Convert.ToDecimal(tds[16].Text);
+            //                monthData.董監持股增減 = Convert.ToDecimal(tds[17].Text);
+            //                Console.WriteLine($"{stocks[i].StockId} {tds[0].Text} Updated");
+
+            //            }
+            //            catch (Exception ex)
+            //            {
+            //                Console.WriteLine(ex);
+            //            }
+            //        }
+            //    }
+            //}
+
+            //return updatedPrices;
+        }
+        public async Task ExecuteHistoryAsync()
         {
             var s = Stopwatch.StartNew();
             s.Start();

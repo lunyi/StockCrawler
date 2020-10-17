@@ -42,8 +42,12 @@ namespace WebCrawler
             //await RunAsync<DailyNotifier>();
 
             //InitailLineNotifyBot();
-            var s1 = new StockBrokerParser();
-            await s1.RunAsync();
+            //var s1 = new StockBrokerParser();
+            //await s1.RunAsync();
+
+            var s2 = new CopyImage();
+            s2.Run();
+
             //s1.Test_usp_Update_MA_And_VMA();
             //s1.ParserLastDay("8913", "恩得利");
 
