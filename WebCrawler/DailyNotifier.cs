@@ -21,16 +21,18 @@ namespace WebCrawler
             _lineNotifyBotApi = lineNotifyBotApi;
         }
 
-        public async Task RunAsync()
+        public override async Task RunAsync()
         {
             var context = new StockDbContext();
             _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
             var 外資投信主力買超股票 = Get外資投信主力買超股票(context);
             var 董監買超股票 = await GetSqlByChairmanAsync(context);
             var 投信突然加入買方 = await Get投信突然加入買方Sql(context);
+            var 均線起飛第一天Sql = 均線起飛第一天(context);
             await NotifyBotApiAsync(外資投信主力買超股票);
             await NotifyBotApiAsync(董監買超股票);
             await NotifyBotApiAsync(投信突然加入買方);
+            await NotifyBotApiAsync(均線起飛第一天Sql);
         }
 
         private string Get外資投信主力買超股票(StockDbContext context)
@@ -50,6 +52,28 @@ namespace WebCrawler
 
             var msg = new StringBuilder();
             msg.AppendLine($"外資, 投信, 主力買超股票 : {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+
+            var index = 1;
+            foreach (var price in prices)
+            {
+                var updown = (price.漲跌 > 0) ? "+" + price.漲跌 : price.漲跌.ToString(CultureInfo.InvariantCulture);
+                var updownPercent = (price.漲跌 > 0) ? "+" + price.漲跌百分比 : price.漲跌百分比.ToString(CultureInfo.InvariantCulture);
+                msg.AppendLine($"{index}. {price.StockId} {price.Name} {price.Close} {updown}  {updownPercent}%");
+                index++;
+            }
+
+            return msg.ToString();
+        }
+
+        private string 均線起飛第一天(StockDbContext context)
+        {
+            var prices = context.Prices.Where(p =>
+               p.Datetime == DateTime.Today &&
+               p.漲跌百分比 > 0 && p.AvgUpDays ==1
+           ) ;
+
+            var msg = new StringBuilder();
+            msg.AppendLine($"均線起飛第一天股票 : {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
 
             var index = 1;
             foreach (var price in prices)

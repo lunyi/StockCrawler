@@ -140,6 +140,7 @@ namespace WebCrawler
         {
             try
             {
+                ParseSingleAfter(price);
                 ParseMargin(stockId, price);
                 ParseInst(stockId, price);
                 ParseMainForce(stockId, DateTime.Today.ToString("yyyy/MM/dd"), price);
@@ -219,8 +220,6 @@ namespace WebCrawler
             s.Stop();
             Console.WriteLine("外資：" + s.Elapsed.TotalSeconds);
         }
-
-      
 
         public CnyParser()
         {
@@ -372,6 +371,60 @@ namespace WebCrawler
             await context.SaveChangesAsync();
             s.Stop();
             Console.WriteLine($"{stockId}, {name}, {datetime}：" + s.Elapsed.TotalSeconds);
+        }
+
+        private Prices ParseSingleAfter(Prices price)
+        {
+            var s = Stopwatch.StartNew();
+            s.Start();
+
+            var rootNode = GetRootNoteByUrl($"{baseUrl}/Z/ZC/ZCX/ZCX_{price.StockId}.djhtm", false);
+            var dateNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[1]/td[1]/font/div");
+
+            if (dateNode == null)
+                return null;
+
+            var date = DateTime.Today.Year + "/" + dateNode.InnerText.Replace("最近交易日:", "").Replace("&nbsp;&nbsp;&nbsp;市值單位:百萬", "");
+            var today = Convert.ToDateTime(date);
+            if (today != DateTime.Today)
+            {
+                return null;
+            }
+
+            var openNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[2]/td[2]");
+            var highNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[2]/td[4]");
+            var lowNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[2]/td[6]");
+            var closeNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[2]/td[8]");
+            var closeValue = Convert.ToDecimal(closeNode.InnerHtml);
+            var updownNode = rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[3]/td[2]");
+            var tmp = updownNode.InnerHtml
+                .Replace("<p class=\"t3g1\"><p class=\"t3n1\">", "")
+                .Replace("<p class=\"t3g1\"><p class=\"t3g1\">", "")
+                .Replace("<p class=\"t3g1\"><p class=\"t3r1\">", "")
+                .Replace("</p>\r\n", "");
+            var updownValue = Convert.ToDecimal(tmp);
+
+            var tmp2 = rootNode
+                .SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[4]/td[2]")
+                .InnerHtml;
+            var costPercentNode = tmp2 == "N/A" ? 0 : Convert.ToDecimal(tmp2);
+            var volume = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[4]/td[8]").InnerHtml.Replace(",", ""));
+            var percent = Math.Round(100 * updownValue / (closeValue - updownValue), 3);
+
+            price.Open = Convert.ToDecimal(openNode.InnerHtml);
+            price.High = Convert.ToDecimal(highNode.InnerHtml);
+            price.Low = Convert.ToDecimal(lowNode.InnerHtml);
+            price.Close = closeValue;
+            price.漲跌 = updownValue;
+            price.漲跌百分比 = percent;
+            price.成交量 = volume;
+            price.成交金額 = (int)(volume * closeValue);
+            price.本益比 = costPercentNode;
+
+            s.Stop();
+            //Console.WriteLine($"基本資料：{stockId}, {name}：" + s.Elapsed.TotalSeconds);
+
+            return price;
         }
 
         private Prices ParseSingleHistoryPrice(string stockId, string name)

@@ -215,6 +215,9 @@ namespace WebAutoCrawler
                         var td = t.FindElements(By.TagName("td"));
                         try
                         {
+                            if (td.Count <= 3)
+                                continue;
+
                             var datetime = Convert.ToDateTime($"{DateTime.Now.Year}/{td[3].Text}");
                             var stockId = Convert.ToString(td[1].Text);
 
@@ -272,6 +275,9 @@ namespace WebAutoCrawler
                         var td = t.FindElements(By.TagName("td"));
                         try
                         {
+                            if (td.Count <= 3)
+                                continue;
+
                             var datetime = Convert.ToDateTime($"{DateTime.Now.Year}/{td[3].Text}");
                             var stockId = Convert.ToString(td[1].Text);
 

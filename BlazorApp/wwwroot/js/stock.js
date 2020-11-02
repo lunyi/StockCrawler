@@ -254,7 +254,8 @@ function goToUrl() {
     }
     else {
         console.log(url);
-        $("#StockPage").attr("src",url);
+        $("#StockPage").attr("src", url);
+        $('#stockList').val(currentStockId);
     }
 }
 //start to Auto Browser Stocks
@@ -391,23 +392,20 @@ function onGetStocksByDate(val) {
             .then(data => {
                 setStocks(data);
             });
-    } else if (currentType=== 2 && rankType.val() !== 0) {
+    } else if (currentType === 2 && rankType.val() !== 0) {
         DotNet.invokeMethodAsync('BlazorApp', 'GetStocksDateAsync', date.val(), parseInt(rankType.val()))
             .then(data => {
                 setStocks(data);
             });
+    } else if(currentType === 3) {
+        if ($("#selectAvgType").val() === "0")
+            return;
+        $("#selectStockType").val(0);
+        DotNet.invokeMethodAsync('BlazorApp', 'GetStocksDateAsync', date.val(), parseInt($("#selectAvgType").val()))
+            .then(data => {
+                setStocks(data);
+            });
     }
-}
-
-function onGetStocksByAvg() {
-    $("#selectStockType").val(0);
-    var date = $("#selectDateList");
-    currentSelectedDate = date.val();
-
-    DotNet.invokeMethodAsync('BlazorApp', 'GetStocksDateAsync', date.val(), parseInt($("#selectAvgType").val()))
-        .then(data => {
-            setStocks(data);
-        });
 }
 
 function onClear() {

@@ -23,12 +23,12 @@ namespace WebCrawler
             //await new WangooParser().RunAsync(1,1);
             //await DailyNotifyAsync();
 
-
+            //await new CFullyDeliverySharesParser().RunAsync();
             //var ss = new HiStockParser();
             //await ss.RunSingleAsync();
             //await ss.ParserMarginAsync();
 
-            //await new CnyParser().RunAsync(int.Parse(args[0]), int.Parse(args[1]));
+            await new CnyParser().RunAsync(int.Parse(args[0]), int.Parse(args[1]));
 
 
             //await RunAsync<BrokerParser>();
@@ -45,8 +45,8 @@ namespace WebCrawler
             //var s1 = new StockBrokerParser();
             //await s1.RunAsync();
 
-            var s2 = new CopyImage();
-            s2.Run();
+            //var s2 = new CopyImage();
+            //s2.Run();
 
             //s1.Test_usp_Update_MA_And_VMA();
             //s1.ParserLastDay("8913", "恩得利");

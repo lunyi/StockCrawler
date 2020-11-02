@@ -1474,7 +1474,7 @@ order by s.[Description] / s.每股淨值
 
         private Dictionary<ChooseStockType, Func<string>> DateFunc = new Dictionary<ChooseStockType, Func<string>>
         {
-             { ChooseStockType.均線上揚第1天 , ()=>" and [AvgUpdays] = 1 order by [漲跌百分比] desc" },
+             { ChooseStockType.均線上揚第1天 , ()=>" and [AvgUpdays] = 1 and 漲跌百分比 > 0 order by [漲跌百分比] desc" },
              { ChooseStockType.均線上揚第2天 , ()=>" and [AvgUpdays] = 2 order by [漲跌百分比] desc"},
              { ChooseStockType.均線上揚第3天 , ()=>" and [AvgUpdays] = 3 order by [漲跌百分比] desc"},
              { ChooseStockType.均線上揚第4天 , ()=>" and [AvgUpdays] = 4 order by [漲跌百分比] desc"},

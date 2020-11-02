@@ -438,6 +438,9 @@ namespace DataService.Models
                 entity.HasIndex(e => new { e.StockId, e.Name, e.High, e.Low, e.Open, e.DIF1, e.MACD1, e.OSC1, e.RSV1, e.K1, e.D1, e.DIF, e.MACD, e.OSC, e.RSV, e.K, e.D, e.六十日主力賣超張數, e.投信持股, e.投信持股比例, e.自營商持股, e.董監持股, e.董監持股比例, e.十日主力賣超張數, e.二十日主力買超張數, e.二十日主力賣超張數, e.四十日主力買超張數, e.四十日主力賣超張數, e.六十日主力買超張數, e.VMA240, e.主力買超張數, e.主力賣超張數, e.五日主力買超張數, e.五日主力賣超張數, e.十日主力買超張數, e.VMA3, e.VMA5, e.VMA10, e.VMA20, e.VMA60, e.VMA120, e.MA5, e.MA10, e.MA20, e.MA60, e.MA120, e.MA240, e.當沖均損益, e.MA3, e.MA5_, e.MA10_, e.MA20_, e.MA60_, e.外資買賣超, e.投信買賣超, e.自營商買賣超, e.當沖張數, e.當沖比例, e.當沖總損益, e.融券買進, e.融券賣出, e.融券餘額, e.資券相抵, e.外資持股, e.外資持股比例, e.CreatedOn, e.融資買進, e.融資賣出, e.融資現償, e.融資餘額, e.融資使用率, e.Close, e.漲跌, e.漲跌百分比, e.成交量, e.成交金額, e.本益比, e.Datetime })
                     .HasName("Index_Prices_Datetime");
 
+                entity.HasIndex(e => new { e.Name, e.High, e.Low, e.Open, e.Close, e.漲跌, e.漲跌百分比, e.成交量, e.成交金額, e.本益比, e.CreatedOn, e.融資買進, e.融資賣出, e.融資現償, e.融資餘額, e.融資使用率, e.融券買進, e.融券賣出, e.融券餘額, e.資券相抵, e.外資持股, e.外資持股比例, e.外資買賣超, e.投信買賣超, e.自營商買賣超, e.當沖張數, e.當沖比例, e.當沖總損益, e.當沖均損益, e.MA3, e.MA5_, e.MA10_, e.MA20_, e.MA60_, e.MA5, e.MA10, e.MA20, e.MA60, e.MA120, e.MA240, e.VMA3, e.VMA5, e.VMA10, e.VMA20, e.VMA60, e.VMA120, e.VMA240, e.主力買超張數, e.主力賣超張數, e.五日主力買超張數, e.五日主力賣超張數, e.十日主力買超張數, e.十日主力賣超張數, e.二十日主力買超張數, e.二十日主力賣超張數, e.四十日主力買超張數, e.四十日主力賣超張數, e.六十日主力買超張數, e.六十日主力賣超張數, e.投信持股, e.投信持股比例, e.自營商持股, e.董監持股, e.董監持股比例, e.DIF, e.MACD, e.OSC, e.RSV, e.K, e.D, e.DIF1, e.MACD1, e.OSC1, e.RSV1, e.K1, e.D1, e.董監持股買賣, e.AvgUpDays, e.Datetime })
+                    .HasName("Index_Prices_Datetime2");
+
                 entity.Property(e => e.StockId)
                     .HasMaxLength(8)
                     .IsUnicode(false);
@@ -1010,15 +1013,31 @@ namespace DataService.Models
                     .HasMaxLength(8)
                     .IsUnicode(false);
 
+                entity.Property(e => e.公告每股淨值).HasColumnType("decimal(18, 2)");
+
                 entity.Property(e => e.單月年增率).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.單月月增率).HasColumnType("decimal(18, 2)");
 
+                entity.Property(e => e.每股營業額).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.每股稅後盈餘).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.毛利率).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.營業利益率).HasColumnType("decimal(18, 2)");
+
                 entity.Property(e => e.累積年增率).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.股本).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.股東權益).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.董監持股增減).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.董監持股比例).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.負債總計).HasColumnType("decimal(18, 2)");
             });
 
             modelBuilder.Entity<_WeekyChip>(entity =>
