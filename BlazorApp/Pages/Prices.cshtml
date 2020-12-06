@@ -54,8 +54,8 @@
                                 <th style="border: 1px solid orange">ROA</th>
                                 <th style="border: 1px solid orange">淨值</th>
                                 <th style="border: 1px solid orange">毛利</th>
-                                <th style="border: 1px solid orange">營利</th>
-                                <th style="border: 1px solid orange">稅後</th>
+                                @*<th style="border: 1px solid orange">營利</th>
+                                <th style="border: 1px solid orange">稅後</th>*@
                                 <th style="border: 1px solid orange">董增</th>
                                 <th style="border: 1px solid orange">董比</th>
                                 <th style="border: 1px solid orange">收盤</th>
@@ -70,8 +70,8 @@
                             <td style="border: 1px solid orange">{{month.roa}}</td>
                             <td style="border: 1px solid orange">{{month.公告每股淨值}}</td>
                             <td style="border: 1px solid orange">{{month.毛利率}}</td>
-                            <td style="border: 1px solid orange">{{month.營業利益率}}</td>
-                            <td style="border: 1px solid orange">{{month.每股稅後盈餘}}</td>
+                            @*<td style="border: 1px solid orange">{{month.營業利益率}}</td>
+                            <td style="border: 1px solid orange">{{month.每股稅後盈餘}}</td>*@
                             <td style="border: 1px solid orange" v-bind:style="{ color: month.iColor}">{{month.董監持股增減}}</td>
                             <td style="border: 1px solid orange">{{month.董監持股比例}}%</td>
                             <td style="border: 1px solid orange" v-bind:style="{ color: month.pColor}">{{month.close}}</td>

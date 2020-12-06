@@ -39,6 +39,7 @@ namespace DataService.Models
         public virtual DbSet<YearData> YearData { get; set; }
         public virtual DbSet<_MinuteKLine> _MinuteKLine { get; set; }
         public virtual DbSet<_MonthData> _MonthData { get; set; }
+        public virtual DbSet<_Prices> _Prices { get; set; }
         public virtual DbSet<_WeekyChip> _WeekyChip { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -1038,6 +1039,103 @@ namespace DataService.Models
                 entity.Property(e => e.董監持股比例).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.負債總計).HasColumnType("decimal(18, 2)");
+            });
+
+            modelBuilder.Entity<_Prices>(entity =>
+            {
+                entity.HasKey(e => new { e.StockId, e.Datetime });
+
+                entity.Property(e => e.StockId)
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Datetime).HasMaxLength(10);
+
+                entity.Property(e => e.Close).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.D9)
+                    .HasMaxLength(8)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.DIF)
+                    .HasMaxLength(8)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.High).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.K9)
+                    .HasMaxLength(8)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Low).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.MA10)
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MA20)
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MA5)
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MA60)
+                    .HasMaxLength(8)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.MACD)
+                    .HasMaxLength(8)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.OSC)
+                    .HasMaxLength(8)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Open).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.RSV)
+                    .HasMaxLength(8)
+                    .IsUnicode(false)
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.主力買賣比例).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.主力買賣超).HasColumnType("numeric(18, 3)");
+
+                entity.Property(e => e.十日主力買賣比例).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.十日籌碼集中度).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.外資持股比例).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.投信持股比例).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.本益比).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.漲跌).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.漲跌百分比).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.當沖張數).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.當沖比例).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.籌碼集中度).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.董監持股比例).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.融資使用率).HasColumnType("numeric(18, 2)");
             });
 
             modelBuilder.Entity<_WeekyChip>(entity =>

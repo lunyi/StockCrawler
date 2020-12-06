@@ -157,6 +157,11 @@ namespace DataService.Services
                 case (int)ChooseStockType.投信突然加入買方:
                     sql = Get投信突然加入買方Sql(datetime);
                     break;
+                    
+                case (int)ChooseStockType.十日籌碼轉買方:
+                    sql = Get十日籌碼轉買方Sql(datetime);
+                    break;
+
                 case (int)ChooseStockType.賣方籌碼集中排行榜:
                     sql = Get籌碼集中排行榜Sql(datetime, 1, "asc");
                     break;
@@ -207,7 +212,25 @@ namespace DataService.Services
                     break;
                 default:
                     var whereCondition = DateFunc[(ChooseStockType)type]();
-                    sql = @$"SELECT s.*
+                    sql = @$"SELECT 
+                            s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
+      ,CAST((p.[投信買賣超]) AS nvarchar(30)) AS [Description]
+      ,s.[股票期貨]
+
                           FROM [dbo].[Prices] p
                           join Stocks s on p.StockId = s.StockId
                           where [Datetime] = '{datetime}' {whereCondition}";
@@ -296,70 +319,19 @@ select s.[StockId]
       ,s.[股價]
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA]
-      ,CAST((p.[{strDays}主力買超張數] / p.[{strDays}主力賣超張數]) AS nvarchar(30)) AS [Description]
+      ,CAST((p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / ({days} * VMA{days}) AS nvarchar(30)) AS [Description]
       ,s.[股票期貨]
 from [Prices] p join [Stocks] s on s.StockId = p.StockId 
-where p.[Datetime] = '{datetime}' and p.[{strDays}主力賣超張數] > 0 and (p.[{strDays}主力買超張數] / p.[{strDays}主力賣超張數]) > 1.5
-order by (p.[{strDays}主力買超張數] / p.[{strDays}主力賣超張數]) {orderby}
+where p.[Datetime] = '{datetime}' and p.VMA{days} > 0 and (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) /  ({days} * VMA{days}) > 0.1
+order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) /  ({days} * VMA{days}) {orderby}
 ";
         }
 
         async Task<StockeModel> IStockQueries.GetPricesByStockIdAsync(string stockId, DateTime datetime, bool chkDate)
         {
             var context = new StockDbContext();
-            var prices = await (from price in context.Prices
-                                join stock in context.Stocks on price.StockId equals stock.StockId
-                                where price.StockId == stockId && (chkDate ? price.Datetime <= datetime : true)
-                                orderby price.Datetime descending
-                                let volume = price.成交量 == 0 ? 1 : price.成交量
-                                let 十日主力賣超張數 = price.十日主力賣超張數 == 0 ? 1 : price.十日主力賣超張數
-                                let 主力賣超張數 = price.主力賣超張數 == 0 ? 1 : price.主力賣超張數
-                                let VMA10 = price.VMA10 == 0 ? 1 : price.VMA10
-                                select new PriceModel
-                                {
-                                    StockId = price.StockId,
-                                    Name = price.Name,
-                                    Datetime = price.Datetime.ToString("yyyy-MM-dd"),
-                                    Open = price.Open,
-                                    High = price.High,
-                                    Low = price.Low,
-                                    Close = price.Close,
-                                    漲跌 = price.漲跌,
-                                    漲跌百分比 = price.漲跌百分比,
-                                    成交量 = price.成交量,
-                                    本益比 = price.本益比,
-                                    //股價淨值比 = Math.Round(price.Close / stock.每股淨值.Value, 2),
-                                    外資持股比例 = price.外資持股比例,
-                                    投信持股比例 = price.投信持股比例,
-                                    董監持股比例 = price.董監持股比例,
-                                    融資買賣超 = price.融資買進 - price.融資賣出,
-                                    融券買賣超 = price.融券買進 - price.融券賣出,
-                                    融券餘額 = price.融券餘額,
-                                    董監持股 = price.董監持股,
-                                    融資使用率 = price.融資使用率,
-                                    外資買賣超 = price.外資買賣超,
-                                    自營商買賣超 = price.自營商買賣超,
-                                    投信買賣超 = price.投信買賣超,
-                                    主力買賣超 = price.主力買超張數 - price.主力賣超張數,
-                                    籌碼集中度 = 100 * Math.Round(((price.主力買超張數 - price.主力賣超張數) / volume).Value, 4),
-                                    十日籌碼集中度 = 100 * Math.Round(((price.十日主力買超張數 - price.十日主力賣超張數) / (10 * VMA10)).Value, 4),
-                                    主力買賣比例 = Math.Round((price.主力買超張數 / 主力賣超張數).Value, 2),
-                                    十日主力買賣比例 = Math.Round((price.十日主力買超張數 / 十日主力賣超張數).Value, 2),
-                                    MA5 = price.MA5_ ?? string.Empty,
-                                    MA10 = price.MA10_ ?? string.Empty,
-                                    MA20 = price.MA20_ ?? string.Empty,
-                                    MA60 = price.MA60_ ?? string.Empty,
-                                    當沖張數 = price.當沖張數,
-                                    當沖比例 = price.當沖比例,
-                                    K9 = price.K1,
-                                    D9 = price.D1,
-                                    MACD = price.MACD1,
-                                    OSC = price.OSC1,
-                                    DIF = price.DIF1,
-                                    AvgDays = price.AvgUpDays
-                                }).ToArrayAsync();
-
             var datetimeString = datetime.ToString("yyyy-MM-dd");
+            var prices = await context._Prices.FromSqlRaw("exec [usp_GetPrices] {0}", stockId).ToArrayAsync();
 
             var sql = GetWeekAnalyst(stockId, datetimeString, chkDate);
             var weeklyChip = await context._WeekyChip.FromSqlRaw(sql).ToArrayAsync();
@@ -639,7 +611,24 @@ order by [股價]
     FROM [Prices] where [Datetime] <= '{datetime}' and [Datetime] >= '{datetime2}'
 )
 
-select s.*
+select 
+    s.[StockId]
+    ,s.[Name]
+    ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
+	  ,CAST(t1.[投信買賣超] AS nvarchar(30)) AS [Description]
+      ,s.股票期貨
 from [Stocks]s 
 join TOPTEN t1 on s.StockId = t1.StockId
 join TOPTEN t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
@@ -648,12 +637,37 @@ join TOPTEN t4 on t1.StockId = t4.StockId and t1.RowNo + 3 = t4.RowNo
 join TOPTEN t5 on t1.StockId = t5.StockId and t1.RowNo + 4 = t5.RowNo
 join TOPTEN t6 on t1.StockId = t6.StockId and t1.RowNo + 5 = t6.RowNo
 WHERE t1.RowNo=1 and 
-t1.[投信買賣超] > 10 and 
+t1.[投信買賣超] > 0 and 
 t2.[投信買賣超] <= 0 and
 t3.[投信買賣超] <= 0 and
 t4.[投信買賣超] <= 0 and
 t5.[投信買賣超] <= 0 and
 t6.[投信買賣超] <= 0
+order by t1.[投信買賣超] desc
+";
+        }
+
+        private string Get十日籌碼轉買方Sql(string datetime)
+        {
+            var dd = Convert.ToDateTime(datetime);
+            var datetime2 = _context.Prices.Where(p => p.StockId == "2330" && p.Datetime <= dd)
+                .OrderByDescending(p => p.Datetime)
+                .Take(4)
+                .OrderBy(p => p.Datetime)
+                .Select(p => p.Datetime.ToString("yyyy-MM-dd"))
+                .ToArray();
+
+            return $@"
+  select a.* from (SELECT * FROM [StockDb].[dbo].[Stocks] where [Status] =  1) a
+  join (SELECT * FROM [StockDb].[dbo].[Prices] where [Datetime] = '{datetime2[3]}') a1 on a1.StockId = a.StockId
+  join (SELECT * FROM [StockDb].[dbo].[Prices] where [Datetime] = '{datetime2[2]}') a2 on a1.StockId = a2.StockId
+  join (SELECT * FROM [StockDb].[dbo].[Prices] where [Datetime] = '{datetime2[1]}') a3 on a1.StockId = a3.StockId
+  join (SELECT * FROM [StockDb].[dbo].[Prices] where [Datetime] = '{datetime2[0]}') a4 on a1.StockId = a4.StockId
+  where (a1.十日主力買超張數 - a1.十日主力賣超張數) > 0 and 
+		(a2.十日主力買超張數 - a2.十日主力賣超張數) < 0 and 
+		(a3.十日主力買超張數 - a3.十日主力賣超張數) < 0 and 
+		(a4.十日主力買超張數 - a4.十日主力賣超張數) < 0 
+  order by (a1.十日主力買超張數 - a1.十日主力賣超張數) desc
 ";
         }
 
@@ -802,7 +816,7 @@ WITH TOPTEN as (
         PARTITION BY [Name] 
        order by [Datetime] desc
     ) AS RowNo 
-    FROM [Thousand] where [Datetime] <= '{datetime}'
+    FROM [Thousand] where [Datetime] >= DATEADD(DD, -7, '{datetime}') and [Datetime] <= '{datetime}'
 )
 
 select *, (POver1000 - PPOver1000) as [Percent] 
@@ -875,9 +889,9 @@ drop table #t1";
       ,[ROE]
       ,[ROA]
       ,[股票期貨]
-	  ,CAST(round(100* [投信買賣超]/ cast([成交量] as decimal(11)), 10)  AS varchar(18)) AS [Description] FROM [dbo].[Prices] p join [dbo].[Stocks] s on s.StockId = p.StockId
+	  ,CAST(round(100* [投信買賣超]/ cast(([成交量] - [當沖張數]) as decimal(11)), 10)  AS varchar(18)) AS [Description] FROM [dbo].[Prices] p join [dbo].[Stocks] s on s.StockId = p.StockId
   where [Datetime] = '{datetime}' and [投信買賣超] > 0 and 主力買超張數 - 主力賣超張數 > 0 and [成交量] > 0
-  order by [投信買賣超]/ cast([成交量] as decimal) desc";
+  order by [投信買賣超]/ cast(([成交量] - [當沖張數]) as decimal) desc";
         }
 
         private string 每周投信買散戶賣(StockDbContext context, string datetime)
@@ -1384,8 +1398,8 @@ WITH TOPTEN as (
     over (
         PARTITION BY [Name] 
        order by [Datetime] desc
-    ) AS RowNo 
-    FROM [Thousand] where [Datetime] <= '{datetime}'
+    ) AS RowNo  
+    FROM [Thousand] where [Datetime] >= dateadd(DD, -30, '{datetime}') and [Datetime] <= '{datetime}'
 )
 
 select s.*
@@ -1393,11 +1407,11 @@ from [Stocks]s
 join TOPTEN t1 on s.StockId = t1.StockId
 join TOPTEN t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
 join TOPTEN t3 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
+join TOPTEN t4 on t1.StockId = t4.StockId and t1.RowNo + 3 = t4.RowNo
 WHERE t1.RowNo=1 and t1.[POver1000] >  t2.[POver1000] 
 and  t1.[PUnder100] <  t2.[PUnder100]
-and t2.[POver1000] >  t3.[POver1000] 
-and  t2.[PUnder100] <  t3.[PUnder100]
-order by  (t1.[POver1000] -  t2.[POver1000]) desc 
+and t2.[POver1000] =  t3.[POver1000] 
+and t4.[POver1000] =  t3.[POver1000] 
 ";
         }
 

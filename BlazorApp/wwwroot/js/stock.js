@@ -58,7 +58,7 @@ document.onkeydown = function () {
     if (event.keyCode === keyCtrl) {
         onUrlChangeAsync(9);
     } else if (event.keyCode === keyShift) {
-        onUrlChangeAsync(6);
+        onUrlChangeAsync(2);
     //} else if (event.keyCode === keyEnter) {
     //    onUrlChangeAsync(3);
     } else if (event.keyCode === 220) {

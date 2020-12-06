@@ -19,61 +19,60 @@ namespace WebAutoCrawler
             GoToUrl(url);
             Thread.Sleep(5000);
 
-            //for (int i = 0; i <= 5; i++)
-            //{
-            //    var selRANK = new SelectElement(FindElement(By.Id("selRANK")));
-            //    selRANK.SelectByIndex(i);
-            //    Thread.Sleep(10000);
+            var context = new StockDbContext();
 
-            //    var tables = FindElements(By.XPath($"/html/body/table[5]/tbody/tr/td[3]/div[2]/div/div/table/tbody"));
-            //    foreach (var table in tables)
-            //    {
-            //        var tr = table.FindElements(By.TagName("tr"));
+            var date = await context.MonthData.Where(p => p.StockId == "2330")
+                .OrderByDescending(p => p.Datetime)
+                .Select(p=>p.Datetime)
+                .FirstOrDefaultAsync();
 
-            //        foreach (var t in tr)
-            //        {
-            //            try
-            //            {
-            //                var td = t.FindElements(By.TagName("td"));
-            //                if (td.Count >= 10 && td[10].Text.Trim() == "-")
-            //                    continue;
-            //                if (td.Count <= 3)
-            //                    continue;
+            var monthDatas = await context.MonthData
+                .Where(p => p.Datetime == date)
+                .ToListAsync();
 
-            //                var year = DateTime.Now.Year;
+            for (int i = 0; i <= 5; i++)
+            {
+                var selRANK = new SelectElement(FindElement(By.Id("selRANK")));
+                selRANK.SelectByIndex(i);
+                Thread.Sleep(10000);
 
-            //                var datetime = Convert.ToDateTime($"{year}/{td[10].Text}");
-            //                var stockId = Convert.ToString(td[1].Text);
-            //                var updatedPrice = prices.FirstOrDefault(p => p.Datetime == datetime && p.StockId == stockId);
+                var tables = FindElements(By.XPath($"/html/body/table[5]/tbody/tr/td[3]/div[2]/div/div/table/tbody"));
+                foreach (var table in tables)
+                {
+                    var tr = table.FindElements(By.TagName("tr"));
 
-            //                if (updatedPrice == null)
-            //                    continue;
+                    foreach (var t in tr)
+                    {
+                        try
+                        {
+                            var td = t.FindElements(By.TagName("td"));
+                            if (td.Count <= 3)
+                                continue;
 
-            //                Console.WriteLine($"DailyTrader {td[10].Text} {td[0].Text} {td[1].Text} {td[2].Text}");
+                            var year = DateTime.Now.Year;
+                            var month = td[6].Text.Split('M')[1];
 
-            //                var name = Convert.ToString(td[2].Text);
-            //                updatedPrice.當沖張數 = Convert.ToInt32(td[11].Text.Replace(",", ""));
-            //                updatedPrice.當沖比例 = Convert.ToDecimal(td[12].Text);
-            //                updatedPrice.當沖總損益 = Convert.ToDecimal(td[17].Text);
-            //                updatedPrice.當沖均損益 = td[18].Text == "" ? 0 : Convert.ToDecimal(td[18].Text);
-            //                updatedPrices.Add(updatedPrice);
+                            var datetime = Convert.ToDateTime($"{year}-{month}-01");
+                            var stockId = Convert.ToString(td[1].Text);
+                            var updatedMonthData = monthDatas.FirstOrDefault(p => p.Datetime == datetime && p.StockId == stockId);
 
-            //                monthData.Close = Convert.ToDecimal(tds[1].Text.Replace(",", ""));
-            //                monthData.Percent = Convert.ToDecimal(tds[3].Text);
-            //                monthData.董監持股比例 = Convert.ToDecimal(tds[16].Text);
-            //                monthData.董監持股增減 = Convert.ToDecimal(tds[17].Text);
-            //                Console.WriteLine($"{stocks[i].StockId} {tds[0].Text} Updated");
+                            if (updatedMonthData == null)
+                                continue;
 
-            //            }
-            //            catch (Exception ex)
-            //            {
-            //                Console.WriteLine(ex);
-            //            }
-            //        }
-            //    }
-            //}
-
-            //return updatedPrices;
+                            Console.WriteLine($"Month {td[0].Text} {td[1].Text} {td[2].Text} {td[18].Text} {td[19].Text}");
+                            updatedMonthData.董監持股增減 = Convert.ToDecimal(td[18].Text.Replace(",", ""));
+                            updatedMonthData.董監持股比例 = Convert.ToDecimal(td[19].Text);
+                            updatedMonthData.Close = Convert.ToDecimal(td[3].Text);
+                            updatedMonthData.Percent = Convert.ToDecimal(td[5].Text);
+                            await context.SaveChangesAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex);
+                        }
+                    }
+                }
+            }
         }
         public async Task ExecuteHistoryAsync()
         {

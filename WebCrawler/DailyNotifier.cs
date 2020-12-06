@@ -196,6 +196,7 @@ t3.[投信買賣超] <= 0 and
 t4.[投信買賣超] <= 0 and
 t5.[投信買賣超] <= 0 and
 t6.[投信買賣超] <= 0
+order by t1.[投信買賣超] desc
 ";
 
             var stocks = await context.Stocks.FromSqlRaw(sql).ToArrayAsync();

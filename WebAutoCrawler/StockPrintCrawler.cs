@@ -77,7 +77,7 @@ namespace WebAutoCrawler
                     var ss = FindElements(By.ClassName($"highcharts-button"));
                     ss[2].Click();
                     Thread.Sleep(1000);
-                    //CloseDialog();
+                    CloseDialog();
                     GetJavaScriptExecutor().ExecuteScript(String.Format("window.scrollTo({0}, {1})", 0, element.Location.Y - 100));
                     GetScreenshot().SaveAsFile(tagetPath, ScreenshotImageFormat.Png);
                     Console.WriteLine($"{type}  {stocks[i].StockId} {stocks[i].Name} copied");
@@ -97,20 +97,38 @@ namespace WebAutoCrawler
 
         private void CloseDialog()
         {
+            //try
+            //{
+            //    var close2 = FindElement(By.ClassName("_hj-2SATB__styles__minimized"));
+            //}
+            //catch (Exception)
+            //{
+            //    try
+            //    {
+            //        var close3 = FindElement(By.XPath("/html/body/div[5]/div/div/button"));
+            //        close3.Click();
+            //    }
+            //    catch (Exception)
+            //    { 
+            //    }
+            //}
+
             try
             {
-                var close2 = FindElement(By.ClassName("_hj-2SATB__styles__minimized"));
+                var close2 = FindElement(By.ClassName("_hj-OO1S1__styles__openStateToggle"));
             }
             catch (Exception)
             {
-                try
-                {
-                    var close3 = FindElement(By.XPath("/html/body/div[5]/div/div/button"));
-                    close3.Click();
-                }
-                catch (Exception)
-                { 
-                }
+
+            }
+
+            try
+            {
+                var close2 = FindElement(By.LinkText("不用了，謝謝"));
+            }
+            catch (Exception)
+            {
+
             }
         }
     }

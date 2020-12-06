@@ -316,14 +316,14 @@ function renewPrices(prices) {
         //prices[i].漲跌 = prices[i].漲跌 + " (" + prices[i].漲跌百分比 + "%)";
 
         if (prices[i].融資買賣超 > 0) {
-            prices[i].融資買賣超 = prices[i].融資買賣超 + "↑ (" + prices[i].融資使用率 + ")";
+            prices[i].融資買賣超 = prices[i].融資買賣超 + "↑ (" + prices[i].融資使用率 + "%)";
             prices[i].lColor = "red";
         }
         else if (prices[i].融資買賣超 < 0) {
-            prices[i].融資買賣超 = prices[i].融資買賣超 + "↓ (" + prices[i].融資使用率 + ")";
+            prices[i].融資買賣超 = prices[i].融資買賣超 + "↓ (" + prices[i].融資使用率 + "%)";
             prices[i].lColor = "green";
         } else {
-            prices[i].融資買賣超 = prices[i].融資買賣超 + " (" + prices[i].融資使用率 + ")";
+            prices[i].融資買賣超 = prices[i].融資買賣超 + " (" + prices[i].融資使用率 + "%)";
         }
 
         if (prices[i].融券買賣超 === undefined) {
