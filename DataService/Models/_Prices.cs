@@ -44,5 +44,7 @@ namespace DataService.Models
         public decimal 本益比 { get; set; }
         public decimal? 外資持股比例 { get; set; }
         public decimal? 融資使用率 { get; set; }
+        public decimal 五日籌碼集中度 { get; set; }
+        public decimal 二十日籌碼集中度 { get; set; }
     }
 }

@@ -236,6 +236,22 @@ function renewPrices(prices) {
             prices[i].cfontWeight = "normal";
         }
 
+
+        if (prices[i].五日籌碼集中度 > 0) {
+            prices[i].chip5Color = "red";
+        }
+        else if (prices[i].五日籌碼集中度 < 0) {
+            prices[i].chip5Color = "green";
+        }
+
+        if (prices[i].五日籌碼集中度 > 15 || prices[i].五日籌碼集中度 < -15) {
+            prices[i].c5fontWeight = "bold";
+        }
+        else {
+            prices[i].c5fontWeight = "normal";
+        }
+
+
         if (prices[i].十日籌碼集中度 > 0) {
             prices[i].chip10Color = "red";
         }
@@ -243,18 +259,33 @@ function renewPrices(prices) {
             prices[i].chip10Color = "green";
         }
 
+        if (prices[i].十日籌碼集中度 > 12 || prices[i].十日籌碼集中度 < -12) {
+            prices[i].c10fontWeight = "bold";
+        }
+        else {
+            prices[i].c10fontWeight = "normal";
+        }
+
+
+        if (prices[i].二十日籌碼集中度 > 0) {
+            prices[i].chip20Color = "red";
+        }
+        else if (prices[i].二十日籌碼集中度 < 0) {
+            prices[i].chip20Color = "green";
+        }
+
+        if (prices[i].二十日籌碼集中度 > 10 || prices[i].二十日籌碼集中度 < -10) {
+            prices[i].c20fontWeight = "bold";
+        }
+        else {
+            prices[i].c20fontWeight = "normal";
+        }
+
         if (prices[i].十日主力買賣比例 > 1) {
             prices[i].chipP10Color = "red";
         }
         else if (prices[i].十日主力買賣比例 < 1) {
             prices[i].chipP10Color = "green";
-        }
-
-        if (prices[i].十日籌碼集中度 > 10 || prices[i].十日籌碼集中度 < -10) {
-            prices[i].c10fontWeight = "bold";
-        }
-        else {
-            prices[i].c10fontWeight = "normal";
         }
 
         if (prices[i].十日主力買賣比例 > 1.3 || prices[i].十日主力買賣比例 < 0.7) {

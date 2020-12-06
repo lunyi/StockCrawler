@@ -319,7 +319,7 @@ select s.[StockId]
       ,s.[股價]
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA]
-      ,CAST((p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / ({days} * VMA{days}) AS nvarchar(30)) AS [Description]
+      ,CAST(round((p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) / ({days} * VMA{days}),2) AS nvarchar(30)) AS [Description]
       ,s.[股票期貨]
 from [Prices] p join [Stocks] s on s.StockId = p.StockId 
 where p.[Datetime] = '{datetime}' and p.VMA{days} > 0 and (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) /  ({days} * VMA{days}) > 0.1

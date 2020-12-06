@@ -1113,6 +1113,10 @@ namespace DataService.Models
 
                 entity.Property(e => e.主力買賣超).HasColumnType("numeric(18, 3)");
 
+                entity.Property(e => e.二十日籌碼集中度).HasColumnType("numeric(18, 2)");
+
+                entity.Property(e => e.五日籌碼集中度).HasColumnType("numeric(18, 2)");
+
                 entity.Property(e => e.十日主力買賣比例).HasColumnType("numeric(18, 2)");
 
                 entity.Property(e => e.十日籌碼集中度).HasColumnType("numeric(18, 2)");
