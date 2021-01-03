@@ -15,8 +15,8 @@ namespace WebCrawler
             //var p = new ThousandDataCrawlerV2();
             //await p.ExecuteLastAsync();
 
-            var p = new DirectorSupervisorCrawler();
-            await p.ExecuteAsync();
+            //var p = new DirectorSupervisorCrawler();
+            //await p.ExecuteAsync();
 
             //var c = new DirectorSupervisorCrawler();
             //await c.ExecuteAsync();
@@ -26,6 +26,9 @@ namespace WebCrawler
 
             //var c = new DailyTraderCrawler();
             //await c.ExecuteAsync(args[0]);
+
+            var c = new UpdateBrokeListParser();
+            await c.ExecuteAsync(args[0]);
 
             //var c = new SeasonDataCrawler();
             //await c.ExecuteAsync();

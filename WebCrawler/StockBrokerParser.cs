@@ -218,7 +218,7 @@ where s.Status = 1 and s.StockId > (select max(StockId) from [StockBrokers])
                 var b = tmp2[1].Split("=")[1];
                 var bhid = tmp2[2].Split("=")[1];
                 var name = html.Substring(k + 1, html.IndexOf('<') - k - 1);
-                return new BrokerInfo(b, bhid, name);
+                return new BrokerInfo(b, bhid, name, node.ChildNodes[1].InnerHtml);
             }
             catch (Exception ex)
             {
@@ -229,11 +229,12 @@ where s.Status = 1 and s.StockId > (select max(StockId) from [StockBrokers])
 
     public class BrokerInfo
     {
-        public BrokerInfo(string _b, string bhid, string name)
+        public BrokerInfo(string _b, string bhid, string name, string val)
         {
             b = _b;
             BHID = bhid;
             Name = name;
+            Val = val;
         }
         public string b { get; set; }
         public string BHID { get; set; }

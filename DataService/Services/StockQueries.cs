@@ -116,7 +116,7 @@ namespace DataService.Services
                     sql = 真主力連續買超排行榜(datetime, false);
                     break;
                 case (int)ChooseStockType.買方籌碼集中排行榜:
-                    sql = Get籌碼集中排行榜Sql(datetime, 1, "desc");
+                    sql = 買方籌碼集中排行榜(datetime, "desc");
                     break;
                 case (int)ChooseStockType.五日買方籌碼集中度排行榜:
                     sql = Get籌碼集中排行榜Sql(datetime, 5, "desc");
@@ -138,6 +138,9 @@ namespace DataService.Services
                     break;
                 case (int)ChooseStockType.當週大戶比例增加:
                     sql = Get當週大戶比例增加(datetime);
+                    break;
+                case (int)ChooseStockType.每周外資主力大買:
+                    sql = $"exec [usp_Get主力外資買賣比例增加] '{datetime}'";
                     break;
                 case (int)ChooseStockType.Get淨值比小於2AndROE大於10:
                     sql = Get淨值比小於2AndROE大於10();
@@ -163,7 +166,7 @@ namespace DataService.Services
                     break;
 
                 case (int)ChooseStockType.賣方籌碼集中排行榜:
-                    sql = Get籌碼集中排行榜Sql(datetime, 1, "asc");
+                    sql = 買方籌碼集中排行榜(datetime, "asc");
                     break;
                 case (int)ChooseStockType.五日賣方籌碼集中度排行榜:
                     sql = Get籌碼集中排行榜Sql(datetime, 5, "asc");
@@ -241,6 +244,29 @@ namespace DataService.Services
             return res;
         }
 
+        private string 買方籌碼集中排行榜(string datetime, string orderby)
+        {
+            return $@"SELECT s.[StockId] ,s.[Name]
+                      ,s.[MarketCategory]
+                      ,s.[Industry]
+                      ,s.[ListingOn]
+                      ,s.[CreatedOn]
+                      ,s.[UpdatedOn]
+                      ,s.[Status]
+                      ,s.[Address]
+                      ,s.[Website]
+                      ,s.[營收比重]
+                      ,s.[股本]
+                      ,s.[股價]
+                      ,s.[每股淨值]
+                      ,s.[每股盈餘], s.[ROE], s.[ROA]
+                      ,CAST(round((主力買超張數 - 主力賣超張數) / (成交量 - 當沖張數), 2) AS nvarchar(30)) AS [Description]
+                      ,s.[股票期貨]
+                  FROM [StockDb].[dbo].[Prices] p join[Stocks] s on s.StockId = p.StockId
+                  where[Datetime] = '{datetime}' and 成交量 > 0 and 成交量 != 當沖張數
+                  order by(主力買超張數 -主力賣超張數) / (成交量 - 當沖張數) {orderby}";
+
+        }
         private string MACD和KD同時轉上(string datetime)
         {
             var dd = Convert.ToDateTime(datetime);
@@ -331,11 +357,12 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) /  
         {
             var context = new StockDbContext();
             var datetimeString = datetime.ToString("yyyy-MM-dd");
-            var prices = await context._Prices.FromSqlRaw("exec [usp_GetPrices] {0}", stockId).ToArrayAsync();
+            var oldDate = chkDate ? datetimeString : DateTime.Now.ToString("yyyy-MM-dd");
+            var prices = await context._Prices.FromSqlRaw("exec [usp_GetPrices] {0}, {1}", stockId, oldDate).ToArrayAsync();
 
             var sql = GetWeekAnalyst(stockId, datetimeString, chkDate);
             var weeklyChip = await context._WeekyChip.FromSqlRaw(sql).ToArrayAsync();
-            var oldDate = chkDate ? datetimeString : DateTime.Now.ToString("yyyy-MM-dd");
+          
             var monthData = await context._MonthData.FromSqlRaw("exec [usp_GetMonthData] {0}, {1}", stockId, oldDate).ToArrayAsync();
 
             return new StockeModel
@@ -1501,6 +1528,7 @@ order by s.[Description] / s.每股淨值
             { ChooseStockType.外資投信同步買超排行榜 , ()=>外資投信同步買超排行榜() },
             { ChooseStockType.外資主力同步買超排行榜 , ()=>外資主力同步買超排行榜() },
             { ChooseStockType.外資買超排行榜  , ()=>外資買超排行榜() },
+            { ChooseStockType.主力買超排行榜  , ()=>外資買超排行榜() },
             { ChooseStockType.投信買超排行榜  , ()=>投信買超排行榜() },
             { ChooseStockType.自營買超排行榜  , ()=>自營買超排行榜() },
             { ChooseStockType.融資買超排行榜  , ()=>融資買超排行榜() },
@@ -1598,6 +1626,14 @@ order by s.[Description] / s.每股淨值
   and [外資買賣超] > 0
   and [外資買賣超] * [Close] > 4000
   order by [外資買賣超] desc
+";
+        }
+
+        private static string 主力買超排行榜()
+        {
+            return @$"
+  and [主力買超張數] - [主力賣超張數]> 0
+  order by [主力買超張數] - [主力賣超張數] desc
 ";
         }
 

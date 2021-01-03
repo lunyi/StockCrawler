@@ -35,7 +35,7 @@ namespace WebAutoCrawler
 
             var pricesToUpdate = func(prices);
 
-            context.Database.SetCommandTimeout(180);
+            context.Database.SetCommandTimeout(300);
 
             try
             {
