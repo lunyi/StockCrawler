@@ -29,8 +29,9 @@ namespace WebCrawler
             //await ss.ParserMarginAsync();
 
             await new InsertBrokesParser()
-                .RunAsync(args[0], args[1], int.Parse(args[2]), int.Parse(args[3]));
+                .RunAsync(args[0], args[1]);
 
+            Console.ReadLine();
 
             //await RunAsync<BrokerParser>();
 
