@@ -28,7 +28,8 @@ namespace WebCrawler
             //await ss.RunSingleAsync();
             //await ss.ParserMarginAsync();
 
-            await new UpdateBrokeListParser2().RunAsync();
+            await new InsertBrokesParser()
+                .RunAsync(args[0], args[1], int.Parse(args[2]), int.Parse(args[3]));
 
 
             //await RunAsync<BrokerParser>();
@@ -60,6 +61,14 @@ namespace WebCrawler
             //await RunAsync<DailyNotifier>();
 
             //await DailyNotifyAsync();
+        }
+
+        static async Task RunExe()
+        {
+            Process p = new Process();
+            p.StartInfo.FileName = "cmd.exe";
+            p.StartInfo.Arguments = @"/K D:\test\abc /username bobj /psw kjsjdf port/ 22";
+            p.Start();
         }
 
         private static ServiceCollection _serviceCollection;

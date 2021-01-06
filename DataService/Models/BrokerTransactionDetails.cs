@@ -5,7 +5,6 @@ namespace DataService.Models
 {
     public partial class BrokerTransactionDetails
     {
-        public Guid Id { get; set; }
         public string BrokerId { get; set; }
         public string BrokerName { get; set; }
         public string StockId { get; set; }
@@ -14,7 +13,5 @@ namespace DataService.Models
         public int Buy { get; set; }
         public int Sell { get; set; }
         public int 買賣超 { get; set; }
-        public decimal? Close { get; set; }
-        public decimal? Percent { get; set; }
     }
 }

@@ -214,35 +214,25 @@ namespace DataService.Models
 
             modelBuilder.Entity<BrokerTransactionDetails>(entity =>
             {
-                entity.HasKey(e => e.Id)
+                entity.HasKey(e => new { e.BrokerId, e.StockId, e.Datetime })
+                    .HasName("PK_BrokerTransactionDetails_1")
                     .IsClustered(false);
 
                 entity.HasIndex(e => e.StockId)
                     .HasName("Index_BrokerTransactionDetails_StockId")
                     .IsClustered();
 
-                entity.HasIndex(e => new { e.BrokerName, e.StockName, e.Datetime, e.Buy, e.Sell, e.買賣超, e.Close, e.BrokerId, e.StockId })
-                    .HasName("Index_StockId_BrokenId");
-
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.BrokerId)
-                    .IsRequired()
-                    .HasMaxLength(10);
+                    .HasMaxLength(16)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.StockId).HasMaxLength(10);
+
+                entity.Property(e => e.Datetime).HasColumnType("datetime");
 
                 entity.Property(e => e.BrokerName)
                     .IsRequired()
                     .HasMaxLength(64);
-
-                entity.Property(e => e.Close).HasColumnType("decimal(18, 2)");
-
-                entity.Property(e => e.Datetime).HasColumnType("datetime");
-
-                entity.Property(e => e.Percent).HasColumnType("decimal(18, 2)");
-
-                entity.Property(e => e.StockId)
-                    .IsRequired()
-                    .HasMaxLength(10);
 
                 entity.Property(e => e.StockName)
                     .IsRequired()
