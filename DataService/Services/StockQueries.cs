@@ -97,6 +97,9 @@ namespace DataService.Services
                 case (int)ChooseStockType.MA5和MA10上彎:
                     sql = GetMA5和MA10上彎Sql(datetime);
                     break;
+                case (int)ChooseStockType.盤整:
+                    sql = $"exec [usp_GetCorrection] '{datetime}'";
+                    break;
                 case (int)ChooseStockType.盤整突破:
                     sql = $"exec [usp_GetBreakThrough] '{datetime}'";
                     break;                 
@@ -1210,8 +1213,8 @@ join [Stocks] s on s.StockId = p.StockId
 cross apply (select 成交量 as Vol2 from Prices where StockId = p.StockId and [Datetime] >= '{datetime2[8]}' and [Datetime] < '{datetime2[3]}') as t
 where p.[Datetime] <= '{datetime}' and p.[Datetime] >= '{datetime2[3]}'
 group by p.StockId, p.Name) a join [Stocks] s on s.StockId = a.StockId
-where a.成交量 > (a.成交量2 * 2) and a.投信買賣超 > 0 and s.[股價] < 150 and  s.[股價] > 10
---order by a.成交量 / a.成交量2 desc
+where a.成交量 > (a.成交量2 * 2) and a.成交量 < 5000 and s.[股價] < 150
+order by a.成交量 desc
 ";
         }
 

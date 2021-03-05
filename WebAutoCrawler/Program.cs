@@ -24,11 +24,11 @@ namespace WebCrawler
             //var c = new MonthDataCrawler();
             //await c.ExecuteAsync();
 
-            //var c = new DailyTraderCrawler();
-            //await c.ExecuteAsync(args[0]);
-
-            var c = new UpdateBrokeListParser();
+            var c = new DailyTraderCrawler();
             await c.ExecuteAsync(args[0]);
+
+            //var c = new UpdateBrokeListParser();
+            //await c.ExecuteAsync(args[0]);
 
             //var c = new SeasonDataCrawler();
             //await c.ExecuteAsync();

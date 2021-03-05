@@ -131,7 +131,7 @@ var urls = {
     0: 'TwStock',
     3: 'StockPhoto?stockId={0}&datetime={1}',
     //3: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zca_{0}.djhtm',
-    4: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zca/zco_{0}.djhtm',
+    4: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zca/zco_{0}_5.djhtm',
     5: 'https://fubon-ebrokerdj.fbs.com.tw/z/zc/zcl/zcl_{0}.djhtm',
     6: 'https://www.wantgoo.com/stock/{0}/technical-chart',
     20: 'StockPhoto?stockId={0}&datetime={1}&type=daily',
