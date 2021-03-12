@@ -160,7 +160,7 @@ namespace WebAutoCrawler
                             if (td.Count <= 3)
                                 continue;
 
-                            var date = td[3].Text;
+                            var date = td[7].Text;
                             var datetime = Convert.ToDateTime($"{DateTime.Now.Year}/{date}");
                             var stockId = Convert.ToString(td[1].Text);
 
@@ -218,7 +218,7 @@ namespace WebAutoCrawler
                             if (td.Count <= 3)
                                 continue;
 
-                            var datetime = Convert.ToDateTime($"{DateTime.Now.Year}/{td[3].Text}");
+                            var datetime = Convert.ToDateTime($"{DateTime.Now.Year}/{td[6].Text}");
                             var stockId = Convert.ToString(td[1].Text);
 
                             var price = prices.FirstOrDefault(p => p.Datetime == datetime && p.StockId == stockId);
@@ -278,7 +278,7 @@ namespace WebAutoCrawler
                             if (td.Count <= 3)
                                 continue;
 
-                            var datetime = Convert.ToDateTime($"{DateTime.Now.Year}/{td[3].Text}");
+                            var datetime = Convert.ToDateTime($"{DateTime.Now.Year}/{td[6].Text}");
                             var stockId = Convert.ToString(td[1].Text);
 
                             var price = prices.FirstOrDefault(p => p.Datetime == datetime && p.StockId == stockId);
