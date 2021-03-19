@@ -38,12 +38,12 @@ namespace WebCrawler
             //await RunAsync<BrokerParser>();
 
             //var context = new StockDbContext();
-            var s1 = new CnyParser();
-            //await s1.ExecuteLastAsync(context, "5210", "寶碩");
-            await s1.RunAsync(int.Parse(args[0]), int.Parse(args[1]));
+            //var s1 = new CnyParser();
+            ////await s1.ExecuteLastAsync(context, "5210", "寶碩");
+            //await s1.RunAsync(int.Parse(args[0]), int.Parse(args[1]));
 
 
-            //await RunAsync<DailyNotifier>();
+            await RunAsync<DailyNotifier>();
 
             //InitailLineNotifyBot();
             //var s1 = new StockBrokerParser();

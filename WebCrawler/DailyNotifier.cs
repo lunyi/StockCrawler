@@ -25,14 +25,14 @@ namespace WebCrawler
         {
             var context = new StockDbContext();
             _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
-            var 外資投信主力買超股票 = Get外資投信主力買超股票(context);
-            var 董監買超股票 = await GetSqlByChairmanAsync(context);
-            var 投信突然加入買方 = await Get投信突然加入買方Sql(context);
-            var 均線起飛第一天Sql = 均線起飛第一天(context);
-            await NotifyBotApiAsync(外資投信主力買超股票);
-            await NotifyBotApiAsync(董監買超股票);
-            await NotifyBotApiAsync(投信突然加入買方);
-            await NotifyBotApiAsync(均線起飛第一天Sql);
+            //var 外資投信主力買超股票 = Get外資投信主力買超股票(context);
+            var 上漲破月線股票 = 上漲破月線(context);
+            var 盤整突破股票 = 盤整突破(context);
+            var 漲停板股票 = 漲停板(context);
+            //await NotifyBotApiAsync(外資投信主力買超股票);
+            await NotifyBotApiAsync(上漲破月線股票);
+            await NotifyBotApiAsync(盤整突破股票);
+            await NotifyBotApiAsync(漲停板股票);
         }
 
         private string Get外資投信主力買超股票(StockDbContext context)
@@ -63,6 +63,81 @@ namespace WebCrawler
             }
 
             return msg.ToString();
+        }
+
+        private string 漲停板(StockDbContext context)
+        {
+            var prices = context.Prices.Where(p =>
+               p.Datetime == DateTime.Today && p.漲跌百分比 > 9
+           );
+
+            var msg = new StringBuilder();
+            msg.AppendLine($"漲停板股票 : {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+
+            var index = 1;
+            foreach (var price in prices)
+            {
+                msg.AppendLine($"{index}. {price.StockId} {price.Name} {price.Close} {price.漲跌百分比}%");
+                index++;
+            }
+
+            return msg.ToString();
+        }
+
+        private string 盤整突破(StockDbContext context)
+        {
+            var prices = context.Stocks.FromSqlRaw($"exec [usp_GetBreakThrough] '{DateTime.Now:yyyy-MM-dd}'").ToArray();
+
+            var msg = new StringBuilder();
+            msg.AppendLine($"盤整突破股票 : {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+
+            var index = 1;
+            foreach (var price in prices)
+            {
+                msg.AppendLine($"{index}. {price.StockId} {price.Name} {price.股價}");
+                index++;
+            }
+
+            return msg.ToString();
+        }
+
+        private string 上漲破月線(StockDbContext context)
+        {
+            var datetime2 = context.Prices.Where(p => p.StockId == "2330" && p.Datetime < DateTime.Today)
+                .OrderByDescending(p => p.Datetime)
+                .Take(1)
+                .Select(p => p.Datetime)
+                .FirstOrDefault().ToString("yyyy-MM-dd");
+
+            var sql = $@"select s.* from Stocks s join 
+(select * from [Prices] a where a.Datetime = '{DateTime.Today:yyyy-MM-dd}') a1 on s.StockId = a1.StockId join 
+(select * from [Prices] a where a.Datetime = '{datetime2}') a2 on a1.StockId = a2.StockId
+where a1.[Close] > a1.MA20 
+	and a1.[Close] > a1.MA60 
+	and a2.[Close] < a2.MA20 
+	and a1.漲跌百分比 > 3 
+	and a1.成交量 > a2.VMA5 * 2
+	and ((a1.主力買超張數 - a1.主力賣超張數) / a1.成交量)  > 0.01
+	and a1.成交量 > 0
+	and a1.[Close] > a1.[Open]
+--	and a2.十日主力買超張數 > a2.十日主力賣超張數
+--	and a2.二十日主力買超張數 > a2.二十日主力賣超張數
+order by a1.StockId
+";
+
+            var stocks = context.Stocks.FromSqlRaw(sql).ToArray();
+
+            var msg = new StringBuilder();
+            msg.AppendLine($"上漲破月線股票 : {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+
+            var index = 1;
+            foreach (var stock in stocks)
+            {
+                msg.AppendLine($"{index}. {stock.StockId} {stock.Name} {stock.股價}");
+                index++;
+            }
+            return msg.ToString();
+
         }
 
         private string 均線起飛第一天(StockDbContext context)
