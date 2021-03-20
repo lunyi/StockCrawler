@@ -28,7 +28,6 @@ namespace DataService.Models
         public virtual DbSet<MinuteKLine> MinuteKLine { get; set; }
         public virtual DbSet<MonthData> MonthData { get; set; }
         public virtual DbSet<Prices> Prices { get; set; }
-        public virtual DbSet<PricesTemp407d6478> PricesTemp407d6478 { get; set; }
         public virtual DbSet<RealtimeBestStocks> RealtimeBestStocks { get; set; }
         public virtual DbSet<SeasonData> SeasonData { get; set; }
         public virtual DbSet<StockBrokers> StockBrokers { get; set; }
@@ -359,6 +358,9 @@ namespace DataService.Models
                 entity.HasIndex(e => new { e.StockId, e.Name, e.單月年增率, e.Datetime })
                     .HasName("MonthData_StockId_Name");
 
+                entity.HasIndex(e => new { e.Name, e.單月營收, e.去年同月營收, e.單月月增率, e.單月年增率, e.累計營收, e.去年累計營收, e.累積年增率, e.CreatedOn, e.董監持股增減, e.Close, e.Percent, e.董監持股比例, e.Datetime })
+                    .HasName("Index_MonthData_Datetime");
+
                 entity.Property(e => e.StockId)
                     .HasMaxLength(8)
                     .IsUnicode(false);
@@ -571,157 +573,9 @@ namespace DataService.Models
 
                 entity.Property(e => e.六十日主力賣超張數).HasColumnType("numeric(18, 3)");
 
-                entity.Property(e => e.十日主力買超張數).HasColumnType("numeric(18, 3)");
-
-                entity.Property(e => e.十日主力賣超張數).HasColumnType("numeric(18, 3)");
-
-                entity.Property(e => e.四十日主力買超張數).HasColumnType("numeric(18, 3)");
-
-                entity.Property(e => e.四十日主力賣超張數).HasColumnType("numeric(18, 3)");
-
-                entity.Property(e => e.外資持股比例).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.投信持股比例).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.本益比).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.漲跌).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.漲跌百分比).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.當沖均損益).HasColumnType("decimal(18, 2)");
-
-                entity.Property(e => e.當沖張數).HasColumnType("decimal(18, 2)");
-
-                entity.Property(e => e.當沖比例).HasColumnType("decimal(18, 2)");
-
-                entity.Property(e => e.當沖總損益).HasColumnType("decimal(18, 2)");
-
-                entity.Property(e => e.董監持股比例).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.融資使用率).HasColumnType("numeric(18, 2)");
-            });
-
-            modelBuilder.Entity<PricesTemp407d6478>(entity =>
-            {
-                entity.HasNoKey();
-
-                entity.Property(e => e.Close).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.CreatedOn).HasColumnType("datetime");
-
-                entity.Property(e => e.D).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.D1)
-                    .HasMaxLength(8)
+                entity.Property(e => e.分價量表)
+                    .HasMaxLength(4096)
                     .IsUnicode(false);
-
-                entity.Property(e => e.DIF).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.DIF1)
-                    .HasMaxLength(8)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Datetime).HasColumnType("datetime");
-
-                entity.Property(e => e.High).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.K).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.K1)
-                    .HasMaxLength(8)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Low).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.MA10).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.MA10_)
-                    .HasMaxLength(8)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.MA120).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.MA20).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.MA20_)
-                    .HasMaxLength(8)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.MA240).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.MA3).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.MA5).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.MA5_)
-                    .HasMaxLength(8)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.MA60).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.MA60_)
-                    .HasMaxLength(8)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.MACD).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.MACD1)
-                    .HasMaxLength(8)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasMaxLength(50);
-
-                entity.Property(e => e.OSC).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.OSC1)
-                    .HasMaxLength(8)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.Open).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.RSV).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.RSV1)
-                    .HasMaxLength(8)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.StockId)
-                    .IsRequired()
-                    .HasMaxLength(8)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.VMA10).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.VMA120).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.VMA20).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.VMA240).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.VMA3).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.VMA5).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.VMA60).HasColumnType("numeric(18, 2)");
-
-                entity.Property(e => e.主力買超張數).HasColumnType("numeric(18, 3)");
-
-                entity.Property(e => e.主力賣超張數).HasColumnType("numeric(18, 3)");
-
-                entity.Property(e => e.二十日主力買超張數).HasColumnType("numeric(18, 3)");
-
-                entity.Property(e => e.二十日主力賣超張數).HasColumnType("numeric(18, 3)");
-
-                entity.Property(e => e.五日主力買超張數).HasColumnType("numeric(18, 3)");
-
-                entity.Property(e => e.五日主力賣超張數).HasColumnType("numeric(18, 3)");
-
-                entity.Property(e => e.六十日主力買超張數).HasColumnType("numeric(18, 3)");
-
-                entity.Property(e => e.六十日主力賣超張數).HasColumnType("numeric(18, 3)");
 
                 entity.Property(e => e.十日主力買超張數).HasColumnType("numeric(18, 3)");
 

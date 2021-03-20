@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using DataService.Models;
 using EFCore.BulkExtensions;
@@ -145,6 +146,7 @@ namespace WebCrawler
                 ParseInst(stockId, price);
                 ParseMainForce(stockId, DateTime.Today.ToString("yyyy/MM/dd"), price);
                 ParseTrust(stockId, price);
+                Parse分價量表(stockId, price);
                 return price;
             }
             catch (Exception ex)
@@ -253,6 +255,25 @@ namespace WebCrawler
             price.自營商持股 = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id='SysJustIFRAMEDIV']/table/tr[2]/td[2]/table/tr/td/table/tr/td/table/tr[6]/td[2]").InnerHtml.Replace(",", ""));
             s.Stop();
             Console.WriteLine("持股：" + s.Elapsed.TotalSeconds);
+        }
+
+        public void Parse分價量表(string stockId, Prices price)
+        {
+            var s = Stopwatch.StartNew();
+            s.Start();
+            var url = $"https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCW/ZCWG/ZCWG_{stockId}_1.djhtm";
+
+            using (WebClient client = new WebClient())
+            {
+                string htmlCode = client.DownloadString(url);
+                htmlCode = htmlCode.Substring(htmlCode.IndexOf("GetBcdData"));
+                htmlCode = htmlCode.Substring(0, htmlCode.IndexOf("')"));
+                htmlCode = htmlCode.Replace("GetBcdData('", "");
+                Console.WriteLine($"{price.StockId} {price.Name} {htmlCode}");
+                price.分價量表 = htmlCode;
+            }
+            s.Stop();
+            Console.WriteLine("分價量表：" + s.Elapsed.TotalSeconds);
         }
 
         public void ParseMainForce(string stockId,string datetime, Prices price)

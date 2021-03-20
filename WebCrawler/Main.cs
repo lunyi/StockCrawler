@@ -28,17 +28,19 @@ namespace WebCrawler
             //await ss.RunSingleAsync();
             //await ss.ParserMarginAsync();
 
-            await new InsertBrokesParser()
-                .RunAsync(args[0], args[1]);
+            //await new InsertBrokesParser()
+            //    .RunAsync(args[0], args[1]);
 
-            Console.ReadLine();
+            //await new DailySupportParser().RunAsync();
+
+            //Console.ReadLine();
 
             //await RunAsync<BrokerParser>();
 
             //var context = new StockDbContext();
-            //var s1 = new CnyParser();
+            var s1 = new CnyParser();
             //await s1.ExecuteLastAsync(context, "5210", "寶碩");
-            //await s1.RunAsync(int.Parse(args[0]), int.Parse(args[1]));
+            await s1.RunAsync(int.Parse(args[0]), int.Parse(args[1]));
 
 
             //await RunAsync<DailyNotifier>();

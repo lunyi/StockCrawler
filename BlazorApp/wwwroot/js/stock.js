@@ -148,7 +148,7 @@ var urls = {
     12: 'https://www.cmoney.tw/finance/f00038.aspx?s={0}',
     13: 'https://www.cmoney.tw/finance/f00043.aspx?s={0}',
     14: 'https://histock.tw/stock/financial.aspx?no={0}',
-    15: 'https://www.cnyes.com/twstock/Margin/{0}.htm',
+    15: 'https://fubon-ebrokerdj.fbs.com.tw/Z/ZC/ZCW/ZCWG/ZCWG_{0}_1.djhtm',
     16: 'https://www.moneydj.com/KMDJ/search/list.aspx?_Query_={0}&_QueryType_=NW',
     17: 'https://goodinfo.tw/StockInfo/StockDividendPolicy.asp?STOCK_ID={0}',
     30: 'https://statementdog.com/analysis/tpe/{0}/stock-health-check',
