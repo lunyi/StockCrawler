@@ -86,5 +86,6 @@ namespace DataService.Models
         public int? 董監持股買賣 { get; set; }
         public int? AvgUpDays { get; set; }
         public string 分價量表 { get; set; }
+        public string Signal { get; set; }
     }
 }

@@ -78,9 +78,11 @@ namespace WebCrawler
             foreach (var price in prices)
             {
                 msg.AppendLine($"{index}. {price.StockId} {price.Name} {price.Close} {price.漲跌百分比}%");
+                price.Signal = price.Signal == null ? "漲停板" : price.Signal += "::漲停板";
                 index++;
             }
 
+            context.SaveChanges();
             return msg.ToString();
         }
 
@@ -95,8 +97,11 @@ namespace WebCrawler
             foreach (var price in prices)
             {
                 msg.AppendLine($"{index}. {price.StockId} {price.Name} {price.股價}");
+                var p = context.Prices.FirstOrDefault(p => p.Datetime == DateTime.Today && p.StockId == price.StockId);
+                p.Signal = p.Signal == null ? "盤整突破" : p.Signal += "::盤整突破";
                 index++;
             }
+            context.SaveChanges();
 
             return msg.ToString();
         }
@@ -134,8 +139,14 @@ order by a1.StockId
             foreach (var stock in stocks)
             {
                 msg.AppendLine($"{index}. {stock.StockId} {stock.Name} {stock.股價}");
+
+                var p = context.Prices.FirstOrDefault(p => p.Datetime == DateTime.Today && p.StockId == stock.StockId);
+                p.Signal = p.Signal == null ? "破月線" : p.Signal += "::破月線";
+
                 index++;
             }
+
+            context.SaveChanges();
             return msg.ToString();
 
         }

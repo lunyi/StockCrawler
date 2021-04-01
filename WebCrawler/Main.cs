@@ -42,15 +42,18 @@ namespace WebCrawler
             ////await s1.ExecuteLastAsync(context, "5210", "寶碩");
             //await s1.RunAsync(int.Parse(args[0]), int.Parse(args[1]));
 
+            //var n = new DailyRecordNotifier();
+            //await n.RunAsync();
 
-            await RunAsync<DailyNotifier>();
+
+            //await RunAsync<DailyNotifier>();
 
             //InitailLineNotifyBot();
             //var s1 = new StockBrokerParser();
             //await s1.RunAsync();
 
             //var s2 = new CopyImage();
-            //s2.Run();
+            //s2.Run();D:\Code\StockCrawlerNew\WebCrawler\BaseParser.cs
 
             //s1.Test_usp_Update_MA_And_VMA();
             //s1.ParserLastDay("8913", "恩得利");
@@ -63,7 +66,7 @@ namespace WebCrawler
 
             //await RunAsync<DailyNotifier>();
 
-            //await DailyNotifyAsync();
+            await DailyNotifyAsync();
         }
 
         static async Task RunExe()

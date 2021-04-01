@@ -2,7 +2,7 @@
   "profiles": {
     "WebCrawler": {
       "commandName": "Project",
-      "commandLineArgs": "1101 台泥 1 10"
+      "commandLineArgs": "1 6"
     }
   }
 }

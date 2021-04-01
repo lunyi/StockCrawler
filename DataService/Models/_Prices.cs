@@ -46,5 +46,6 @@ namespace DataService.Models
         public decimal? 融資使用率 { get; set; }
         public decimal 五日籌碼集中度 { get; set; }
         public decimal 二十日籌碼集中度 { get; set; }
+        public string Signal { get; set; }
     }
 }
