@@ -29,7 +29,6 @@
         $("#website").attr("href", data.stock.website);
         //$("#kChart").attr("src", kUrl);
         //console.log(renewPrices(data.monthData));
-
         var vue = new Vue({
             el: '#textExample',
             data: {
@@ -51,9 +50,62 @@
                 WeekChips: renewWeekChip(data.weeklyChip)
             }
         });
+
+        if (data.priceQuantity != "")
+            plotChart(data.priceQuantity);
     });
 })();
 
+function plotChart(data) {
+    var options = {
+        animationEnabled: true,
+        title: {
+           // text: "分價量表",
+            fontColor: "Peru"
+        },
+        axisY: {
+            tickThickness: 0,
+            lineThickness: 0,
+            valueFormatString: " ",
+            includeZero: true,
+            gridThickness: 0
+        },
+        axisX: {
+            tickThickness: 0,
+            lineThickness: 0,
+            labelFontSize: 12,
+            labelFontColor: "Peru"
+        },
+        data: [{
+            indexLabelFontSize: 12,
+            //toolTipContent: "<span style=\"color:#62C9C3\">{indexLabel}:</span> <span style=\"color:#CD853F\"><strong>{y}</strong></span>",
+            indexLabelPlacement: "inside",
+            indexLabelFontColor: "white",
+            indexLabelFontWeight: 400,
+            indexLabelFontFamily: "Verdana",
+            color: "#62C9C3",
+            type: "bar",
+            dataPoints: getDataPoints(data)
+        }]
+    };
+
+    $("#chartContainer").CanvasJSChart(options);
+}
+
+function getDataPoints(data) {
+    var s = data.split(" ");
+    var pluginArrayArg = new Array();
+    var s0 = s[0].split(",");
+    var s1 = s[1].split(",");
+    for (var i = 0; i < s0.length; i++) {
+        var jsonArg1 = new Object();
+        jsonArg1.y = parseFloat(s1[i]);
+        jsonArg1.indexLabel = s1[i];
+        jsonArg1.label = s0[i];
+        pluginArrayArg.push(jsonArg1);
+    }
+    return pluginArrayArg;
+}
 function renewWeekChip(weekChips) {
 
     for (var i = 0; i < weekChips.length - 1; i++) {
@@ -178,6 +230,7 @@ function renewMonth(months) {
     }
     return months;
 }
+
 function renewPrices(prices) {
     for (var i = 0; i < prices.length-2; i++) {
         if (prices[i].close > prices[i + 1].close) {

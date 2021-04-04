@@ -218,6 +218,7 @@ namespace DataService.Services
                     break;
                 default:
                     var whereCondition = DateFunc[(ChooseStockType)type]();
+                    var desc = type >= (int)ChooseStockType.均線上揚第1天 && type <= (int)ChooseStockType.均線上揚第12天 ? "AvgUpDays" : "投信買賣超";
                     sql = @$"SELECT 
                             s.[StockId]
       ,s.[Name]
@@ -234,7 +235,7 @@ namespace DataService.Services
       ,s.[股價]
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA]
-      ,CAST((p.[投信買賣超]) AS nvarchar(30)) AS [Description]
+      ,CAST((p.[{desc}]) AS nvarchar(30)) AS [Description]
       ,s.[股票期貨]
 
                           FROM [dbo].[Prices] p
@@ -367,13 +368,14 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) /  
             var weeklyChip = await context._WeekyChip.FromSqlRaw(sql).ToArrayAsync();
           
             var monthData = await context._MonthData.FromSqlRaw("exec [usp_GetMonthData] {0}, {1}", stockId, oldDate).ToArrayAsync();
-
+            var price = context.Prices.FirstOrDefault(p => p.StockId == stockId && p.Datetime == datetime);
             return new StockeModel
             {
                 Stock = await context.Stocks.FirstOrDefaultAsync(p=>p.StockId == stockId),
                 Prices = prices,
                 WeeklyChip = weeklyChip,
-                MonthData = monthData
+                MonthData = monthData,
+                PriceQuantity = price == null ? string.Empty : price.分價量表
             };
         }
         Task<TwStock[]> IStockQueries.GetTwStocksAsync()
@@ -1524,8 +1526,8 @@ order by s.[Description] / s.每股淨值
              { ChooseStockType.均線上揚第4天 , ()=>" and [AvgUpdays] = 4 order by [漲跌百分比] desc"},
              { ChooseStockType.均線上揚第5天 , ()=>" and [AvgUpdays] = 5 order by [漲跌百分比] desc" },
              { ChooseStockType.均線上揚第6天 , ()=>" and [AvgUpdays] = 6 order by [漲跌百分比] desc" },
-             { ChooseStockType.均線上揚第7天 , ()=>" and [AvgUpdays] >= 7 and [AvgUpdays] <= 12 order by [漲跌百分比] desc" },
-             { ChooseStockType.均線上揚第12天 , ()=>" and [AvgUpdays] >12  order by [漲跌百分比] desc" },
+             { ChooseStockType.均線上揚第7天 , ()=>" and [AvgUpdays] >= 7 and [AvgUpdays] <= 12 order by [AvgUpdays] desc" },
+             { ChooseStockType.均線上揚第12天 , ()=>" and [AvgUpdays] > 12  order by [AvgUpdays] desc" },
 
             { ChooseStockType.一日漲幅排行榜 , ()=>一日漲幅排行榜() },
             { ChooseStockType.外資投信同步買超排行榜 , ()=>外資投信同步買超排行榜() },

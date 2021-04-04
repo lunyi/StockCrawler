@@ -15,16 +15,25 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/6.16.0/polyfill.min.js"></script>
     <script src="https://cdn.jsdelivr.net/data-transformer/0.1.12/data-transformer-browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.3/vue.min.js"></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery.canvasjs.min.js"></script>
     <script src="~/js/price.js"></script>
     <style>
         .container tr:hover td {
             background-color: yellow;
         }
+
+        .plotChart {
+            width: 300px;
+            height: 250px;
+        }
     </style>
+
+    @*REF: https://canvasjs.com/jquery-charts/*@
 
     <table>
         <tr>
-            <td width="350px">
+            <td width="350px" style="vertical-align:top">
                 <div>股票名稱:<span id="stockName"></span></div>
                 <div>營收比重:<span id="income"></span></div>
                 <div>住址:<span id="address"></span></div>
@@ -41,6 +50,7 @@
                     ROE:&nbsp;<span id="roe"></span>&nbsp;&nbsp;
                     ROA:&nbsp;<span id="roa"></span>
                 </div>
+                <div id="chartContainer" class="plotChart"></div>
             </td>
             <td>
                 <div id="month" class="container">
@@ -55,7 +65,7 @@
                                 <th style="border: 1px solid orange">淨值</th>
                                 <th style="border: 1px solid orange">毛利</th>
                                 @*<th style="border: 1px solid orange">營利</th>
-                                <th style="border: 1px solid orange">稅後</th>*@
+                                    <th style="border: 1px solid orange">稅後</th>*@
                                 <th style="border: 1px solid orange">董增</th>
                                 <th style="border: 1px solid orange">董比</th>
                                 <th style="border: 1px solid orange">收盤</th>
@@ -71,7 +81,7 @@
                             <td style="border: 1px solid orange">{{month.公告每股淨值}}</td>
                             <td style="border: 1px solid orange">{{month.毛利率}}</td>
                             @*<td style="border: 1px solid orange">{{month.營業利益率}}</td>
-                            <td style="border: 1px solid orange">{{month.每股稅後盈餘}}</td>*@
+                                <td style="border: 1px solid orange">{{month.每股稅後盈餘}}</td>*@
                             <td style="border: 1px solid orange" v-bind:style="{ color: month.iColor}">{{month.董監持股增減}}</td>
                             <td style="border: 1px solid orange">{{month.董監持股比例}}%</td>
                             <td style="border: 1px solid orange" v-bind:style="{ color: month.pColor}">{{month.close}}</td>
@@ -118,8 +128,8 @@
     </table>
     <div>
         @*<table>
-        <tr>
-            <td>*@
+            <tr>
+                <td>*@
         <table id="textExample" class="table table-bordered responsive-table" style="font-size:10px;position:relative;">
             <thead>
                 <tr>
@@ -140,29 +150,29 @@
                     <th>10日籌碼</th>
                     <th>20日籌碼</th>
                     @*<th>當天主力</th>
-        <th>10日主力</th>*@
+                        <th>10日主力</th>*@
                     <th>MA5</th>
                     <th>MA10</th>
                     <th>MA20</th>
                     <th>K9</th>
                     @*<th>D9</th>*@
                     @*<th>MACD</th>
-        <th>DIF</th>*@
+                        <th>DIF</th>*@
                     <th>OSC</th>
                     @*<th>當沖張數</th>*@
                     <th>當沖比例</th>
                     <th>Day</th>
                     <th>訊號</th>
                     @*
-        <th>當沖總損益</th>
-        <th>當沖均損益</th>*@
+                        <th>當沖總損益</th>
+                        <th>當沖均損益</th>*@
                     @*<th>本益比</th>*@
                     @*<th>淨值比</th>
-        <th>周轉率</th>*@
+                        <th>周轉率</th>*@
                     @*<th>五日籌碼</th>
-        <th>十日籌碼</th>
-        <th>二十日籌碼</th>
-        <th>六十日籌碼</th>*@
+                        <th>十日籌碼</th>
+                        <th>二十日籌碼</th>
+                        <th>六十日籌碼</th>*@
                 </tr>
             </thead>
             <tr v-for="price in Prices">
@@ -187,36 +197,36 @@
                 <td v-bind:style="{ color: price.chip20Color, fontWeight: price.c20fontWeight}">{{price.二十日籌碼集中度}}%</td>
 
                 @*<td v-bind:style="{ color: price.chipPColor, fontWeight: price.cfontPWeight}">{{price.主力買賣比例}}</td>
-        <td v-bind:style="{ color: price.chipP10Color, fontWeight: price.c10fontPWeight}">{{price.十日主力買賣比例}}</td>*@
+                    <td v-bind:style="{ color: price.chipP10Color, fontWeight: price.c10fontPWeight}">{{price.十日主力買賣比例}}</td>*@
 
                 <td v-bind:style="{ color: price.ma5Color}">{{price.mA5}}</td>
                 <td v-bind:style="{ color: price.ma10Color}">{{price.mA10}}</td>
                 <td v-bind:style="{ color: price.ma20Color}">{{price.mA20}}</td>
                 <td v-bind:style="{ color: price.k9Color}">{{price.k9}}</td>
                 @*<td v-bind:style="{ color: price.d9Color}">{{price.d9}}</td>
-                <td v-bind:style="{ color: price.macdColor}">{{price.macd}}</td>
-        <td v-bind:style="{ color: price.difColor}">{{price.dif}}</td>*@
+                            <td v-bind:style="{ color: price.macdColor}">{{price.macd}}</td>
+                    <td v-bind:style="{ color: price.difColor}">{{price.dif}}</td>*@
                 <td v-bind:style="{ color: price.oscColor}">{{price.osc}}</td>
                 @*<td>{{price.當沖張數}}</td>*@
                 <td>{{price.當沖比例}}%</td>
                 <td>{{price.avgDays}}</td>
                 <td>{{price.signal}}</td>
                 @*
-        <td>{{price.當沖總損益}}</td>
-        <td>{{price.當沖均損益}}</td>*@
+                    <td>{{price.當沖總損益}}</td>
+                    <td>{{price.當沖均損益}}</td>*@
                 @*<td>{{price.五日籌碼集中度}}%</td>
-        <td>{{price.十日籌碼集中度}}%</td>
-        <td>{{price.二十日籌碼集中度}}%</td>
-        <td>{{price.六十日籌碼集中度}}%</td>*@
+                    <td>{{price.十日籌碼集中度}}%</td>
+                    <td>{{price.二十日籌碼集中度}}%</td>
+                    <td>{{price.六十日籌碼集中度}}%</td>*@
             </tr>
         </table>
         @*</td>
-        <td valign="top" align="right">
-             <iframe id="kChart" style="z-index:1;" width="600" height="900" scrolling="no" frameborder="0" />
-         </td>
-        </tr>
-        </table>
-            *@
+            <td valign="top" align="right">
+                 <iframe id="kChart" style="z-index:1;" width="600" height="900" scrolling="no" frameborder="0" />
+             </td>
+            </tr>
+            </table>
+        *@
     </div>
 </body>
 </html>

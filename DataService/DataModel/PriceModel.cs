@@ -11,6 +11,7 @@ namespace DataService.DataModel
         public _Prices[] Prices { get; set; }
         public _WeekyChip[] WeeklyChip { get; set; }
         public _MonthData[] MonthData { get; set; }
+        public string PriceQuantity { get; set; }
     }
 
     public class PriceModel
