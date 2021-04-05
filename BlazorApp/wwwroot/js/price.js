@@ -51,12 +51,12 @@
             }
         });
 
-        if (data.priceQuantity != "")
-            plotChart(data.priceQuantity);
+        if (data.priceQuantity != null)
+            plotChart(data.priceQuantity, data.close);
     });
 })();
 
-function plotChart(data) {
+function plotChart(data, closeValue) {
     var options = {
         animationEnabled: true,
         title: {
@@ -85,14 +85,14 @@ function plotChart(data) {
             indexLabelFontFamily: "Verdana",
             color: "#62C9C3",
             type: "bar",
-            dataPoints: getDataPoints(data)
+            dataPoints: getDataPoints(data, closeValue)
         }]
     };
 
     $("#chartContainer").CanvasJSChart(options);
 }
 
-function getDataPoints(data) {
+function getDataPoints(data, closeValue) {
     var s = data.split(" ");
     var pluginArrayArg = new Array();
     var s0 = s[0].split(",");
@@ -102,8 +102,12 @@ function getDataPoints(data) {
         jsonArg1.y = parseFloat(s1[i]);
         jsonArg1.indexLabel = s1[i];
         jsonArg1.label = s0[i];
+        if (closeValue.toString() == s0[i])
+            jsonArg1.color = "red";
+
         pluginArrayArg.push(jsonArg1);
     }
+
     return pluginArrayArg;
 }
 function renewWeekChip(weekChips) {

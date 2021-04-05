@@ -373,13 +373,13 @@ function onGetStocksByDate(val) {
             $("#StockPage").attr("src", _url);
             return;
         }
-        var photoIndex = [3, 20, 21, 22, 23, 24, 25];
-        if (photoIndex.indexOf(currentUrlIndex)>0) {
-           // _url = "StockPhoto?stockId=" + currentStockId + "&datetime=" + moment(date.val()).format('YYYY-MM-DD');
+        var photoIndex = [2, 3, 20, 21, 22, 23, 24, 25];
 
+        if (photoIndex.indexOf(currentUrlIndex)>=0) {
             _url = urls[currentUrlIndex]
                 .replace('{0}', currentStockId)
-                .replace('{1}', currentSelectedDate);
+                .replace('{1}', currentSelectedDate)
+                .replace('{2}', $("#chkDate").prop('checked'));
 
             console.log(_url);
             $("#StockPage").attr("src", _url);
@@ -387,19 +387,21 @@ function onGetStocksByDate(val) {
         }
     } 
 
-    if (currentType === 1 && bestType.val() !== 0) {
+    if (currentType === 1 && bestType.val() !== "0") {
         DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByBestStockTypeAsync', bestType.val(), date.val())
             .then(data => {
                 setStocks(data);
             });
-    } else if (currentType === 2 && rankType.val() !== 0) {
+    } else if (currentType === 2 && rankType.val() !== "0") {
         DotNet.invokeMethodAsync('BlazorApp', 'GetStocksDateAsync', date.val(), parseInt(rankType.val()))
             .then(data => {
                 setStocks(data);
             });
-    } else if(currentType === 3) {
+    } else if (currentType === 3) {
         if ($("#selectAvgType").val() === "0")
             return;
+        console.log("currentType3");
+
         $("#selectStockType").val(0);
         DotNet.invokeMethodAsync('BlazorApp', 'GetStocksDateAsync', date.val(), parseInt($("#selectAvgType").val()))
             .then(data => {

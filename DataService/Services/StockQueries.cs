@@ -375,7 +375,8 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) /  
                 Prices = prices,
                 WeeklyChip = weeklyChip,
                 MonthData = monthData,
-                PriceQuantity = price == null ? string.Empty : price.分價量表
+                PriceQuantity = price == null ? string.Empty : price.分價量表,
+                Close = price == null ? 0 : price.Close
             };
         }
         Task<TwStock[]> IStockQueries.GetTwStocksAsync()

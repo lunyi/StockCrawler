@@ -12,6 +12,7 @@ namespace DataService.DataModel
         public _WeekyChip[] WeeklyChip { get; set; }
         public _MonthData[] MonthData { get; set; }
         public string PriceQuantity { get; set; }
+        public decimal Close { get; set; }
     }
 
     public class PriceModel
