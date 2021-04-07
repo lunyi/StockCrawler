@@ -66,7 +66,9 @@ namespace WebCrawler
 
             //await RunAsync<DailyNotifier>();
 
-            await DailyNotifyAsync();
+            await RunAsync<RealtimeStockParser>();
+            //Console.ReadLine();
+            //await DailyNotifyAsync();
         }
 
         static async Task RunExe()
@@ -83,7 +85,7 @@ namespace WebCrawler
         {
             _serviceCollection = new ServiceCollection();
             // 2. 註冊服務
-            _serviceCollection.AddTransient<RealtimeParser>();
+            _serviceCollection.AddTransient<RealtimeChooseParser>();
             _serviceCollection.AddTransient<DailyNotifier>();
             _serviceCollection.AddTransient<T>();
 

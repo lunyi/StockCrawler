@@ -1530,6 +1530,10 @@ order by s.[Description] / s.每股淨值
              { ChooseStockType.均線上揚第7天 , ()=>" and [AvgUpdays] >= 7 and [AvgUpdays] <= 12 order by [AvgUpdays] desc" },
              { ChooseStockType.均線上揚第12天 , ()=>" and [AvgUpdays] > 12  order by [AvgUpdays] desc" },
 
+             { ChooseStockType.多重訊號 , ()=>" and [Signal] like '%::%'  order by [StockId] desc" },
+             { ChooseStockType.當天盤整突破 , ()=>" and [Signal] like '%當天盤整突破%'  order by [StockId] desc" },
+             { ChooseStockType.當天破月線 , ()=>" and [Signal] like '%當天破月線%'  order by [StockId] desc" },
+             
             { ChooseStockType.一日漲幅排行榜 , ()=>一日漲幅排行榜() },
             { ChooseStockType.外資投信同步買超排行榜 , ()=>外資投信同步買超排行榜() },
             { ChooseStockType.外資主力同步買超排行榜 , ()=>外資主力同步買超排行榜() },

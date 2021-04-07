@@ -10,12 +10,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebCrawler
 {
-    public class RealtimeParser : BaseParser
+    public class RealtimeChooseParser : BaseParser
     {
         private readonly LineNotifyBotApi _lineNotifyBotApi;
         private string _token;
 
-        public RealtimeParser(LineNotifyBotApi lineNotifyBotApi)
+        public RealtimeChooseParser(LineNotifyBotApi lineNotifyBotApi)
         { 
             _lineNotifyBotApi = lineNotifyBotApi;
         }

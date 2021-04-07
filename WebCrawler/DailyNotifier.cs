@@ -26,6 +26,7 @@ namespace WebCrawler
             var context = new StockDbContext();
             _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
             //var 外資投信主力買超股票 = Get外資投信主力買超股票(context);
+
             var 上漲破月線股票 = 上漲破月線(context);
             var 盤整突破股票 = 盤整突破(context);
             var 漲停板股票 = 漲停板(context);
