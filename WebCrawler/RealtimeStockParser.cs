@@ -30,9 +30,6 @@ namespace WebCrawler
             _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
             //var 外資投信主力買超股票 = Get外資投信主力買超股票(context);
 
-            var sql = $"update Prices set Signal = null where [Datetime] = '{DateTime.Today:yyyy-MM-dd}'";
-            context.Database.ExecuteSqlCommand(sql);
-
             var 上漲破月線股票 = 上漲破月線(context);
             var 盤整突破股票 = 盤整突破(context);
 
@@ -149,7 +146,7 @@ order by a1.StockId
                 msg.AppendLine($"{index}. {stock.StockId} {stock.Name} {stock.股價}");
 
                 var p = context.Prices.FirstOrDefault(p => p.Datetime == DateTime.Today && p.StockId == stock.StockId);
-                p.Signal = p.Signal == null ? "當天破月線" : p.Signal += "::當天破月線";
+                p.Signal = p.Signal ??= "當天破月線" ;
 
                 index++;
             }
