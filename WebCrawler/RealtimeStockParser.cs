@@ -106,7 +106,7 @@ namespace WebCrawler
             {
                 msg.AppendLine($"{index}. {price.StockId} {price.Name} {price.股價}");
                 var p = context.Prices.FirstOrDefault(p => p.Datetime == DateTime.Today && p.StockId == price.StockId);
-                p.Signal = p.Signal == null ? "當天盤整突破" : p.Signal += "::當天盤整突破";
+                p.Signal = (p.Signal == null || p.Signal.Contains("當天盤整突破")) ? "當天盤整突破" : p.Signal += "::當天盤整突破";
                 index++;
             }
             context.SaveChanges();
@@ -146,7 +146,7 @@ order by a1.StockId
                 msg.AppendLine($"{index}. {stock.StockId} {stock.Name} {stock.股價}");
 
                 var p = context.Prices.FirstOrDefault(p => p.Datetime == DateTime.Today && p.StockId == stock.StockId);
-                p.Signal = p.Signal ??= "當天破月線" ;
+                p.Signal = (p.Signal == null || p.Signal.Contains("當天破月線")) ? "當天破月線" : p.Signal += "::當天破月線";
 
                 index++;
             }

@@ -1530,7 +1530,7 @@ order by s.[Description] / s.每股淨值
              { ChooseStockType.均線上揚第7天 , ()=>" and [AvgUpdays] >= 7 and [AvgUpdays] <= 12 order by [AvgUpdays] desc" },
              { ChooseStockType.均線上揚第12天 , ()=>" and [AvgUpdays] > 12  order by [AvgUpdays] desc" },
 
-             { ChooseStockType.多重訊號 , ()=>" and [Signal] like '%::%'  order by [StockId] asc" },
+             { ChooseStockType.多重訊號 , ()=>" and case when [Signal] like '%盤整突破%' then 1 else 0 end + case when [Signal] like '%破月線%' then 1 else 0 end + case when [Signal] like '%漲停板%' then 1 else 0 end  >= 2 order by [StockId] asc" },
              { ChooseStockType.當天盤整突破 , ()=>" and [Signal] like '%當天盤整突破%'  order by [StockId] asc" },
              { ChooseStockType.當天破月線 , ()=>" and [Signal] like '%當天破月線%'  order by [StockId] asc" },
              
