@@ -23,6 +23,10 @@
             background-color: yellow;
         }
 
+        #textExample tr:hover td {
+            background-color: yellow;
+        }
+
         .plotChart {
             width: 300px;
             height: 250px;
@@ -184,10 +188,10 @@
                 @*<td v-bind:style="{ color: price.dColor}">{{price.董監持股}} ({{price.董監持股比例}}%)</td>*@
                 <td v-bind:style="{ color: price.lColor}">{{price.融資買賣超}}</td>
                 @*<td v-bind:style="{ color: price.chColor}">{{price.融券買賣超}}</td>*@
-                <td v-bind:style="{ color: price.fColor}">{{price.外資買賣超}}</td>
+                <td v-bind:style="{ color: price.fColor, backgroundColor: '#FFFF99'}">{{price.外資買賣超}}</td>
                 <td v-bind:style="{ color: price.tColor}">{{price.投信買賣超}} ({{price.投信持股比例}}%)</td>
                 @*<td v-bind:style="{ color: price.zColor}">{{price.自營商買賣超}}</td>*@
-                <td v-bind:style="{ color: price.mColor}">{{price.主力買賣超}}</td>
+                <td v-bind:style="{ color: price.mColor,backgroundColor: '#FFFF99'}">{{price.主力買賣超}}</td>
                 @*<td>{{price.本益比}}</td>*@
                 @*<td>{{price.股價淨值比}}</td>*@
                 @*<td>{{price.周轉率}}%</td>*@
@@ -200,7 +204,7 @@
                     <td v-bind:style="{ color: price.chipP10Color, fontWeight: price.c10fontPWeight}">{{price.十日主力買賣比例}}</td>*@
 
                 <td v-bind:style="{ color: price.ma5Color}">{{price.mA5}}</td>
-                <td v-bind:style="{ color: price.ma10Color}">{{price.mA10}}</td>
+                <td v-bind:style="{ color: price.ma10Color, backgroundColor: '#FFFF99'}">{{price.mA10}}</td>
                 <td v-bind:style="{ color: price.ma20Color}">{{price.mA20}}</td>
                 <td v-bind:style="{ color: price.k9Color}">{{price.k9}}</td>
                 @*<td v-bind:style="{ color: price.d9Color}">{{price.d9}}</td>
