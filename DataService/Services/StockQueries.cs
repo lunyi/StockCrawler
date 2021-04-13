@@ -102,7 +102,10 @@ namespace DataService.Services
                     break;
                 case (int)ChooseStockType.盤整突破:
                     sql = $"exec [usp_GetBreakThrough] '{datetime}'";
-                    break;                 
+                    break;
+                case (int)ChooseStockType.當天破季線且黃金交叉:
+                    sql = 當天破季線且黃金交叉(datetime);
+                    break;
                 case (int)ChooseStockType.融資連續買超排行榜:
                     sql = 融資連續買超排行榜(datetime, true);
                     break;
@@ -288,6 +291,21 @@ namespace DataService.Services
   where [Datetime] = '{datetime2}' and  K1 like '%↘' and OSC1 like '%↘') a2  on a1.StockId = a2.StockId
   order by s.StockId";
         }
+
+        private string 當天破季線且黃金交叉(string datetime)
+        {
+            return @$"SELECT s.*
+  FROM  [Stocks] s 
+  join [RealtimeBestStocks] r1 on s.StockId = r1.StockId 
+  join [RealtimeBestStocks] r2 on r1.StockId = r2.StockId 
+  where
+    r1.[Datetime] = '{datetime}' 
+	and r2.[Datetime] =  '{datetime}' 
+	and r1.[Type] = '5與20日均線黃金交叉'
+	and r2.[Type] = '突破季線'";
+        }
+
+        
 
         private string GetMainForceSql(string mainForce)
         {

@@ -86,6 +86,7 @@ namespace WebCrawler
             _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
             await NotifyBotApiAsync(context, "突破整理區間");
             await NotifyBotApiAsync(context, "多頭吞噬");
+            await NotifyBotApiAsync(context);
             //await NotifyBotApiAsync(context, "突破季線");
             //await NotifyBotApiAsync(context, "爆量長紅");
         }
@@ -100,6 +101,34 @@ namespace WebCrawler
             {
                 var s = new StringBuilder();
                 s.AppendLine($@"{DateTime.Now:yyyy-MM-dd HH:mm:ss} {type}");
+
+                foreach (var stock in stocks)
+                {
+                    s.AppendLine($@"{stock.StockId} {stock.Name}");
+                }
+
+                await NotifyBotApiAsync(s.ToString());
+            }
+        }
+
+        private async Task NotifyBotApiAsync(StockDbContext context)
+        {
+
+            var sql = $@"SELECT  newid() as Id, r1.StockId , r1.Name, r1.Datetime, '突破季線 5與20日均線黃金交叉' as [Type], '' as Description
+  FROM  [RealtimeBestStocks] r1 
+  join [RealtimeBestStocks] r2 on r1.StockId = r2.StockId 
+  where
+    r1.[Datetime] = '{DateTime.Today:yyyy-MM-dd}'
+	and r2.[Datetime] =   '{DateTime.Today:yyyy-MM-dd}'
+	and r1.[Type] = '5與20日均線黃金交叉'
+	and r2.[Type] = '突破季線'
+  group by r1.StockId , r1.Name, r1.Datetime";
+            var stocks = context.RealtimeBestStocks.FromSqlRaw(sql).ToArray();
+
+            if (stocks.Any())
+            {
+                var s = new StringBuilder();
+                s.AppendLine($@"{DateTime.Now:yyyy-MM-dd HH:mm:ss} 突破季線 5與20日均線黃金交叉");
 
                 foreach (var stock in stocks)
                 {

@@ -66,11 +66,11 @@ namespace WebCrawler
 
             //await RunAsync<DailyNotifier>();
 
-            //await RunAsync<RealtimeStockParser>();
+            await RunAsync<RealtimeChooseParser>();
             //Console.ReadLine();
             //await DailyNotifyAsync();
 
-            await new MusicList().RunAsync();
+            //await new MusicList().RunAsync();
         }
 
         static async Task RunExe()
