@@ -33,8 +33,41 @@ namespace WebCrawler
             var 上漲破月線股票 = 上漲破月線(context);
             var 盤整突破股票 = 盤整突破(context);
 
+            var 上漲類股1 = 上漲類股(context);
+            await NotifyBotApiAsync(上漲類股1);
+
             await NotifyBotApiAsync(上漲破月線股票);
             await NotifyBotApiAsync(盤整突破股票);
+        }
+
+
+        private string 上漲類股(StockDbContext context)
+        {
+            var sql = $@"select a.*, b.totalCount,  100 * CAST(a._count AS DECIMAL(18,2))  / b.totalCount as [percent] from (
+select  s.Industry, count(1) as _count from [Prices] p 
+join [Stocks] s on p.StockId = s.StockId 
+where p.[Datetime] = '{DateTime.Now:yyyy-MM-dd}'　and  p.漲跌百分比 >=4
+group by  s.Industry) a
+join (select z.Industry, count(1) as totalCount from Stocks z　group by  ｚ.Industry) b on b.Industry = a.Industry
+where a._count >=10
+order by　a._count　desc, CAST(a._count AS DECIMAL(18,2))  / b.totalCount desc
+";
+
+            var stocks = context._Industry.FromSqlRaw(sql).ToArray();
+
+            var msg = new StringBuilder();
+            msg.AppendLine($"上漲類股 : {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+
+            var index = 1;
+            foreach (var stock in stocks)
+            {
+                msg.AppendLine($"{index}. {stock.Industry} {stock._count}/{stock.totalCount}");
+                index++;
+            }
+
+            context.SaveChanges();
+            return msg.ToString();
+
         }
 
         private async Task ParseStocksAsync()

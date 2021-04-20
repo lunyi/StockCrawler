@@ -45,10 +45,10 @@ namespace BlazorApp.Shared
         }
 
         [JSInvokable]
-        public static async Task<Stocks[]> GetStocksByTypeAsync(string type)
+        public static async Task<Stocks[]> GetStocksByTypeAsync(string type, string datetime)
         {
             IStockQueries dataLayer = new StockQueries();
-            return await dataLayer.GetStocksByTypeAsync(type);
+            return await dataLayer.GetStocksByTypeAsync(type, datetime);
         }
 
         [JSInvokable]

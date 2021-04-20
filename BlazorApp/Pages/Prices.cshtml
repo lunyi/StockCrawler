@@ -57,6 +57,24 @@
                 <div id="chartContainer" class="plotChart"></div>
             </td>
             <td>
+                <div id="industry" class="container">
+                    <table style="font-size: 10px;border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="border: 1px solid orange">產業</th>
+                                <th style="border: 1px solid orange">上漲</th>
+                                <th style="border: 1px solid orange">總數</th>
+                            </tr>
+                        </thead>
+                        <tr v-for="industry in Industries">
+                            <td style="border: 1px solid orange" v-bind:style="{ color: industry.cColor}">{{industry.industry}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: industry.cColor}">{{industry._count}}</td>
+                            <td style="border: 1px solid orange" v-bind:style="{ color: industry.cColor}">{{industry.totalCount}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+            <td>
                 <div id="month" class="container">
                     <table style="font-size: 10px;border-collapse: collapse;">
                         <thead>
@@ -69,11 +87,7 @@
                                 <th style="border: 1px solid orange">淨值</th>
                                 <th style="border: 1px solid orange">毛利</th>
                                 @*<th style="border: 1px solid orange">營利</th>
-                                    <th style="border: 1px solid orange">稅後</th>*@
-                                <th style="border: 1px solid orange">董增</th>
-                                <th style="border: 1px solid orange">董比</th>
-                                <th style="border: 1px solid orange">收盤</th>
-                                <th style="border: 1px solid orange">漲幅</th>
+                            <th style="border: 1px solid orange">稅後</th>*@
                             </tr>
                         </thead>
                         <tr v-for="month in Months">
@@ -85,11 +99,7 @@
                             <td style="border: 1px solid orange">{{month.公告每股淨值}}</td>
                             <td style="border: 1px solid orange">{{month.毛利率}}</td>
                             @*<td style="border: 1px solid orange">{{month.營業利益率}}</td>
-                                <td style="border: 1px solid orange">{{month.每股稅後盈餘}}</td>*@
-                            <td style="border: 1px solid orange" v-bind:style="{ color: month.iColor}">{{month.董監持股增減}}</td>
-                            <td style="border: 1px solid orange">{{month.董監持股比例}}%</td>
-                            <td style="border: 1px solid orange" v-bind:style="{ color: month.pColor}">{{month.close}}</td>
-                            <td style="border: 1px solid orange" v-bind:style="{ color: month.pColor}">{{month.percent}}%</td>
+                        <td style="border: 1px solid orange">{{month.每股稅後盈餘}}</td>*@
                         </tr>
                     </table>
                 </div>

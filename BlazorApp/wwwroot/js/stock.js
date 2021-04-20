@@ -308,7 +308,8 @@ function onSelectTypeChange() {
 }
 
 function getStocksByBestStockType(selectStockType) {
-    DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByTypeAsync', selectStockType)
+    currentSelectedDate = currentSelectedDate || moment($("#selectDateList option").eq(0).val()).format('YYYY-MM-DD');
+    DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByTypeAsync', selectStockType, currentSelectedDate)
         .then(data => {
             setStocks(data);
         });
@@ -414,12 +415,12 @@ function onClear() {
     $("#txtChosenStockType").val("");
 }
 
-function setChosenStockTypes(chosenType) {
-    DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByTypeAsync', chosenType)
-        .then(data => {
-            setStocks(data);
-        });
-}
+//function setChosenStockTypes(chosenType) {
+//    DotNet.invokeMethodAsync('BlazorApp', 'GetStocksByTypeAsync', chosenType)
+//        .then(data => {
+//            setStocks(data);
+//        });
+//}
 
 function setStocks(data) {
     $("#stockList option").remove();

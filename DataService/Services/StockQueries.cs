@@ -23,7 +23,7 @@ namespace DataService.Services
         Task SetBestStockAsync(string stockId, string type);
         Task<Stocks[]> GetActiveStocksAsync();
         Task<Stocks[]> GetStocksBySqlAsync(string sql);
-        Task<Stocks[]> GetStocksByTypeAsync(string type);
+        Task<Stocks[]> GetStocksByTypeAsync(string type, string datetimw);
         Task<BestStockType[]> GetBestStockTypeAsync();
         Task<Stocks[]> GetStocksByBestStockTypeAsync(string name, string datetime);
         Task<TwStock[]> GetTwStocksAsync();
@@ -384,7 +384,9 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) /  
 
             var sql = GetWeekAnalyst(stockId, datetimeString, chkDate);
             var weeklyChip = await context._WeekyChip.FromSqlRaw(sql).ToArrayAsync();
-          
+            var sqlIndustry = GetIndustries(datetimeString);
+            var industries = await context._Industry.FromSqlRaw(sqlIndustry).ToArrayAsync();
+
             var monthData = await context._MonthData.FromSqlRaw("exec [usp_GetMonthData] {0}, {1}", stockId, oldDate).ToArrayAsync();
             var price = context.Prices.FirstOrDefault(p => p.StockId == stockId && p.Datetime == datetime);
             return new StockeModel
@@ -393,28 +395,17 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) /  
                 Prices = prices,
                 WeeklyChip = weeklyChip,
                 MonthData = monthData,
+                Industries = industries,
                 PriceQuantity = price == null ? string.Empty : price.分價量表,
                 Close = price == null ? 0 : price.Close
             };
         }
+
+
         Task<TwStock[]> IStockQueries.GetTwStocksAsync()
         {
             var context = new StockDbContext();
             return context.TwStock.OrderByDescending(p=>p.Datetime).Take(220).ToArrayAsync();
-        }
-
-        private string GetLastFriday(string datetime = null)
-        {
-            if (datetime == null)
-            {
-                int days1 = DateTime.Today.DayOfWeek == DayOfWeek.Saturday ? 1 : 1 * ((int)DateTime.Today.DayOfWeek + 2);
-                return DateTime.Today.AddDays(days1 * -1).ToString("yyyy-MM-dd");
-            }
-
-            var today = Convert.ToDateTime(datetime);
-            var days = today.DayOfWeek == DayOfWeek.Saturday ? 1 : 1 * ((int)today.DayOfWeek + 2);
-            days = days == 7 ? 0 : days;
-            return today.AddDays(days * -1).ToString("yyyy-MM-dd");
         }
 
         private string GetLastMonday(DateTime lastThousandDay)
@@ -434,6 +425,16 @@ SELECT s.*
 ";
         }
 
+        private string GetIndustries(string datetime)
+        {
+            return $@"select top 17 a.*, b.totalCount, 0.0 as [percent] from (
+select  s.Industry, count(1) as _count from [Prices] p 
+join [Stocks] s on p.StockId = s.StockId 
+where p.[Datetime] = '{datetime}'　and  p.漲跌百分比 >=4
+group by  s.Industry) a
+join (select z.Industry, count(1) as totalCount from Stocks z　group by  ｚ.Industry) b on b.Industry = a.Industry
+order by　a._count　desc";
+        }
         private string GetWeekAnalyst(string stockId, string datetime, bool chkDate)
         {
             var limitDate = chkDate ? 1 : 0;
@@ -569,13 +570,17 @@ drop table #t3
                 .ToArrayAsync();
         }
 
-        Task<Stocks[]> IStockQueries.GetStocksByTypeAsync(string type)
+        Task<Stocks[]> IStockQueries.GetStocksByTypeAsync(string type, string datetime)
         {
+            var sql = $@"SELECT  s.*
+  FROM [StockDb].[dbo].[BestStocks] b
+  join Prices p on p.StockId = b.StockId
+  join Stocks s on s.StockId = p.StockId
+  where [Type] = '{type}' and p.Datetime = '{datetime}'
+  order by p.[漲跌百分比] desc";
+
             var context = new StockDbContext();
-            return (from b in context.BestStocks join
-                     s in context.Stocks on b.StockId equals s.StockId
-                       where b.Type == type select s
-                      ).OrderBy(p => p.CreatedOn).ToArrayAsync();
+            return context.Stocks.FromSqlRaw(sql).ToArrayAsync();
         }
 
         Task<string[]> IStockQueries.GetChosenStockTypesAsync()

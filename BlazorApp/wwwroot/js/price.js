@@ -51,6 +51,13 @@
             }
         });
 
+        var vueIndusrty = new Vue({
+            el: '#industry',
+            data: {
+                Industries: renewIndustries(data.industries)
+            }
+        });
+
         if (data.priceQuantity != null)
             plotChart(data.priceQuantity, data.close);
     });
@@ -195,6 +202,16 @@ function renewWeekChip(weekChips) {
         }
     }
     return weekChips;
+}
+
+
+function renewIndustries(industries) {
+    for (var i = 0; i < industries.length; i++) {
+        if (industries[i]._count > 10) {
+            industries[i].cColor = "red";
+        }
+    }
+    return industries;
 }
 
 function renewMonth(months) {

@@ -30,6 +30,8 @@ namespace WebCrawler
             var 上漲破月線股票 = 上漲破月線(context);
             var 盤整突破股票 = 盤整突破(context);
             var 漲停板股票 = 漲停板(context);
+
+            
             //await NotifyBotApiAsync(外資投信主力買超股票);
             await NotifyBotApiAsync(上漲破月線股票);
             await NotifyBotApiAsync(盤整突破股票);

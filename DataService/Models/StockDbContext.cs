@@ -37,6 +37,7 @@ namespace DataService.Models
         public virtual DbSet<Token> Token { get; set; }
         public virtual DbSet<TwStock> TwStock { get; set; }
         public virtual DbSet<YearData> YearData { get; set; }
+        public virtual DbSet<_Industry> _Industry { get; set; }
         public virtual DbSet<_MinuteKLine> _MinuteKLine { get; set; }
         public virtual DbSet<_MonthData> _MonthData { get; set; }
         public virtual DbSet<_Prices> _Prices { get; set; }
@@ -48,7 +49,6 @@ namespace DataService.Models
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
                 optionsBuilder.UseSqlServer("Server=220.133.185.1;Database=StockDb;User ID=stock;Password=stock;");
-                optionsBuilder.EnableSensitiveDataLogging();
             }
         }
 
@@ -613,6 +613,9 @@ namespace DataService.Models
 
             modelBuilder.Entity<RealtimeBestStocks>(entity =>
             {
+                entity.HasIndex(e => new { e.Type, e.Datetime })
+                    .HasName("Index_RealtimeBestStocks_Type_Datetime");
+
                 entity.Property(e => e.Id).ValueGeneratedNever();
 
                 entity.Property(e => e.Datetime).HasColumnType("datetime");
@@ -980,6 +983,15 @@ namespace DataService.Models
                 entity.Property(e => e.負債總計).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.資產總計).HasColumnType("decimal(18, 2)");
+            });
+
+            modelBuilder.Entity<_Industry>(entity =>
+            {
+                entity.HasKey(e => e.Industry);
+
+                entity.Property(e => e.Industry).HasMaxLength(50);
+
+                entity.Property(e => e.percent).HasColumnType("decimal(18, 2)");
             });
 
             modelBuilder.Entity<_MinuteKLine>(entity =>

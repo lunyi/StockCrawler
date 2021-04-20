@@ -66,7 +66,7 @@ namespace WebCrawler
 
             //await RunAsync<DailyNotifier>();
 
-            await RunAsync<RealtimeChooseParser>();
+            await RunAsync<RealtimeStockParser>();
             //Console.ReadLine();
             //await DailyNotifyAsync();
 
