@@ -219,6 +219,9 @@ namespace DataService.Services
                 case (int)ChooseStockType.連續兩天漲停板:
                     sql = 連續兩天漲停板(context, datetime);
                     break;
+                case (int)ChooseStockType.漲停板:
+                    sql = 漲停板(datetime);
+                    break;
                 default:
                     var whereCondition = DateFunc[(ChooseStockType)type]();
                     var desc = type >= (int)ChooseStockType.均線上揚第6天 && type <= (int)ChooseStockType.均線上揚第12天 ? "AvgUpDays" : "投信買賣超";
@@ -1513,7 +1516,6 @@ order by s.[Description] / s.每股淨值
             { ChooseStockType.自營賣超排行榜  , ()=>自營賣超排行榜() },
             { ChooseStockType.融資賣超排行榜  , ()=>融資賣超排行榜() },
             { ChooseStockType.融券買超排行榜  , ()=>融券買超排行榜() },
-            { ChooseStockType.漲停板  , ()=>漲停板() },
             { ChooseStockType.當沖比例 , ()=>當沖比例()},
             { ChooseStockType.當沖總損益 , ()=>當沖總損益()},
             { ChooseStockType.當沖均損益 , ()=>當沖均損益()}
@@ -1686,11 +1688,30 @@ order by s.[Description] / s.每股淨值
 ";
         }
 
-        private static string 漲停板()
+        private static string 漲停板(string datetime)
         {
             return @$"
-  and [漲跌百分比] >= 9.65
-  order by [主力買超張數] - [主力賣超張數]  desc 
+select s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘], s.[ROE], s.[ROA] 
+	  ,convert(varchar,convert(decimal(18,0),p.主力買超張數 - p.主力賣超張數))as [Description]
+      ,股票期貨
+from Prices p
+join Stocks s on p.StockId = s.StockID 
+where p.漲跌百分比 >= 9.65 and p.Datetime = '{datetime}' and  p.主力買超張數 - p.主力賣超張數 > 0
+order by p.主力買超張數 - p.主力賣超張數 desc
 ";
         }
 
