@@ -64,7 +64,7 @@ namespace WebCrawler
             //await ss.ParserMarginAsync();
             //var ss =  s.ParseTrust("2330", "2017-01-01", "2019-10-29");
 
-            await RunAsync<DailyNotifier>();
+            await RunAsync<WeekNotifier>();
 
             //await RunAsync<RealtimeStockParser>();
             //Console.ReadLine();
