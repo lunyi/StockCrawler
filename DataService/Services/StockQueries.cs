@@ -97,8 +97,8 @@ namespace DataService.Services
                 case (int)ChooseStockType.MA5和MA10上彎:
                     sql = GetMA5和MA10上彎Sql(datetime);
                     break;
-                case (int)ChooseStockType.盤整:
-                    sql = $"exec [usp_GetCorrection] '{datetime}'";
+                case (int)ChooseStockType.每周主力外資融資買進:
+                    sql = $"exec [usp_GetWeekBestStocks] '{datetime}'";
                     break;
                 case (int)ChooseStockType.盤整突破:
                     sql = $"exec [usp_GetBreakThrough] '{datetime}'";
@@ -221,7 +221,7 @@ namespace DataService.Services
                     break;
                 default:
                     var whereCondition = DateFunc[(ChooseStockType)type]();
-                    var desc = type >= (int)ChooseStockType.均線上揚第1天 && type <= (int)ChooseStockType.均線上揚第12天 ? "AvgUpDays" : "投信買賣超";
+                    var desc = type >= (int)ChooseStockType.均線上揚第6天 && type <= (int)ChooseStockType.均線上揚第12天 ? "AvgUpDays" : "投信買賣超";
                     sql = @$"SELECT 
                             s.[StockId]
       ,s.[Name]
@@ -381,9 +381,7 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) /  
             var datetimeString = datetime.ToString("yyyy-MM-dd");
             var oldDate = chkDate ? datetimeString : DateTime.Now.ToString("yyyy-MM-dd");
             var prices = await context._Prices.FromSqlRaw("exec [usp_GetPrices] {0}, {1}", stockId, oldDate).ToArrayAsync();
-
-            var sql = GetWeekAnalyst(stockId, datetimeString, chkDate);
-            var weeklyChip = await context._WeekyChip.FromSqlRaw(sql).ToArrayAsync();
+            var weeklyChip = await context._WeekyChip.FromSqlRaw("exec [usp_GetWeekData] {0},{1},{2}", datetimeString, chkDate, stockId).ToArrayAsync();
             var sqlIndustry = GetIndustries(datetimeString);
             var industries = await context._Industry.FromSqlRaw(sqlIndustry).ToArrayAsync();
 
@@ -435,62 +433,7 @@ group by  s.Industry) a
 join (select z.Industry, count(1) as totalCount from Stocks z　group by  ｚ.Industry) b on b.Industry = a.Industry
 order by　a._count　desc";
         }
-        private string GetWeekAnalyst(string stockId, string datetime, bool chkDate)
-        {
-            var limitDate = chkDate ? 1 : 0;
-            var sql =  $@"DECLARE @MaxDate AS DATETIME = '{datetime}';
-DECLARE @chkDate AS bit = {limitDate};
-if @chkDate = 1 
-    set @MaxDate = (select top 1 [Datetime] from Thousand where [Datetime] <= @MaxDate order by [Datetime] desc)
-else 
-	set @MaxDate = (select top 1 [Datetime] from Thousand where [Datetime] <= getdate() order by [Datetime] desc)
-
-DECLARE @stockid AS nvarchar(10) = '{stockId}';
-select
-	ROW_NUMBER() over (order by [Datetime] desc) as RowNo,
-	StockId,
-	[Name],
-	CONVERT(nvarchar,[Datetime], 23) as [Datetime],
-	[PUnder100],
-	[SUnder100],
-	[POver1000],
-	[SOver1000],
-	[P200] + [P400] as [PUnder400],
-	[S200] + [S400] as [SUnder400],
-	[P600] + [P800] + [P1000] as [POver400],
-	[S600] + [S800] + [S1000] as [SOver400]
-into #t3
-from [Thousand] t 
-where [StockId] = @stockid and [Datetime] <= @MaxDate and [Datetime] >= DATEADD(DD,-120,@MaxDate)
-
-select 
-    newid() as Id,
-    t.StockId,
-	t.Name,
-	t.[Datetime],
-	t.[PUnder100],
-	cast(t.[SUnder100] - t1.[SUnder100] as int) as [SUnder100],
-	t.[POver1000],
-	cast(t.[SOver1000] - t1.[SOver1000] as int) as [SOver1000],
-	t.[PUnder400],
-	cast(t.[SUnder400] - t1.[SUnder400] as int) as [SUnder400],
-	t.[POver400],
-	cast(t.[SOver400] - t1.[SOver400] as int) as [SOver400],
-	p.[Close],
-	(select sum(投信買賣超) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) as 投信買賣超,
-	(select sum(外資買賣超) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) as 外資買賣超,
-	(select sum(五日主力買超張數 - 五日主力賣超張數) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) as 主力買賣超,
-    (select sum(融資買進 - 融資賣出) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) as 融資買賣超,
-    (select sum(董監持股買賣) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) as 董監買賣超
-from #t3 t 
-join #t3  t1 on t.RowNo +1 = t1.RowNo 
-join (select * from [Prices] where StockID = @stockid) p on p.StockId = t.StockId and p.[Datetime] = t.[Datetime]
-order by t.[Datetime] desc
-drop table #t3
-";
-            return sql;
-        }
-
+       
         private string 主力外資融資買進(string datetime)
         {
             return $@"
@@ -1254,7 +1197,7 @@ WITH TOPTEN as (
         PARTITION BY  StockId, Name 
        order by [Datetime] desc
     ) AS RowNo 
-    FROM [Prices] where [Datetime] <= '{datetime}' and ([主力買超張數] - [主力賣超張數]) {key}=0
+    FROM [Prices] where [Datetime] <= '{datetime}' and ([主力買超張數] - [主力賣超張數]) {key}0
 )
 
 select 
@@ -1544,14 +1487,9 @@ order by s.[Description] / s.每股淨值
 
         private Dictionary<ChooseStockType, Func<string>> DateFunc = new Dictionary<ChooseStockType, Func<string>>
         {
-             { ChooseStockType.均線上揚第1天 , ()=>" and [AvgUpdays] = 1 and 漲跌百分比 > 0 order by [漲跌百分比] desc" },
-             { ChooseStockType.均線上揚第2天 , ()=>" and [AvgUpdays] = 2 order by [漲跌百分比] desc"},
-             { ChooseStockType.均線上揚第3天 , ()=>" and [AvgUpdays] = 3 order by [漲跌百分比] desc"},
-             { ChooseStockType.均線上揚第4天 , ()=>" and [AvgUpdays] = 4 order by [漲跌百分比] desc"},
-             { ChooseStockType.均線上揚第5天 , ()=>" and [AvgUpdays] = 5 order by [漲跌百分比] desc" },
-             { ChooseStockType.均線上揚第6天 , ()=>" and [AvgUpdays] = 6 order by [漲跌百分比] desc" },
-             { ChooseStockType.均線上揚第7天 , ()=>" and [AvgUpdays] >= 7 and [AvgUpdays] <= 12 order by [AvgUpdays] desc" },
-             { ChooseStockType.均線上揚第12天 , ()=>" and [AvgUpdays] > 12  order by [AvgUpdays] desc" },
+             { ChooseStockType.均線上揚第6天 , ()=>" and [AvgUpdays] >= 1 and [AvgUpdays] <= 6 order by Industry, [AvgUpdays]" },
+             { ChooseStockType.均線上揚第7天 , ()=>" and [AvgUpdays] >= 7 and [AvgUpdays] <= 12 order by Industry, [AvgUpdays]" },
+             { ChooseStockType.均線上揚第12天 , ()=>" and [AvgUpdays] > 12  order by Industry, [AvgUpdays]" },
 
              { ChooseStockType.多重訊號 , ()=>" and case when [Signal] like '%盤整突破%' then 1 else 0 end + case when [Signal] like '%破月線%' then 1 else 0 end + case when [Signal] like '%漲停板%' then 1 else 0 end  >= 2 order by [StockId] asc" },
              { ChooseStockType.當天盤整突破 , ()=>" and [Signal] like '%當天盤整突破%'  order by [StockId] asc" },
@@ -1752,7 +1690,7 @@ order by s.[Description] / s.每股淨值
         {
             return @$"
   and [漲跌百分比] >= 9.65
-  order by [漲跌百分比] desc 
+  order by [主力買超張數] - [主力賣超張數]  desc 
 ";
         }
 
@@ -1984,7 +1922,7 @@ order by a.漲跌百分比 desc";
                 .OrderByDescending(p => p.Datetime)
                 .Take(1)
                 .Select(p=>p.Datetime)
-                .FirstOrDefault().ToString("yyyy/MM/dd");
+                .FirstOrDefault().ToString("yyyy-MM-dd");
 
             return $@"
 select s.[StockId]

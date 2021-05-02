@@ -7,12 +7,7 @@
         <select id="selectBestType" onchange="onGetStocksByDate(1)"></select>
         <select id="selectAvgType" onchange="onGetStocksByDate(3)">
             <option value="0">-選均線上揚-</option>
-            <option value="57">均線上揚第1天</option>
-            <option value="58">均線上揚第2天</option>
-            <option value="59">均線上揚第3天</option>
-            <option value="60">均線上揚第4天</option>
-            <option value="61">均線上揚第5天</option>
-            <option value="62">均線上揚第6天</option>
+            <option value="62">均線上揚第1~6天</option>
             <option value="63">均線上揚第7~12天</option>
             <option value="64">均線上揚超過12天</option>
         </select>
@@ -20,22 +15,23 @@
             <option value="0">----選股----</option>
             <option value="70">==當天盤整突破==</option>
             <option value="71">==當天破月線==</option>
-            <option value="72">==當天破季線且黃金交叉==</option>
+            @*<option value="72">==當天破季線且黃金交叉==</option>*@
 
-            <option value="36">★每周投信買散戶賣★</option>
-            <option value="67">★每周外資主力大買★</option>
+            @*<option value="36">★每周投信買散戶賣★</option>*@
+            @*<option value="67">★每周外資主力大買★</option>*@
+            @*
             <option value="38">★投信突然進前20名★</option>
-            <option value="41">★投量比+主力買超★</option>
+            <option value="41">★投量比+主力買超★</option>*@
             <option value="14">★當日買方籌碼集中度排行榜★</option>
             <option value="3">★外資投信同步買超排行★</option>
             <option value="47">★上漲破五日均★</option>
             <option value="50">★上漲破月線★</option>
             <option value="40">★漲停板★</option>
-            <option value="51">★MACD和KD同時轉上★</option>
+            @*<option value="51">★MACD和KD同時轉上★</option>*@
             <option value="52">★盤整突破★</option>
-            <option value="68">★盤整★</option>
+            <option value="68">★每周主力外資融資買進★</option>
             <option value="69">★多重訊號★</option>
-            <option value="65">★十日籌碼轉買方★</option>
+            @*<option value="65">★十日籌碼轉買方★</option>*@
             <option value="35">投信突然加入買方</option>
             <option value="6">投信買超排行</option>
             <option value="66">主力買超排行</option>
@@ -148,12 +144,6 @@
         <input type="button" class="btnCmoney" value="CMoney主力" onclick="onUrlChangeAsync(8)" />*@
                 <input type="button" class="btnCmoney" value="籌碼K線" onclick="onUrlChangeAsync(9)" />
                 <input type="button" class="btnCmoney" value="玩股K線" onclick="onUrlChangeAsync(6)" />
-                <input type="button" class="btnCmoney" value="玩股日線" onclick="onUrlChangeAsync(20)" />
-                <input type="button" class="btnCmoney" value="玩股周線" onclick="onUrlChangeAsync(21)" />
-                <input type="button" class="btnCmoney" value="玩股5分線" onclick="onUrlChangeAsync(22)" />
-                <input type="button" class="btnCmoney" value="玩股15分線" onclick="onUrlChangeAsync(23)" />
-                <input type="button" class="btnCmoney" value="玩股30分線" onclick="onUrlChangeAsync(24)" />
-                <input type="button" class="btnCmoney" value="玩股60分線" onclick="onUrlChangeAsync(25)" />
                 <input type="button" class="btnCmoney" value="淨值比" onclick="onUrlChangeAsync(10)" />
                 @*<input type="button" class="btnCmoney" value="資產負債表" onclick="onUrlChangeAsync(11)" />*@
                 @*<input type="button" class="btnCmoney" value="集保分布" onclick="onUrlChangeAsync(12)" />*@

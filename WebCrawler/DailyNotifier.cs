@@ -71,8 +71,9 @@ namespace WebCrawler
         private string 漲停板(StockDbContext context)
         {
             var prices = context.Prices.Where(p =>
-               p.Datetime == DateTime.Today && p.漲跌百分比 > 9
-           );
+               p.Datetime == DateTime.Today && p.漲跌百分比 > 9 && p.主力買超張數 - p.主力賣超張數>0
+           ).OrderByDescending(p=>p.主力買超張數 - p.主力賣超張數)
+           .ToList();
 
             var msg = new StringBuilder();
             msg.AppendLine($"漲停板股票 : {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
@@ -80,7 +81,7 @@ namespace WebCrawler
             var index = 1;
             foreach (var price in prices)
             {
-                msg.AppendLine($"{index}. {price.StockId} {price.Name} {price.Close} {price.漲跌百分比}%");
+                msg.AppendLine($"{index}. {price.StockId} {price.Name} {price.Close} ({Convert.ToInt32(price.主力買超張數 - price.主力賣超張數)})");
                 price.Signal = price.Signal == null ? "漲停板" : price.Signal += "::漲停板";
                 index++;
             }
