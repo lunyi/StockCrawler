@@ -222,6 +222,13 @@ namespace DataService.Services
                 case (int)ChooseStockType.漲停板:
                     sql = 漲停板(datetime);
                     break;
+                case (int)ChooseStockType.當天盤整突破:
+                    sql = 當天盤整突破1(datetime);
+                    break;
+                case (int)ChooseStockType.當天破月線:
+                    sql = 當天破月線1(datetime);
+                    break;
+                    
                 default:
                     var whereCondition = DateFunc[(ChooseStockType)type]();
                     var desc = type >= (int)ChooseStockType.均線上揚第6天 && type <= (int)ChooseStockType.均線上揚第12天 ? "AvgUpDays" : "投信買賣超";
@@ -1715,6 +1722,58 @@ order by p.主力買超張數 - p.主力賣超張數 desc
 ";
         }
 
+        private static string 當天盤整突破1(string datetime)
+        {
+            return @$"
+select s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘], s.[ROE], s.[ROA] 
+      ,CAST((p.[成交量]) AS nvarchar(30)) as [Description]
+      ,股票期貨
+from Prices p
+join Stocks s on p.StockId = s.StockID 
+where p.Datetime = '{datetime}' and p.[Signal] like '%當天盤整突破%' 
+order by p.成交量 desc
+";
+        }
+        private static string 當天破月線1(string datetime)
+        {
+            return @$"
+select s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘], s.[ROE], s.[ROA] 
+      ,CAST((p.[成交量]) AS nvarchar(30)) as [Description]
+      ,股票期貨
+from Prices p
+join Stocks s on p.StockId = s.StockID 
+where p.Datetime = '{datetime}' and p.[Signal] like '%當天破月線%' 
+order by p.成交量 desc
+";
+        }
         #endregion
 
         #region 選股

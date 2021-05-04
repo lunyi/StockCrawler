@@ -5,7 +5,6 @@ namespace DataService.Models
 {
     public partial class TwStock
     {
-        public Guid Id { get; set; }
         public DateTime Datetime { get; set; }
         public decimal 收盤價 { get; set; }
         public decimal 成交量 { get; set; }

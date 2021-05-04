@@ -52,7 +52,7 @@ namespace WebCrawler
             foreach (var price in prices)
             {
                 msg.AppendLine($"{index}. {price.StockId} {price.Name} {price.Close} ({Convert.ToInt32(price.主力買超張數 - price.主力賣超張數)})");
-                price.Signal = price.Signal == null ? "漲停板" : price.Signal += "::漲停板";
+                price.Signal = price.Signal == null ? "漲停板" : price.Signal.Contains("::漲停板") ? price.Signal : price.Signal += "::漲停板";
                 index++;
             }
 
@@ -70,9 +70,9 @@ namespace WebCrawler
             var index = 1;
             foreach (var price in prices)
             {
-                msg.AppendLine($"{index}. {price.StockId} {price.Name} {price.股價}");
+                msg.AppendLine($"{index}. {price.StockId} {price.Name} {price.股價} ({price.Description})");
                 var p = context.Prices.FirstOrDefault(p => p.Datetime == DateTime.Today && p.StockId == price.StockId);
-                p.Signal = p.Signal == null ? "盤整突破" : p.Signal += "::盤整突破";
+                p.Signal = p.Signal == null ? "盤整突破" : p.Signal.Contains("::盤整突破") ? p.Signal : p.Signal += "::盤整突破";
                 index++;
             }
             context.SaveChanges();
@@ -88,7 +88,25 @@ namespace WebCrawler
                 .Select(p => p.Datetime)
                 .FirstOrDefault().ToString("yyyy-MM-dd");
 
-            var sql = $@"select s.* from Stocks s join 
+            var sql = $@" 
+select s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘], s.[ROE], s.[ROA] 
+      ,CAST((a1.[成交量]) AS nvarchar(30)) as [Description]
+      ,s.股票期貨
+from Stocks s join 
 (select * from [Prices] a where a.Datetime = '{DateTime.Today:yyyy-MM-dd}') a1 on s.StockId = a1.StockId join 
 (select * from [Prices] a where a.Datetime = '{datetime2}') a2 on a1.StockId = a2.StockId
 where a1.[Close] > a1.MA20 
@@ -101,7 +119,7 @@ where a1.[Close] > a1.MA20
 	and a1.[Close] > a1.[Open]
 --	and a2.十日主力買超張數 > a2.十日主力賣超張數
 --	and a2.二十日主力買超張數 > a2.二十日主力賣超張數
-order by a1.StockId
+order by a1.[成交量] desc
 ";
 
             var stocks = context.Stocks.FromSqlRaw(sql).ToArray();
@@ -112,10 +130,10 @@ order by a1.StockId
             var index = 1;
             foreach (var stock in stocks)
             {
-                msg.AppendLine($"{index}. {stock.StockId} {stock.Name} {stock.股價}");
+                msg.AppendLine($"{index}. {stock.StockId} {stock.Name} {stock.股價} ({stock.Description})");
 
                 var p = context.Prices.FirstOrDefault(p => p.Datetime == DateTime.Today && p.StockId == stock.StockId);
-                p.Signal = p.Signal == null ? "破月線" : p.Signal += "::破月線";
+                p.Signal = p.Signal == null ? "破月線" : p.Signal.Contains("::破月線") ? p.Signal : p.Signal += "::破月線";
 
                 index++;
             }

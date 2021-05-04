@@ -890,9 +890,9 @@ namespace DataService.Models
 
             modelBuilder.Entity<TwStock>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.HasKey(e => e.Datetime);
 
-                entity.Property(e => e.Datetime).HasColumnType("date");
+                entity.Property(e => e.Datetime).HasColumnType("datetime");
 
                 entity.Property(e => e.交易口數PC比).HasColumnType("decimal(17, 2)");
 
