@@ -137,7 +137,7 @@ order by　a._count　desc, CAST(a._count AS DECIMAL(18,2))  / b.totalCount desc
             var index = 1;
             foreach (var price in prices)
             {
-                msg.AppendLine($"{index}. {price.StockId} {price.Name} {price.股價}  ({price.Description})");
+                msg.AppendLine($"{index}. {price.StockId} {price.Name} {price.股價} [{price.Industry}]({price.Description})");
                 var p = context.Prices.FirstOrDefault(p => p.Datetime == DateTime.Today && p.StockId == price.StockId);
                 p.Signal = (p.Signal == null || p.Signal.Contains("當天盤整突破")) ? "當天盤整突破" : p.Signal += "::當天盤整突破";
                 index++;
@@ -194,7 +194,7 @@ order by a1.成交量 desc
             var index = 1;
             foreach (var stock in stocks)
             {
-                msg.AppendLine($"{index}. {stock.StockId} {stock.Name} {stock.股價} ({stock.Description}) ");
+                msg.AppendLine($"{index}. {stock.StockId} {stock.Name} {stock.股價} [{stock.Industry}]({stock.Description}) ");
 
                 var p = context.Prices.FirstOrDefault(p => p.Datetime == DateTime.Today && p.StockId == stock.StockId);
                 p.Signal = (p.Signal == null || p.Signal.Contains("當天破月線")) ? "當天破月線" : p.Signal += "::當天破月線";

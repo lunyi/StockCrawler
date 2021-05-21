@@ -11,7 +11,7 @@ using HtmlAgilityPack;
 
 namespace WebCrawler
 {
-    public class HiStockParser : BaseParser
+    public class TwStockParser : BaseParser
     {
         private string threeUrl = "https://histock.tw/stock/three.aspx";
         private string threeMgUrl = "https://histock.tw/stock/three.aspx?m=mg";
@@ -44,7 +44,6 @@ namespace WebCrawler
                     //if (datetime == DateTime.Now.ToString("yyyy/MM/dd"))
                     {
                         var twStock = new TwStock();
-                        twStock.Id = Guid.NewGuid();
                         twStock.Datetime = Convert.ToDateTime(datetime);
 
                         ParserITrust(threeNode, futureNode, tenNode, twStock);
@@ -86,10 +85,10 @@ namespace WebCrawler
                 var datetime = $"{DateTime.Now.Year}/{threeNodes[1].ChildNodes[0].ChildNodes[0].InnerHtml}";
                 Console.WriteLine($"{datetime} OK");
 
-                if (datetime == DateTime.Now.ToString("yyyy/MM/dd"))
+                var dd = context.TwStock.FirstOrDefault(p => p.Datetime == Convert.ToDateTime(datetime));
+                if (dd == null)
                 {
                     var twStock = new TwStock();
-                    twStock.Id = Guid.NewGuid();
                     twStock.Datetime = Convert.ToDateTime(datetime);
 
                     ParserITrust(threeNodes[1], futureNodes[1], tenNodes[1], twStock);
@@ -100,6 +99,29 @@ namespace WebCrawler
                     context.TwStock.Add(twStock);
                     await context.SaveChangesAsync();
                 }
+                else
+                {
+                    var twStock = dd;
+                    ParserITrust(threeNodes[1], futureNodes[1], tenNodes[1], twStock);
+                    ParserMargin(datetime, twStock);
+                    ParserOption(datetime, twStock);
+                    ParserUpDownCount(twStock);
+                    await context.SaveChangesAsync();
+                }
+
+                //if (datetime == DateTime.Now.ToString("yyyy/MM/dd"))
+                //{
+                //    var twStock = new TwStock();
+                //    twStock.Datetime = Convert.ToDateTime(datetime);
+
+                //    ParserITrust(threeNodes[1], futureNodes[1], tenNodes[1], twStock);
+                //    ParserMargin(datetime, twStock);
+                //    ParserOption(datetime, twStock);
+                //    ParserUpDownCount(twStock);
+
+                //    context.TwStock.Add(twStock);
+                //    await context.SaveChangesAsync();
+                //}
             }
             catch (Exception ex)
             {

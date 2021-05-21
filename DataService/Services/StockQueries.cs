@@ -1509,7 +1509,7 @@ order by s.[Description] / s.每股淨值
             { ChooseStockType.外資投信同步買超排行榜 , ()=>外資投信同步買超排行榜() },
             { ChooseStockType.外資主力同步買超排行榜 , ()=>外資主力同步買超排行榜() },
             { ChooseStockType.外資買超排行榜  , ()=>外資買超排行榜() },
-            { ChooseStockType.主力買超排行榜  , ()=>外資買超排行榜() },
+            { ChooseStockType.主力買超排行榜  , ()=>主力買超排行榜() },
             { ChooseStockType.投信買超排行榜  , ()=>投信買超排行榜() },
             { ChooseStockType.自營買超排行榜  , ()=>自營買超排行榜() },
             { ChooseStockType.融資買超排行榜  , ()=>融資買超排行榜() },
@@ -1604,7 +1604,6 @@ order by s.[Description] / s.每股淨值
         {
             return @$"
   and [外資買賣超] > 0
-  and [外資買賣超] * [Close] > 4000
   order by [外資買賣超] desc
 ";
         }

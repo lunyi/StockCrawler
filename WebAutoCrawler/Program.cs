@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using LineBotLibrary;
+﻿using LineBotLibrary;
 using LineBotLibrary.Models;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Threading.Tasks;
 using WebAutoCrawler;
 
 namespace WebCrawler
@@ -24,8 +24,8 @@ namespace WebCrawler
             //var c = new MonthDataCrawler();
             //await c.ExecuteAsync();
 
-            var c = new DailyTraderCrawler();
-            await c.ExecuteAsync(args[0]);
+            //var c = new TwDataCrawler();
+            //await c.ExecuteLatestAsync();
 
             //var c = new UpdateBrokeListParser();
             //await c.ExecuteAsync(args[0]);
@@ -40,7 +40,7 @@ namespace WebCrawler
             //    return;
             //}
 
-            //await new DailyTraderCrawler().ExecuteAsync(args[0]);
+            await new DailyTraderCrawler().ExecuteAsync(args[0]);
         }
 
         private static ServiceCollection _serviceCollection;

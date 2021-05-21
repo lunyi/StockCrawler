@@ -58,13 +58,13 @@ namespace WebCrawler
             //s1.Test_usp_Update_MA_And_VMA();
             //s1.ParserLastDay("8913", "恩得利");
 
-            //await new DailyNotifier().RunAsync();
+            await new TwStockParser().RunSingleAsync();
 
             // Console.ReadLine();
             //await ss.ParserMarginAsync();
             //var ss =  s.ParseTrust("2330", "2017-01-01", "2019-10-29");
 
-            await RunAsync<DailyNotifier>();
+            //await RunAsync<TwStockParser>();
 
             //await RunAsync<RealtimeStockParser>();
             //Console.ReadLine();

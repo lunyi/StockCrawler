@@ -63,9 +63,13 @@ namespace WebAutoCrawler
             {
                 string url = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E5%BC%B5%E6%95%B8+%28%E7%95%B6%E6%97%A5%29%40%40%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E5%BC%B5%E6%95%B8%40%40%E7%95%B6%E6%97%A5";
                 var updatedPrices = new List<Prices>();
-                //prices = prices.Where(p => p.當沖張數 == null).ToList();
+
                 GoToUrl(url);
                 Thread.Sleep(5000);
+
+                var s1 = new SelectElement(FindElement(By.XPath($@"//*[@id='MENU8_0_1100']/tbody/tr[6]/td[1]/nobr[3]/select")));
+                s1.SelectByIndex(1);
+                Thread.Sleep(3000);
 
                 for (int i = 0; i <= 5; i++)
                 {
@@ -119,21 +123,25 @@ namespace WebAutoCrawler
 
         static Func<List<Prices>, List<Prices>> dailyMAFunc = (prices) =>
             {
-                string maUrl1 = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E5%9D%87%E7%B7%9A%E6%AD%A3%E4%B9%96%E9%9B%A2+%285%E6%97%A5MA%29%40%40%E5%9D%87%E7%B7%9A%E6%AD%A3%E4%B9%96%E9%9B%A2%40%405%E6%97%A5MA";
-                string maUrl2 = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E5%9D%87%E7%B7%9A%E8%B2%A0%E4%B9%96%E9%9B%A2+%285%E6%97%A5MA%29%40%40%E5%9D%87%E7%B7%9A%E8%B2%A0%E4%B9%96%E9%9B%A2%40%405%E6%97%A5MA";
+                string maUrl1 = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E5%9D%87%E7%B7%9A%E6%AD%A3%E4%B9%96%E9%9B%A2+%2810%E6%97%A5MA%29%40%40%E5%9D%87%E7%B7%9A%E6%AD%A3%E4%B9%96%E9%9B%A2%40%4010%E6%97%A5MA";
+                string maUrl2 = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E5%9D%87%E7%B7%9A%E8%B2%A0%E4%B9%96%E9%9B%A2+%2810%E6%97%A5MA%29%40%40%E5%9D%87%E7%B7%9A%E8%B2%A0%E4%B9%96%E9%9B%A2%40%4010%E6%97%A5MA";
 
-                var tmp1 = dailyMaFunc(maUrl1, prices);
-                var tmp2 = dailyMaFunc(maUrl2, prices);
+                var tmp1 = dailyMaFunc(maUrl1,1, prices);
+                var tmp2 = dailyMaFunc(maUrl2,2, prices);
                 return tmp1.Union(tmp2).ToList();
             };
 
-        static Func<string, List<Prices>, List<Prices>> dailyMaFunc = (url, prices) =>
+        static Func<string, int, List<Prices>, List<Prices>> dailyMaFunc = (url, index, prices) =>
         {
             //prices = prices.Where(p => p.MA10_ == null).ToList();
             var updatedPrices = new List<Prices>();
 
             GoToUrl(url);
             Thread.Sleep(5000);
+
+            var s1 = new SelectElement(FindElement(By.XPath($@"//*[@id='MENU8_1_1100']/tbody/tr[2]/td[{index}]/nobr[3]/select")));
+            s1.SelectByIndex(1);
+            Thread.Sleep(3000);
 
             var selSHEET2 = new SelectElement(FindElement(By.Id("selSHEET2")));
             selSHEET2.SelectByIndex(0);
@@ -191,11 +199,15 @@ namespace WebAutoCrawler
         static Func<List<Prices>, List<Prices>> dailyMacdFunc = (prices) =>
         {
             //prices = prices.Where(p => p.MACD == null).ToList();
-            string url = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E6%97%A5DIF+%28%E4%BD%8E%E2%86%92%E9%AB%98%29%40%40%E6%97%A5MACD%40%40DIF+%28%E4%BD%8E%E2%86%92%E9%AB%98%29";
+            string url = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E6%97%A5DIF+%28%E9%AB%98%E2%86%92%E4%BD%8E%29%40%40%E6%97%A5MACD%40%40DIF+%28%E9%AB%98%E2%86%92%E4%BD%8E%29";
             var updatedPrices = new List<Prices>();
 
             GoToUrl(url);
             Thread.Sleep(5000);
+
+            var s1 = new SelectElement(FindElement(By.XPath($@"//*[@id='MENU8_1_1100']/tbody/tr[5]/td[1]/nobr[3]/select")));
+            s1.SelectByIndex(1);
+            Thread.Sleep(3000);
 
             var ss = new SelectElement(FindElement(By.Id("selRANK")));
             int count = ss.Options.Count;
@@ -204,7 +216,7 @@ namespace WebAutoCrawler
             {
                 var selRANK = new SelectElement(FindElement(By.Id("selRANK")));
                 selRANK.SelectByIndex(i);
-                Thread.Sleep(10000);
+                Thread.Sleep(5000);
                 var tables = FindElements(By.XPath($"/html/body/table[5]/tbody/tr/td[3]/div[2]/div/div/table/tbody"));
                 foreach (var table in tables)
                 {
@@ -251,12 +263,15 @@ namespace WebAutoCrawler
         static Func<List<Prices>, List<Prices>> dailyKdFunc = (prices) =>
         {
             //prices = prices.Where(p => p.K == null).ToList();
-            string url = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E6%97%A5RSV+%28%E4%BD%8E%E2%86%92%E9%AB%98%29%40%40%E6%97%A5KD%E6%8C%87%E6%A8%99%40%40RSV+%28%E4%BD%8E%E2%86%92%E9%AB%98%29";
+            string url = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E6%97%A5RSV+%28%E9%AB%98%E2%86%92%E4%BD%8E%29%40%40%E6%97%A5KD%E6%8C%87%E6%A8%99%40%40RSV+%28%E9%AB%98%E2%86%92%E4%BD%8E%29";
             var updatedPrices = new List<Prices>();
 
             GoToUrl(url);
             Thread.Sleep(5000);
 
+            var s1 = new SelectElement(FindElement(By.XPath($@"//*[@id='MENU8_1_1100']/tbody/tr[4]/td[1]/nobr[3]/select")));
+            s1.SelectByIndex(1);
+            Thread.Sleep(3000);
             var ss = new SelectElement(FindElement(By.Id("selRANK")));
             int count = ss.Options.Count;
 
@@ -264,7 +279,7 @@ namespace WebAutoCrawler
             {
                 var selRANK = new SelectElement(FindElement(By.Id("selRANK")));
                 selRANK.SelectByIndex(i);
-                Thread.Sleep(10000);
+                Thread.Sleep(5000);
                 var tables = FindElements(By.XPath($"/html/body/table[5]/tbody/tr/td[3]/div[2]/div/div/table/tbody"));
                 foreach (var table in tables)
                 {

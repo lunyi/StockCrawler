@@ -97,7 +97,7 @@ namespace WebCrawler
             var index = 1;
             foreach (var price in prices)
             {
-                msg.AppendLine($"{index}. {price.StockId} {price.Name} {price.股價}");
+                msg.AppendLine($"{index}.[{price.Industry}] {price.StockId} {price.Name} {price.股價}");
                 var p = context.Prices.FirstOrDefault(p => p.Datetime == date && p.StockId == price.StockId);
 
                 if (p != null)
@@ -135,7 +135,7 @@ order by a1.StockId
             var index = 1;
             foreach (var stock in stocks)
             {
-                msg.AppendLine($"{index}. {stock.StockId} {stock.Name} {stock.股價}");
+                msg.AppendLine($"{index}.[{stock.Industry}]{stock.StockId} {stock.Name} {stock.股價}");
 
                 var p = context.Prices.FirstOrDefault(p => p.Datetime == date && p.StockId == stock.StockId);
                 p.Signal = p.Signal == null ? "破月線" : p.Signal += "::破月線";
