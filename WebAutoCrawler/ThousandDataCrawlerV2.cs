@@ -80,7 +80,7 @@ namespace WebAutoCrawler
                 }
             }
 
-            context.Database.ExecuteSqlCommand(GetSqlToUpdate(GetCurrentDate()));
+            context.Database.ExecuteSqlRaw(GetSqlToUpdate(GetCurrentDate()));
 
             Dispose();
         }

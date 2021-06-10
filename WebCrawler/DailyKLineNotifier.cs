@@ -26,7 +26,7 @@ namespace WebCrawler
             var context = new StockDbContext();
             _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
 
-            context.Database.ExecuteSqlCommand("exec [usp_GetMinuteKLine] @p0, @p1", minutes, DateTime.Today.ToString("yyyy-MM-dd"));
+            context.Database.ExecuteSqlRaw("exec [usp_GetMinuteKLine] @p0, @p1", minutes, DateTime.Today.ToString("yyyy-MM-dd"));
             var key = $"_{minutes}分K線均線多排";
             var stocks = await context.BestStocks.Where(p => p.Type == key)
                 .OrderBy(p=>p.StockId)

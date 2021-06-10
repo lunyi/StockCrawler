@@ -88,7 +88,7 @@ namespace RealtimeChooseStock
         private static void GetMinuteKLines(int totalCount, int index)
         {
             var sql = $"delete from [MinuteKLine] where [Datetime] >= '{DateTime.Today:yyyy-MM-dd}'";
-            DbContext.Database.ExecuteSqlCommand(sql);
+            DbContext.Database.ExecuteSqlRaw(sql);
 
             var quote = new TwQuote(DbContext);
             var p = Stopwatch.StartNew();

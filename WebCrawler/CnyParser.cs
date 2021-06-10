@@ -73,7 +73,7 @@ namespace WebCrawler
                 Console.WriteLine($"Error {e}");
             }
             context.Database.SetCommandTimeout(300);
-            context.Database.ExecuteSqlCommand($"exec [usp_Update_MA_And_VMA] {DateTime.Today:yyyy-MM-dd}");
+            context.Database.ExecuteSqlRaw($"exec [usp_Update_MA_And_VMA] {DateTime.Today:yyyy-MM-dd}");
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
         }

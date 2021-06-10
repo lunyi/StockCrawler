@@ -40,7 +40,7 @@ namespace WebAutoCrawler
             try
             {
                 await context.BulkUpdateAsync(pricesToUpdate);
-                context.Database.ExecuteSqlCommand($"exec [usp_Update_MA_And_VMA] {DateTime.Today:yyyy-MM-dd}");
+                context.Database.ExecuteSqlRaw($"exec [usp_Update_MA_And_VMA] {DateTime.Today:yyyy-MM-dd}");
                 Console.WriteLine(s.Elapsed.TotalMinutes);
             }
             catch (Exception e)
