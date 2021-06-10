@@ -61,7 +61,7 @@ namespace WebAutoCrawler
 
         static Func<List<Prices>, List<Prices>> dailyTraderFunc = (prices) =>
             {
-                string url = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E5%BC%B5%E6%95%B8+%28%E7%95%B6%E6%97%A5%29%40%40%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E5%BC%B5%E6%95%B8%40%40%E7%95%B6%E6%97%A5";
+                string url = "https://goodinfo.tw/StockInfo/StockList.asp?RPT_TIME=&MARKET_CAT=%E7%86%B1%E9%96%80%E6%8E%92%E8%A1%8C&INDUSTRY_CAT=%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E5%BC%B5%E6%95%B8+%28%E7%95%B6%E6%97%A5%29%40%40%E7%8F%BE%E8%82%A1%E7%95%B6%E6%B2%96%E5%BC%B5%E6%95%B8%40%40";
                 var updatedPrices = new List<Prices>();
 
                 GoToUrl(url);
@@ -69,15 +69,15 @@ namespace WebAutoCrawler
 
                 var s1 = new SelectElement(FindElement(By.XPath($@"//*[@id='MENU8_0_1100']/tbody/tr[6]/td[1]/nobr[3]/select")));
                 s1.SelectByIndex(1);
-                Thread.Sleep(3000);
+                Thread.Sleep(1000);
 
                 for (int i = 0; i <= 5; i++)
                 {
                     var selRANK = new SelectElement(FindElement(By.Id("selRANK")));
                     selRANK.SelectByIndex(i);
-                    Thread.Sleep(10000);
+                    Thread.Sleep(5000);
 
-                    var tables = FindElements(By.XPath($"/html/body/table[5]/tbody/tr/td[3]/div[2]/div/div/table/tbody"));
+                    var tables = FindElements(By.XPath($"/html/body/table[2]/tbody/tr/td[3]/div[2]/div/div/table/tbody"));
                     foreach (var table in tables)
                     {
                         var tr = table.FindElements(By.TagName("tr"));
@@ -87,6 +87,14 @@ namespace WebAutoCrawler
                             try
                             {
                                 var td = t.FindElements(By.TagName("td"));
+
+                                //for (int k = 0; k < td.Count; k++)
+                                //{
+                                //    Console.WriteLine($"td[{k}].Text = {td[k].Text}");
+                                //}      
+
+                                if (td[1].Text == "代號")
+                                    continue;
                                 if (td.Count >= 10 && td[10].Text.Trim() == "-")
                                     continue;
                                 if (td.Count <= 3)
@@ -94,7 +102,7 @@ namespace WebAutoCrawler
 
                                 var year = DateTime.Now.Year;
                          
-                                var datetime = Convert.ToDateTime($"{year}/{td[10].Text}");
+                                var datetime = Convert.ToDateTime($"{year}/{td[4].Text}");
                                 var stockId = Convert.ToString(td[1].Text);
                                 var updatedPrice = prices.FirstOrDefault(p => p.Datetime == datetime && p.StockId == stockId);
 
@@ -140,8 +148,10 @@ namespace WebAutoCrawler
             Thread.Sleep(5000);
 
             var s1 = new SelectElement(FindElement(By.XPath($@"//*[@id='MENU8_1_1100']/tbody/tr[2]/td[{index}]/nobr[3]/select")));
+            s1.SelectByIndex(2);
+            Thread.Sleep(2000);
             s1.SelectByIndex(1);
-            Thread.Sleep(3000);
+            Thread.Sleep(2000);
 
             var selSHEET2 = new SelectElement(FindElement(By.Id("selSHEET2")));
             selSHEET2.SelectByIndex(0);
@@ -155,7 +165,7 @@ namespace WebAutoCrawler
                 var selRANK = new SelectElement(FindElement(By.Id("selRANK")));
                 selRANK.SelectByIndex(i);
                 Thread.Sleep(5000);
-                var tables = FindElements(By.XPath($"/html/body/table[5]/tbody/tr/td[3]/div[2]/div/div/table/tbody"));
+                var tables = FindElements(By.XPath($"/html/body/table[2]/tbody/tr/td[3]/div[2]/div/div/table/tbody"));
 
                 for (int j = 0; j < tables.Count; j++)
                 {
@@ -166,6 +176,8 @@ namespace WebAutoCrawler
                         try
                         {
                             if (td.Count <= 3)
+                                continue;
+                            if (td[1].Text == "代號")
                                 continue;
 
                             var date = td[7].Text;
@@ -206,8 +218,10 @@ namespace WebAutoCrawler
             Thread.Sleep(5000);
 
             var s1 = new SelectElement(FindElement(By.XPath($@"//*[@id='MENU8_1_1100']/tbody/tr[5]/td[1]/nobr[3]/select")));
+            s1.SelectByIndex(2);
+            Thread.Sleep(2000);
             s1.SelectByIndex(1);
-            Thread.Sleep(3000);
+            Thread.Sleep(2000);
 
             var ss = new SelectElement(FindElement(By.Id("selRANK")));
             int count = ss.Options.Count;
@@ -217,7 +231,7 @@ namespace WebAutoCrawler
                 var selRANK = new SelectElement(FindElement(By.Id("selRANK")));
                 selRANK.SelectByIndex(i);
                 Thread.Sleep(5000);
-                var tables = FindElements(By.XPath($"/html/body/table[5]/tbody/tr/td[3]/div[2]/div/div/table/tbody"));
+                var tables = FindElements(By.XPath($"/html/body/table[2]/tbody/tr/td[3]/div[2]/div/div/table/tbody"));
                 foreach (var table in tables)
                 {
                     var tr = table.FindElements(By.TagName("tr"));
@@ -229,7 +243,8 @@ namespace WebAutoCrawler
                         {
                             if (td.Count <= 3)
                                 continue;
-
+                            if (td[1].Text == "代號")
+                                continue;
                             var datetime = Convert.ToDateTime($"{DateTime.Now.Year}/{td[6].Text}");
                             var stockId = Convert.ToString(td[1].Text);
 
@@ -270,8 +285,11 @@ namespace WebAutoCrawler
             Thread.Sleep(5000);
 
             var s1 = new SelectElement(FindElement(By.XPath($@"//*[@id='MENU8_1_1100']/tbody/tr[4]/td[1]/nobr[3]/select")));
+            s1.SelectByIndex(2);
+            Thread.Sleep(2000);
             s1.SelectByIndex(1);
-            Thread.Sleep(3000);
+            Thread.Sleep(2000);
+
             var ss = new SelectElement(FindElement(By.Id("selRANK")));
             int count = ss.Options.Count;
 
@@ -280,7 +298,7 @@ namespace WebAutoCrawler
                 var selRANK = new SelectElement(FindElement(By.Id("selRANK")));
                 selRANK.SelectByIndex(i);
                 Thread.Sleep(5000);
-                var tables = FindElements(By.XPath($"/html/body/table[5]/tbody/tr/td[3]/div[2]/div/div/table/tbody"));
+                var tables = FindElements(By.XPath($"/html/body/table[2]/tbody/tr/td[3]/div[2]/div/div/table/tbody"));
                 foreach (var table in tables)
                 {
                     var tr = table.FindElements(By.TagName("tr"));
@@ -292,7 +310,8 @@ namespace WebAutoCrawler
                         {
                             if (td.Count <= 3)
                                 continue;
-
+                            if (td[1].Text == "代號")
+                                continue;
                             var datetime = Convert.ToDateTime($"{DateTime.Now.Year}/{td[6].Text}");
                             var stockId = Convert.ToString(td[1].Text);
 

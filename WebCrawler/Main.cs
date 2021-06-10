@@ -38,8 +38,11 @@ namespace WebCrawler
             //await RunAsync<BrokerParser>();
 
             //var context = new StockDbContext();
+
+            //await new CbasParser().RunAsync();
+
             //var s1 = new CnyParser();
-            ////await s1.ExecuteLastAsync(context, "5210", "寶碩");
+            //////await s1.ExecuteLastAsync(context, "5210", "寶碩");
             //await s1.RunAsync(int.Parse(args[0]), int.Parse(args[1]));
 
             //var n = new DailyRecordNotifier();
@@ -58,7 +61,7 @@ namespace WebCrawler
             //s1.Test_usp_Update_MA_And_VMA();
             //s1.ParserLastDay("8913", "恩得利");
 
-            await new TwStockParser().RunSingleAsync();
+            //await new TwStockParser().RunSingleAsync();
 
             // Console.ReadLine();
             //await ss.ParserMarginAsync();

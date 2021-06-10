@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="EFCore.BulkExtensions" Version="3.1.0" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.24" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.7" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
     <PackageReference Include="SimpleImpersonation" Version="3.0.0" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="4.7.1" />
   </ItemGroup>
