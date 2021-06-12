@@ -154,6 +154,9 @@ namespace DataService.Services
                 case (int)ChooseStockType.投信突然進前20名:
                     sql = 突然進前20名(datetime, "投信買賣超");
                     break;
+                case (int)ChooseStockType.主力加投信:
+                    sql = 主力加投信(datetime);
+                    break;
                 case (int)ChooseStockType.投量比加主力買超:
                     sql = 投量比加主力買超(datetime);
                     break;
@@ -313,9 +316,7 @@ namespace DataService.Services
 	and r2.[Datetime] =  '{datetime}' 
 	and r1.[Type] = '5與20日均線黃金交叉'
 	and r2.[Type] = '突破季線'";
-        }
-
-        
+        }   
 
         private string GetMainForceSql(string mainForce)
         {
@@ -901,6 +902,32 @@ drop table #t1";
 	  ,CAST(round(100* [投信買賣超]/ cast(([成交量] - [當沖張數]) as decimal(11)), 10)  AS varchar(18)) AS [Description] FROM [dbo].[Prices] p join [dbo].[Stocks] s on s.StockId = p.StockId
   where [Datetime] = '{datetime}' and [投信買賣超] > 0 and 主力買超張數 - 主力賣超張數 > 0 and [成交量] > 0
   order by [投信買賣超]/ cast(([成交量] - [當沖張數]) as decimal) desc";
+        }
+
+        private string 主力加投信(string datetime)
+        {
+            return $@"select s.[StockId]
+      ,s.[Name]
+      ,[MarketCategory]
+      ,[Industry]
+      ,[ListingOn]
+      ,s.[CreatedOn]
+      ,[UpdatedOn]
+      ,[Status]
+      ,[Address]
+      ,[Website]
+      ,[營收比重]
+      ,[股本]
+      ,[股價]
+      ,[每股淨值]
+      ,[每股盈餘]
+      ,[ROE]
+      ,[ROA]
+      ,[股票期貨]
+	  ,CAST( (主力買超張數 - 主力賣超張數)  AS varchar(18)) AS [Description]
+	  FROM [dbo].[Prices] p join [dbo].[Stocks] s on s.StockId = p.StockId
+  where [Datetime] = '{datetime}' and [投信買賣超] > 0 and 主力買超張數 - 主力賣超張數 > 0 and p.漲跌百分比 > 0
+  order by p.漲跌百分比 desc";
         }
 
         private string 每周投信買散戶賣(StockDbContext context, string datetime)

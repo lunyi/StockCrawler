@@ -200,6 +200,13 @@ function renewWeekChip(weekChips) {
         else if (weekChips[i].董監買賣超 < 0) {
             weekChips[i].ddColor = "green";
         }
+
+        if (weekChips[i].sumDiff > 0) {
+            weekChips[i].sumColor = "red";
+        }
+        else if (weekChips[i].sumDiff < 0) {
+            weekChips[i].sumColor = "green";
+        }
     }
     return weekChips;
 }
@@ -247,7 +254,7 @@ function renewMonth(months) {
         else if (months[i].percent < 0) {
             months[i].pColor = "green";
         }
-        months[i].datetime = formatDate(months[i].datetime);
+        //months[i].datetime = formatDate(months[i].datetime);
     }
     return months;
 }

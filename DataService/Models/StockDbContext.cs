@@ -355,10 +355,6 @@ namespace DataService.Models
 
                 entity.Property(e => e.BHID).HasMaxLength(32);
 
-                entity.Property(e => e.BrokerId)
-                    .IsRequired()
-                    .HasMaxLength(32);
-
                 entity.Property(e => e.BrokerName)
                     .IsRequired()
                     .HasMaxLength(64);

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DataService.Models;
-using Messages;
 using OpenQA.Selenium;
 
 namespace WebAutoCrawler
@@ -29,78 +28,78 @@ namespace WebAutoCrawler
         }
         public override async Task ExecuteAsync()
         {
-            var context = new StockDbContext();
-            var stocks = context.Stocks
-                .Where(p => p.Status == 1)
-                .OrderBy(p => p.StockId)
-                .ToList();
+            //var context = new StockDbContext();
+            //var stocks = context.Stocks
+            //    .Where(p => p.Status == 1)
+            //    .OrderBy(p => p.StockId)
+            //    .ToList();
 
-            foreach (var stock in stocks)
-            {
-                try
-                {
-                    var checks = Parser(string.Format(HealthCheckUrl, stock.StockId));
-                    foreach (var check in checks)
-                    {
-                        foreach (var checkItem in check.Value)
-                        {
-                            var item = new AnaStatementDog
-                            {
-                                Id = Guid.NewGuid(),
-                                StockId = stock.StockId,
-                                Name = stock.Name,
-                                Type = check.Key,
-                                Pass = checkItem.Result,
-                                Description = checkItem.Name,
-                                CreatedOn = DateTime.Now,
-                            };
-                            context.AnaStatementDogs.Add(item);
-                        }
-                    }
-                    await context.SaveChangesAsync();
-                }
-                catch (Exception)
-                {
-                    Console.WriteLine($"{stock.StockId} {stock.Name} Parser Failed !");
-                }
-            }
+            //foreach (var stock in stocks)
+            //{
+            //    try
+            //    {
+            //        var checks = Parser(string.Format(HealthCheckUrl, stock.StockId));
+            //        foreach (var check in checks)
+            //        {
+            //            foreach (var checkItem in check.Value)
+            //            {
+            //                var item = new AnaStatementDog
+            //                {
+            //                    Id = Guid.NewGuid(),
+            //                    StockId = stock.StockId,
+            //                    Name = stock.Name,
+            //                    Type = check.Key,
+            //                    Pass = checkItem.Result,
+            //                    Description = checkItem.Name,
+            //                    CreatedOn = DateTime.Now,
+            //                };
+            //                context.AnaStatementDogs.Add(item);
+            //            }
+            //        }
+            //        await context.SaveChangesAsync();
+            //    }
+            //    catch (Exception)
+            //    {
+            //        Console.WriteLine($"{stock.StockId} {stock.Name} Parser Failed !");
+            //    }
+            //}
         }
 
-        private Dictionary<string, CheckModel[]> Parser(string url)
-        {
-            GoToUrl(url);
+        //private Dictionary<string, CheckModel[]> Parser(string url)
+        //{
+        //    GoToUrl(url);
 
-            var checks = FindElements(By.ClassName("stock-health-check-module"));
-            var list = new Dictionary<string, CheckModel[]>();
+        //    var checks = FindElements(By.ClassName("stock-health-check-module"));
+        //    var list = new Dictionary<string, CheckModel[]>();
 
-            for (int i = 0; i < 4; i++)
-            {
-                var check = checks[i];
-                var titleItem = check.FindElement(By.ClassName("stock-health-check-module-title"));
-                var item = check.FindElement(By.ClassName("stock-health-check-module-modal-active-btn"));
-                Thread.Sleep(500);
-                item.Click();
-                var checkItems = check.FindElements(By.ClassName("stock-health-check-item"));
-                var checkModels = new List<CheckModel>();
+        //    for (int i = 0; i < 4; i++)
+        //    {
+        //        var check = checks[i];
+        //        var titleItem = check.FindElement(By.ClassName("stock-health-check-module-title"));
+        //        var item = check.FindElement(By.ClassName("stock-health-check-module-modal-active-btn"));
+        //        Thread.Sleep(500);
+        //        item.Click();
+        //        var checkItems = check.FindElements(By.ClassName("stock-health-check-item"));
+        //        var checkModels = new List<CheckModel>();
 
-                foreach (var checkItem in checkItems)
-                {
-                    var result = checkItem.FindElement(By.ClassName("stock-health-check-item-result"));
-                    var name = checkItem.FindElement(By.ClassName("stock-health-check-item-name"));
+        //        foreach (var checkItem in checkItems)
+        //        {
+        //            var result = checkItem.FindElement(By.ClassName("stock-health-check-item-result"));
+        //            var name = checkItem.FindElement(By.ClassName("stock-health-check-item-name"));
 
-                    var model = new CheckModel
-                    {
-                        Name = name.Text,
-                        Result = result.Text == "通過" ? true : false
-                    };
-                    checkModels.Add(model);
-                }
+        //            var model = new CheckModel
+        //            {
+        //                Name = name.Text,
+        //                Result = result.Text == "通過" ? true : false
+        //            };
+        //            checkModels.Add(model);
+        //        }
 
-                list.Add(titleItem.Text, checkModels.ToArray());
-                var closeBtn = check.FindElement(By.ClassName("modal-btn"));
-                closeBtn.Click();
-            }
-            return list;
-        }
+        //        list.Add(titleItem.Text, checkModels.ToArray());
+        //        var closeBtn = check.FindElement(By.ClassName("modal-btn"));
+        //        closeBtn.Click();
+        //    }
+        //    return list;
+        //}
     }
 }

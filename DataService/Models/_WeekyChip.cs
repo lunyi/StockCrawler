@@ -25,5 +25,7 @@ namespace DataService.Models
         public int 投信買賣超 { get; set; }
         public int? 融資買賣超 { get; set; }
         public int? 董監買賣超 { get; set; }
+        public int SumCount { get; set; }
+        public int SumDiff { get; set; }
     }
 }

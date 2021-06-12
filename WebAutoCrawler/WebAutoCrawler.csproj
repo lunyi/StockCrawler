@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <AssemblyName>WebAutoCrawler</AssemblyName>
     <RootNamespace>WebAutoCrawler</RootNamespace>
     <UserSecretsId>bb775dc3-b0ce-4f33-9524-68e70d758bca</UserSecretsId>
@@ -17,7 +17,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DataService\DataService.csproj" />
-    <ProjectReference Include="..\Messages\Messages.csproj" />
     <ProjectReference Include="..\WebCrawler\WebCrawler.csproj" />
   </ItemGroup>
 

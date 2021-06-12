@@ -24,7 +24,7 @@ namespace WebCrawler
                 var res = ss[i].Split(",");
                 if (res[2] != "")
                 { 
-                    Console.WriteLine($"{count}.{string.Join(",", res)}");
+                    
                     var keys = FindKey(context, res[2]);
                     if (keys.Length == 3)
                     {
@@ -38,13 +38,13 @@ namespace WebCrawler
                             b = keys[2]
                         };
                         await context.KeyBrokers.AddAsync(k);
-
+                        Console.WriteLine($"{count}.{string.Join(",", res)}");
                         count++;
                     }
 
                 }
             }
-
+            await context.SaveChangesAsync();
             Console.ReadLine();
         }
 
