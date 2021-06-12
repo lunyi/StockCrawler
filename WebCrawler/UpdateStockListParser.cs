@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DataService.Models;
 using Microsoft.EntityFrameworkCore;
+using Stock = DataService.Models.Stock;
 
 namespace WebCrawler
 {
@@ -44,7 +45,7 @@ namespace WebCrawler
             Console.ReadLine();
         }
 
-        private async Task UpdateStocksAsync(StockDbContext context, Stocks[] stocksToUpdate)
+        private async Task UpdateStocksAsync(StockDbContext context, Stock[] stocksToUpdate)
         {
             foreach (var stock in stocksToUpdate)
             {
@@ -73,14 +74,14 @@ namespace WebCrawler
                     stockToUpdate.MarketCategory = stock.MarketCategory;
                     stockToUpdate.Industry = stock.Industry;
                     stockToUpdate.UpdatedOn = DateTime.Now;
-                    context.StockHistory.Add(s1);
-                    context.Entry<Stocks>(stockToUpdate).State = EntityState.Modified;
+                    context.StockHistories.Add(s1);
+                    context.Entry<Stock>(stockToUpdate).State = EntityState.Modified;
                     await context.SaveChangesAsync();
                 }
             }
         }
 
-        private async Task CreateStocksAsync(StockDbContext context, Stocks[] stockToAdd)
+        private async Task CreateStocksAsync(StockDbContext context, Stock[] stockToAdd)
         {
             foreach (var stock in stockToAdd)
             {
@@ -105,18 +106,18 @@ namespace WebCrawler
                 stock.Status = 0;
                 stock.UpdatedOn = DateTime.Now;
                 Console.WriteLine($"Remove Stocks:{stock.StockId} {stock.Name}");
-                context.Entry<Stocks>(stock).State = EntityState.Modified;
+                context.Entry<Stock>(stock).State = EntityState.Modified;
             }
             await context.SaveChangesAsync();
         }
 
-        private Stocks[] 取得股票清單(int mode, string startKey, string endKey)
+        private Stock[] 取得股票清單(int mode, string startKey, string endKey)
         {
             var url = $"https://isin.twse.com.tw/isin/C_public.jsp?strMode={mode}";
             var rootNode = GetRootNoteByUrl(url, false);
             var n1 = rootNode.ChildNodes[3].ChildNodes[1];
 
-            var s = new List<Stocks>();
+            var s = new List<Stock>();
 
             var start = false;
 
@@ -126,7 +127,7 @@ namespace WebCrawler
                 if (tr.ChildNodes.Count >= 4 && start)
                 {
                     var tmp = tr.ChildNodes[0].InnerText.Split('　');
-                    s.Add(new Stocks
+                    s.Add(new Stock
                     {
                         StockId = tmp[0],
                         Name = tmp[1],

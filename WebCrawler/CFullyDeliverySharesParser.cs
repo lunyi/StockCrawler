@@ -11,7 +11,7 @@ namespace WebCrawler
     {
         public override async Task RunAsync()
         {
-            var best = new List<BestStocks>();
+            var best = new List<BestStock>();
             
             var url = "https://www.sinotrade.com.tw/Stock/Stock_3_8_3";
             var rootNode = GetRootNoteByUrl(url);
@@ -22,7 +22,7 @@ namespace WebCrawler
             {
                 ss.Add(nodes[i].ChildNodes[3].InnerHtml);
 
-                best.Add(new BestStocks
+                best.Add(new BestStock
                 {
                     Id = Guid.NewGuid(),
                     Type = "全額交割股",

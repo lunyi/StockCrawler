@@ -37,7 +37,7 @@ namespace WebCrawler
             int start = (index - 1) * stocks.Length / partition;
             int end = index * stocks.Length / partition;
 
-            var prices = new List<Prices>();
+            var prices = new List<Price>();
             var seq = 0;
             for (int i = start; i < end; i++)
             {
@@ -74,13 +74,13 @@ namespace WebCrawler
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
         }
 
-        private Prices ExecuteByStock(string stockid, string name)
+        private Price ExecuteByStock(string stockid, string name)
         {
             var url = $"https://histock.tw/stock/{stockid}";
             var rootNode = GetRootNoteByUrl(url);
             var htmlNode4 = rootNode.SelectSingleNode("//*[@id=\"fm\"]/div[4]/div[3]/div/div[1]/div[1]/div[2]/div[1]/div[2]/ul");
 
-            var price = new Prices
+            var price = new Price
             {
 
 
@@ -88,7 +88,7 @@ namespace WebCrawler
             return price;
         }
 
-        private Prices ExecuteByStock2(string stockid, string name)
+        private Price ExecuteByStock2(string stockid, string name)
         {
             var url = $"https://www.cmoney.tw/finance/f00025.aspx?s={stockid}";
             var rootNode = GetRootNoteByUrl(url);
@@ -97,7 +97,7 @@ namespace WebCrawler
             var htmlNode3 = rootNode.SelectSingleNode("//*[@id=\"HeaderContent\"]/ul/li[1]");
             var htmlNode4 = rootNode.SelectSingleNode("//*[@id=\"HeaderContent\"]/ul/li[1]/div[2]");
 
-            var price = new Prices
+            var price = new Price
             {
 
 

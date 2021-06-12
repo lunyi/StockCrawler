@@ -24,7 +24,7 @@ namespace WebCrawler
         public override async Task RunAsync()
         {
             var context = new StockDbContext();
-            _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
+            _token = await context.Tokens.Select(p => p.LineToken).FirstOrDefaultAsync();
             //var 外資投信主力買超股票 = Get外資投信主力買超股票(context);
 
             var 上漲破月線股票 = 上漲破月線(context);

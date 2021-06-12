@@ -24,7 +24,7 @@ namespace WebCrawler
         public async Task RunAsync(int minutes)
         {
             var context = new StockDbContext();
-            _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
+            _token = await context.Tokens.Select(p => p.LineToken).FirstOrDefaultAsync();
 
             context.Database.ExecuteSqlRaw("exec [usp_GetMinuteKLine] @p0, @p1", minutes, DateTime.Today.ToString("yyyy-MM-dd"));
             var key = $"_{minutes}分K線均線多排";

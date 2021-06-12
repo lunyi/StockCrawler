@@ -27,7 +27,7 @@ namespace WebCrawler
 
             await ParseStocksAsync();
 
-            _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
+            _token = await context.Tokens.Select(p => p.LineToken).FirstOrDefaultAsync();
             //var 外資投信主力買超股票 = Get外資投信主力買超股票(context);
 
             var 上漲破月線股票 = 上漲破月線(context);
@@ -53,7 +53,7 @@ where a._count >=10
 order by　a._count　desc, CAST(a._count AS DECIMAL(18,2))  / b.totalCount desc
 ";
 
-            var stocks = context._Industry.FromSqlRaw(sql).ToArray();
+            var stocks = context._Industries.FromSqlRaw(sql).ToArray();
 
             var msg = new StringBuilder();
             msg.AppendLine($"上漲類股 : {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
@@ -102,7 +102,7 @@ order by　a._count　desc, CAST(a._count AS DECIMAL(18,2))  / b.totalCount desc
                     if (p == null)
                     {
                         exists = false;
-                        p = new Prices();
+                        p = new Price();
                     }
 
                     p.StockId = tds[0].InnerText;

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
+#nullable disable
+
 namespace DataService.Models
 {
-    public partial class BrokerTransactionDetails
+    public partial class BrokerTransactionDetail
     {
         public string BrokerId { get; set; }
         public string BrokerName { get; set; }

@@ -24,7 +24,7 @@ namespace BlazorApp.Shared
         }
 
         [JSInvokable]
-        public static async Task<Stocks[]> GetBestStocksAsync(int index)
+        public static async Task<Stock[]> GetBestStocksAsync(int index)
         {
             IStockQueries dataLayer = new StockQueries();
             return await dataLayer.GetBestStocksAsync(index);
@@ -38,14 +38,14 @@ namespace BlazorApp.Shared
         }
 
         [JSInvokable]
-        public static async Task<Stocks[]> GetStocksDateAsync(string datetime, int type)
+        public static async Task<Stock[]> GetStocksDateAsync(string datetime, int type)
         {
             IStockQueries dataLayer = new StockQueries();
             return await dataLayer.GetStocksByDateAsync(datetime, type);
         }
 
         [JSInvokable]
-        public static async Task<Stocks[]> GetStocksByTypeAsync(string type, string datetime)
+        public static async Task<Stock[]> GetStocksByTypeAsync(string type, string datetime)
         {
             IStockQueries dataLayer = new StockQueries();
             return await dataLayer.GetStocksByTypeAsync(type, datetime);
@@ -59,7 +59,7 @@ namespace BlazorApp.Shared
         }
 
         [JSInvokable]
-        public static Task<Stocks[]> GetStocksByBestStockTypeAsync(string name, string datetime)
+        public static Task<Stock[]> GetStocksByBestStockTypeAsync(string name, string datetime)
         {
             IStockQueries dataLayer = new StockQueries();
             return dataLayer.GetStocksByBestStockTypeAsync(name, datetime);

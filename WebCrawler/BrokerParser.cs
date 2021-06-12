@@ -56,7 +56,7 @@ namespace WebCrawler
                         //Tel = col[4]
                     };
 
-                    context.Broker.Add(broker);
+                    context.Brokers.Add(broker);
                 } 
                 catch (Exception ex)
                 {
@@ -75,7 +75,7 @@ namespace WebCrawler
             s.Start();
             var context = new StockDbContext();
             var stocks = await context.Stocks.Where(p=>p.Status == 1).OrderBy(p => p.StockId).ToArrayAsync();
-            var brokers = await context.Broker.OrderBy(p => p.BHID).ToArrayAsync();
+            var brokers = await context.Brokers.OrderBy(p => p.BHID).ToArrayAsync();
             var sb = new StreamWriter(@"D:\Database\StockBroker.csv", true, Encoding.Unicode, 1024);
 
             sb.AutoFlush = true;
@@ -153,7 +153,7 @@ namespace WebCrawler
             s.Start();
             var context = new StockDbContext();
             var stock = await context.Stocks.FirstOrDefaultAsync(p => p.StockId == stockId);
-            var brokers = await context.Broker.OrderBy(p => p.BrokerName).ToArrayAsync();
+            var brokers = await context.Brokers.OrderBy(p => p.BrokerName).ToArrayAsync();
             var sb = new StreamWriter(@"D:\Database\StockBroker.csv", true, Encoding.Unicode, 1024);
 
             sb.AutoFlush = true;
@@ -198,7 +198,7 @@ namespace WebCrawler
             var s = new Stopwatch();
             s.Start();
             var context = new StockDbContext();
-            var broker = await context.Broker.FirstOrDefaultAsync(p => p.BHID == brokerId);
+            var broker = await context.Brokers.FirstOrDefaultAsync(p => p.BHID == brokerId);
             var stocks = await context.Stocks.OrderBy(p => p.StockId).ToArrayAsync();
             var sb = new StreamWriter(@"D:\Database\Broker.csv", true, Encoding.Unicode, 1024);
 

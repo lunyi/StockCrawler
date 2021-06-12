@@ -16,16 +16,16 @@ namespace DataService.Services
     public interface IStockQueries
     {
         Task<StockeModel> GetPricesByStockIdAsync(string stockId, DateTime datetime, bool chkDate);
-        Task<Stocks[]> GetBestStocksAsync(int key);
+        Task<Stock[]> GetBestStocksAsync(int key);
         Task<string[]> GetDaysAsync();
         Task<string[]> GetChosenStockTypesAsync();
-        Task<Stocks[]> GetStocksByDateAsync(string datetime, int type);
+        Task<Stock[]> GetStocksByDateAsync(string datetime, int type);
         Task SetBestStockAsync(string stockId, string type);
-        Task<Stocks[]> GetActiveStocksAsync();
-        Task<Stocks[]> GetStocksBySqlAsync(string sql);
-        Task<Stocks[]> GetStocksByTypeAsync(string type, string datetimw);
+        Task<Stock[]> GetActiveStocksAsync();
+        Task<Stock[]> GetStocksBySqlAsync(string sql);
+        Task<Stock[]> GetStocksByTypeAsync(string type, string datetimw);
         Task<BestStockType[]> GetBestStockTypeAsync();
-        Task<Stocks[]> GetStocksByBestStockTypeAsync(string name, string datetime);
+        Task<Stock[]> GetStocksByBestStockTypeAsync(string name, string datetime);
         Task<TwStock[]> GetTwStocksAsync();
         Task<string> GetTokenAsync();
         Task<string[]> GetMinuteKLinesAsync();
@@ -45,7 +45,7 @@ namespace DataService.Services
             _context = context;
         }
 
-        async Task<Stocks[]> IStockQueries.GetStocksByDateAsync(string datetime, int type)
+        async Task<Stock[]> IStockQueries.GetStocksByDateAsync(string datetime, int type)
         {
             var context = new StockDbContext();
             string sql = string.Empty;
@@ -391,9 +391,9 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) /  
             var datetimeString = datetime.ToString("yyyy-MM-dd");
             var oldDate = chkDate ? datetimeString : DateTime.Now.ToString("yyyy-MM-dd");
             var prices = await context._Prices.FromSqlRaw("exec [usp_GetPrices] {0}, {1}", stockId, oldDate).ToArrayAsync();
-            var weeklyChip = await context._WeekyChip.FromSqlRaw("exec [usp_GetWeekData] {0},{1},{2}", datetimeString, chkDate, stockId).ToArrayAsync();
+            var weeklyChip = await context._WeekyChips.FromSqlRaw("exec [usp_GetWeekData] {0},{1},{2}", datetimeString, chkDate, stockId).ToArrayAsync();
             var sqlIndustry = GetIndustries(datetimeString);
-            var industries = await context._Industry.FromSqlRaw(sqlIndustry).ToArrayAsync();
+            var industries = await context._Industries.FromSqlRaw(sqlIndustry).ToArrayAsync();
 
             var monthData = await context._MonthData.FromSqlRaw("exec [usp_GetMonthData] {0}, {1}", stockId, oldDate).ToArrayAsync();
             var price = context.Prices.FirstOrDefault(p => p.StockId == stockId && p.Datetime == datetime);
@@ -413,7 +413,7 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) /  
         Task<TwStock[]> IStockQueries.GetTwStocksAsync()
         {
             var context = new StockDbContext();
-            return context.TwStock.OrderByDescending(p=>p.Datetime).Take(220).ToArrayAsync();
+            return context.TwStocks.OrderByDescending(p=>p.Datetime).Take(220).ToArrayAsync();
         }
 
         private string GetLastMonday(DateTime lastThousandDay)
@@ -507,7 +507,7 @@ drop table #t3
 	order by s.StockId
 ";
         }
-        Task<Stocks[]> IStockQueries.GetActiveStocksAsync()
+        Task<Stock[]> IStockQueries.GetActiveStocksAsync()
         {
             var context = new StockDbContext();
             return context.Stocks
@@ -515,7 +515,7 @@ drop table #t3
                 .ToArrayAsync();
         }
 
-        Task<Stocks[]> IStockQueries.GetStocksBySqlAsync(string sql)
+        Task<Stock[]> IStockQueries.GetStocksBySqlAsync(string sql)
         {
             var context = new StockDbContext();
             return context.Stocks
@@ -523,7 +523,7 @@ drop table #t3
                 .ToArrayAsync();
         }
 
-        Task<Stocks[]> IStockQueries.GetStocksByTypeAsync(string type, string datetime)
+        Task<Stock[]> IStockQueries.GetStocksByTypeAsync(string type, string datetime)
         {
             var sql = $@"SELECT  s.*
   FROM [StockDb].[dbo].[BestStocks] b
@@ -552,7 +552,7 @@ drop table #t3
             var bestStock = await context.BestStocks.FirstOrDefaultAsync(p => p.StockId == stockId && p.Type == type);
             if (bestStock == null && stock != null)
             {
-                var best = new BestStocks
+                var best = new BestStock
                 {
                     Id = Guid.NewGuid(),
                     StockId = stock.StockId,
@@ -582,7 +582,7 @@ drop table #t3
             return datetimes.ToArray();
         }
 
-        Task<Stocks[]> IStockQueries.GetBestStocksAsync(int key)
+        Task<Stock[]> IStockQueries.GetBestStocksAsync(int key)
         {
             var context = new StockDbContext();
             var stocks = context.Stocks.FromSqlRaw(MapFunc[key]());
@@ -907,7 +907,7 @@ drop table #t1";
         {
             var today = Convert.ToDateTime(datetime);
             
-            var lastThousandDay = context.Thousand.Where(p=>p.StockId == "2330" && p.Datetime <= today)
+            var lastThousandDay = context.Thousands.Where(p=>p.StockId == "2330" && p.Datetime <= today)
                 .OrderByDescending(p=>p.Datetime)
                 .Select(p => p.Datetime)
                 .FirstOrDefault();
@@ -2037,10 +2037,10 @@ order by b.買超 desc
         Task<BestStockType[]> IStockQueries.GetBestStockTypeAsync()
         {
             var context = new StockDbContext();
-            return context.BestStockType.OrderBy(p => p.Key).ToArrayAsync();
+            return context.BestStockTypes.OrderBy(p => p.Key).ToArrayAsync();
         }
 
-        async Task<Stocks[]> IStockQueries.GetStocksByBestStockTypeAsync(string name, string datetime)
+        async Task<Stock[]> IStockQueries.GetStocksByBestStockTypeAsync(string name, string datetime)
         {
             var date = Convert.ToDateTime(datetime);
             var context = new StockDbContext();
@@ -2055,7 +2055,7 @@ order by b.買超 desc
         Task<string> IStockQueries.GetTokenAsync()
         {
             var context = new StockDbContext();
-            return context.Token.Select(p=>p.LineToken).FirstOrDefaultAsync();
+            return context.Tokens.Select(p=>p.LineToken).FirstOrDefaultAsync();
         }
 
         async Task<string[]> IStockQueries.GetMinuteKLinesAsync()

@@ -41,9 +41,19 @@ namespace WebCrawler
 
             //await new CbasParser().RunAsync();
 
-            //var s1 = new CnyParser();
-            //////await s1.ExecuteLastAsync(context, "5210", "寶碩");
-            //await s1.RunAsync(int.Parse(args[0]), int.Parse(args[1]));
+            //var count = 6;
+            //for (int i = 1; i <= count; i++)
+            //{
+            //    var s = new CnyParser();
+            //    await s.RunAsync(i, count);
+            //}
+            var s = new CnyParser();
+            await s.RunAsync(int.Parse(args[0]), int.Parse(args[1]));
+
+
+            //var s1 = new SyncDb();
+            //await s1.UpdateDataAsync();
+
 
             //var n = new DailyRecordNotifier();
             //await n.RunAsync();

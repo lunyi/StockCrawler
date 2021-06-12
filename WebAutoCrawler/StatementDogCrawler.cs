@@ -44,7 +44,7 @@ namespace WebAutoCrawler
                     {
                         foreach (var checkItem in check.Value)
                         {
-                            var item = new AnaStatementDogs
+                            var item = new AnaStatementDog
                             {
                                 Id = Guid.NewGuid(),
                                 StockId = stock.StockId,

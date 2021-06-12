@@ -97,7 +97,7 @@ namespace WebAutoCrawler
                             CreatedOn = DateTime.Now
                         };
 
-                        context.Thousand.Add(s);
+                        context.Thousands.Add(s);
                     }
 
                     await context.SaveChangesAsync();

@@ -16,7 +16,7 @@ namespace WebCrawler
             var s = Stopwatch.StartNew();
             s.Start();
             var context = new StockDbContext();
-            var brokers = context.Broker.ToList();
+            var brokers = context.Brokers.ToList();
 
             var startDate = "2019-9-1";
             var endDate = "2021-1-4";
@@ -57,7 +57,7 @@ namespace WebCrawler
         private async Task RunByUrlAsync(string stockId, string name, string domain, string startDate, string endDate, Broker[] brokers)
         {
             var context = new StockDbContext();
-            var details = new List<BrokerTransactionDetails>();
+            var details = new List<BrokerTransactionDetail>();
 
             foreach (var broker in brokers)
             {
@@ -83,7 +83,7 @@ namespace WebCrawler
                         var sell = int.Parse(htmlNode.ChildNodes[j].ChildNodes[5].InnerHtml.Replace(",", ""));
                         var 買賣超 = int.Parse(htmlNode.ChildNodes[j].ChildNodes[9].InnerHtml.Replace(",", ""));
 
-                        var dd = new BrokerTransactionDetails
+                        var dd = new BrokerTransactionDetail
                         {
                             BrokerId = broker.b,
                             BrokerName = broker.BrokerName,

@@ -47,7 +47,7 @@ namespace WebAutoCrawler
                         技術 = Convert.ToInt32(barnums[4].Text),
                         CreatedOn = DateTime.Now,
                     };
-                    context.AnaCMoney.Add(item);
+                    context.AnaCMoneys.Add(item);
                     await context.SaveChangesAsync();
                 }
                 catch (Exception)
@@ -117,7 +117,7 @@ namespace WebAutoCrawler
                             CreatedOn = DateTime.Now
                         };
 
-                        context.Thousand.Add(s);
+                        context.Thousands.Add(s);
                     }
 
                     await context.SaveChangesAsync();
@@ -150,7 +150,7 @@ namespace WebAutoCrawler
                     var trs = table.FindElements(By.TagName("tr"));
 
                     var startYear = 2018;
-                    var list = new List<YearData>();
+                    var list = new List<YearDatum>();
                     for (int i = 1; i < trs.Count; i++)
                     {
                         var tds = trs[i].FindElements(By.TagName("td"));
@@ -160,7 +160,7 @@ namespace WebAutoCrawler
                         {
                             for (int j = 1; j < tds.Count; j++)
                             {
-                                var y = new YearData
+                                var y = new YearDatum
                                 {
                                     Id = Guid.NewGuid(),
                                     StockId = stock.StockId,

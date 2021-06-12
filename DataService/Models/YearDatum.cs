@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 
+#nullable disable
+
 namespace DataService.Models
 {
-    public partial class YearData
+    public partial class YearDatum
     {
         public Guid Id { get; set; }
         public string StockId { get; set; }

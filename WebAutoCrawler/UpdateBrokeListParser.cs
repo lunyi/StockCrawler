@@ -52,7 +52,7 @@ namespace WebAutoCrawler
                     broker.BHID = value;
                     broker.BrokerName = text2;
                     broker.b = value2;
-                    context.Broker.Add(broker);
+                    context.Brokers.Add(broker);
                     context.SaveChanges();
                     Console.WriteLine($"{count2} {text} {value} :: {text2} {value2}");
                 }

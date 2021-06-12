@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace DataService.Models
 {
-    public partial class MonthData
+    public partial class MonthDatum
     {
         public string StockId { get; set; }
         public string Name { get; set; }

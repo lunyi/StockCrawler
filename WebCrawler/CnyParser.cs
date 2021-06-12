@@ -42,7 +42,7 @@ namespace WebCrawler
             int start = (index - 1) * stocks.Length / partition;
             int end = index * stocks.Length / partition;
 
-            var prices = new List<Prices>();
+            var prices = new List<Price>();
             var seq = 0;
             for (int i = start; i < end; i++)
             {
@@ -78,7 +78,7 @@ namespace WebCrawler
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
         }
 
-        private Prices ExecuteByStock(Prices oldPrice, string stockid, string name)
+        private Price ExecuteByStock(Price oldPrice, string stockid, string name)
         {
             if (oldPrice != null)
             {
@@ -95,7 +95,7 @@ namespace WebCrawler
 
         private async Task NotifyAsync(StockDbContext context)
         {
-            _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
+            _token = await context.Tokens.Select(p => p.LineToken).FirstOrDefaultAsync();
         }
 
         private static string GetSql()
@@ -137,7 +137,7 @@ namespace WebCrawler
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
         }
 
-        public Prices ParserLastDay(Prices price, string stockId, string name)
+        public Price ParserLastDay(Price price, string stockId, string name)
         {
             try
             {
@@ -158,7 +158,7 @@ namespace WebCrawler
             }
         }
 
-        private void ParseMargin(string stockId, Prices price)
+        private void ParseMargin(string stockId, Price price)
         {
             var s = Stopwatch.StartNew();
             s.Start();
@@ -193,7 +193,7 @@ namespace WebCrawler
             Console.WriteLine("融資：" + s.Elapsed.TotalSeconds);
         }
 
-        private void ParseInst(string stockId, Prices price)
+        private void ParseInst(string stockId, Price price)
         {
             var s = Stopwatch.StartNew();
             s.Start();
@@ -228,7 +228,7 @@ namespace WebCrawler
             ErrorStocks = new ConcurrentDictionary<string, string>();
         }
 
-        public void ParseTrust(string stockId, Prices price) 
+        public void ParseTrust(string stockId, Price price) 
         {
             var s = Stopwatch.StartNew();
             s.Start();
@@ -257,7 +257,7 @@ namespace WebCrawler
             Console.WriteLine("持股：" + s.Elapsed.TotalSeconds);
         }
 
-        public void Parse分價量表(string stockId, Prices price)
+        public void Parse分價量表(string stockId, Price price)
         {
             var s = Stopwatch.StartNew();
             s.Start();
@@ -276,7 +276,7 @@ namespace WebCrawler
             Console.WriteLine("分價量表：" + s.Elapsed.TotalSeconds);
         }
 
-        public void ParseMainForce(string stockId,string datetime, Prices price)
+        public void ParseMainForce(string stockId,string datetime, Price price)
         {
             var s = Stopwatch.StartNew();
             s.Start();
@@ -353,7 +353,7 @@ namespace WebCrawler
             {
                 var node = nodes[i];
                 var brokerName = node.ChildNodes[1].ChildNodes[0].InnerHtml;
-                var broker = await context.BrokerTransaction.FirstOrDefaultAsync(p => p.Datetime == datetime1 && p.StockId == stockId && p.BrokerName == brokerName);
+                var broker = await context.BrokerTransactions.FirstOrDefaultAsync(p => p.Datetime == datetime1 && p.StockId == stockId && p.BrokerName == brokerName);
                 if (brokerName != "&nbsp;" && broker != null)
                 {
                     var brokerBuy = new BrokerTransaction();
@@ -370,7 +370,7 @@ namespace WebCrawler
                 }
 
                 brokerName = node.ChildNodes[11].ChildNodes[0].InnerHtml;
-                broker = await context.BrokerTransaction.FirstOrDefaultAsync(p => p.Datetime == datetime1 && p.StockId == stockId && p.BrokerName == brokerName);
+                broker = await context.BrokerTransactions.FirstOrDefaultAsync(p => p.Datetime == datetime1 && p.StockId == stockId && p.BrokerName == brokerName);
 
                 if (brokerName != "&nbsp;" && broker != null)
                 {
@@ -388,13 +388,13 @@ namespace WebCrawler
                     list.Add(brokerSell);
                 }
             }
-            context.BrokerTransaction.AddRange(list);
+            context.BrokerTransactions.AddRange(list);
             await context.SaveChangesAsync();
             s.Stop();
             Console.WriteLine($"{stockId}, {name}, {datetime}：" + s.Elapsed.TotalSeconds);
         }
 
-        private Prices ParseSingleAfter(Prices price)
+        private Price ParseSingleAfter(Price price)
         {
             var s = Stopwatch.StartNew();
             s.Start();
@@ -448,7 +448,7 @@ namespace WebCrawler
             return price;
         }
 
-        private Prices ParseSingleHistoryPrice(string stockId, string name)
+        private Price ParseSingleHistoryPrice(string stockId, string name)
         {
             var s = Stopwatch.StartNew();
             s.Start();
@@ -486,7 +486,7 @@ namespace WebCrawler
             var volume = Convert.ToInt32(rootNode.SelectSingleNode("//*[@id=\"SysJustIFRAMEDIV\"]/table/tr[2]/td[2]/table/tr/td/table[2]/tr[4]/td[8]").InnerHtml.Replace(",",""));
             var percent = Math.Round(100 * updownValue / (closeValue - updownValue),3);
 
-            var price = new Prices
+            var price = new Price
             {
                 CreatedOn = DateTime.Now,
                 StockId = stockId,

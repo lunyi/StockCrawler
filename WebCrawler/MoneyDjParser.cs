@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using DataService.Models;
+using System;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using DataService.Models;
-using HtmlAgilityPack;
 
 namespace WebCrawler
 {
@@ -35,7 +30,7 @@ namespace WebCrawler
             Console.ReadLine();
         }
 
-        private async Task ParserStockAsync(StockDbContext context, Stocks stock)
+        private async Task ParserStockAsync(StockDbContext context, Stock stock)
         {
             try 
             {
@@ -71,7 +66,7 @@ namespace WebCrawler
                     stock.Address = rootNode.SelectSingleNode("/html/body/div/table/tr[2]/td[2]/table/tr[1]/td/table/tr[24]/td[2]").InnerText;
 
                     Console.WriteLine($"Update {stock.StockId} {stock.Name}");
-                    context.StockHistory.Add(s1);
+                    context.StockHistories.Add(s1);
                     await context.SaveChangesAsync();
                 }
             }

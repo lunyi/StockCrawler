@@ -21,7 +21,7 @@ namespace RealtimeChooseStock
         public delegate void MyMessageHandler(string strType, int nCode, string strMessage);
         public event MyMessageHandler GetMessage;
         private ConcurrentBag<MinuteKLine> MinuteKines = new ConcurrentBag<MinuteKLine>();
-        private ConcurrentBag<Prices> Prices = new ConcurrentBag<Prices>();
+        private ConcurrentBag<Price> Prices = new ConcurrentBag<Price>();
         private SKQuoteLib m_SKQuoteLib { get; set; }
         private DataTable dtStocks;
         private DataTable dtBest5Ask;
@@ -98,7 +98,7 @@ namespace RealtimeChooseStock
         }
         void m_SKQuoteLib_OnNotifyBest5(short sMarketNo, short sStockIdx, int nBestBid1, int nBestBidQty1, int nBestBid2, int nBestBidQty2, int nBestBid3, int nBestBidQty3, int nBestBid4, int nBestBidQty4, int nBestBid5, int nBestBidQty5, int nExtendBid, int nExtendBidQty, int nBestAsk1, int nBestAskQty1, int nBestAsk2, int nBestAskQty2, int nBestAsk3, int nBestAskQty3, int nBestAsk4, int nBestAskQty4, int nBestAsk5, int nBestAskQty5, int nExtendAsk, int nExtendAskQty, int nSimulate)
         {
-            var p = new Prices
+            var p = new Price
             {
                 StockId = StockId,
                 Name = StockName,

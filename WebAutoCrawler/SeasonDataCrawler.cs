@@ -38,7 +38,7 @@ namespace WebAutoCrawler
             }
         }
 
-        private SeasonData[] Parser(StockDbContext context, string url, string stockId, string name)
+        private SeasonDatum[] Parser(StockDbContext context, string url, string stockId, string name)
         {
             GoToUrl(url);
             var table = FindElement(By.XPath("//*[@id='MainContent']/ul/li/article/div[2]/div/table"));
@@ -50,7 +50,7 @@ namespace WebAutoCrawler
             var 股東權益 = FindElements(By.XPath("//*[@id='MainContent']/ul/li/article/div[2]/div/table/tbody/tr[17]/td"));
             var 公告每股淨值 = FindElements(By.XPath("//*[@id='MainContent']/ul/li/article/div[2]/div/table/tbody/tr[18]/td"));
 
-            var seasonData = new List<SeasonData>();
+            var seasonData = new List<SeasonDatum>();
             for (var i = 1; i < season.Count; i++)
             {
                 var q = Convert.ToInt32(season[i].Text.Substring(5, 1)) * 3;
@@ -59,7 +59,7 @@ namespace WebAutoCrawler
                 if (context.SeasonData.Any(p => p.StockId == stockId && p.Datetime == datetime))
                     continue;
 
-                seasonData.Add(new SeasonData
+                seasonData.Add(new SeasonDatum
                 {
                     StockId = stockId,
                     Name = name,
@@ -77,7 +77,7 @@ namespace WebAutoCrawler
             return seasonData.OrderByDescending(p=>p.Datetime).ToArray();
         }
 
-        private SeasonData[] ParserFinance(string stockId, List<SeasonData> data)
+        private SeasonDatum[] ParserFinance(string stockId, List<SeasonDatum> data)
         {
             GoToUrl(string.Format(FinanceUrl, stockId));
             var table = FindElement(By.XPath("//*[@id='MainContent']/ul/li[2]/article/div/div/div/table"));

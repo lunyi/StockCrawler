@@ -7,10 +7,10 @@ namespace DataService.DataModel
 {
     public class StockeModel
     {
-        public Stocks Stock { get; set; }
-        public _Prices[] Prices { get; set; }
+        public Stock Stock { get; set; }
+        public _Price[] Prices { get; set; }
         public _WeekyChip[] WeeklyChip { get; set; }
-        public _MonthData[] MonthData { get; set; }
+        public _MonthDatum[] MonthData { get; set; }
         public _Industry[] Industries { get; set; }
         public string PriceQuantity { get; set; }
         public decimal Close { get; set; }

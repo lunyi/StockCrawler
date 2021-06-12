@@ -24,7 +24,7 @@ namespace WebCrawler
         public override async Task RunAsync()
         {
             var context = new StockDbContext();
-            _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
+            _token = await context.Tokens.Select(p => p.LineToken).FirstOrDefaultAsync();
             //var 外資投信主力買超股票 = Get外資投信主力買超股票(context);
 
             var 五日漲幅排行榜 = 五日漲幅排行榜1(context);
@@ -40,7 +40,7 @@ namespace WebCrawler
         private string 主力外資融資大買1(StockDbContext context)
         {
             context = new StockDbContext();
-            var datetime2 = context.Thousand.Where(p => p.StockId == "2330")
+            var datetime2 = context.Thousands.Where(p => p.StockId == "2330")
     .OrderByDescending(p => p.Datetime)
     .Take(1)
     .OrderBy(p => p.Datetime)

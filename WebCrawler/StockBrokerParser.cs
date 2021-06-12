@@ -98,7 +98,7 @@ namespace WebCrawler
                                     if (negativeCount > 15)
                                     {
                                         //TODO : Insert DB
-                                        var sb = new StockBrokers
+                                        var sb = new StockBroker
                                         {
                                             Id = Guid.NewGuid(),
                                             StockId = stockId,
@@ -129,7 +129,7 @@ namespace WebCrawler
                                     if (postiveCount > 15)
                                     {
                                         //TODO : Insert DB
-                                        var sb = new StockBrokers
+                                        var sb = new StockBroker
                                         {
                                             Id = Guid.NewGuid(),
                                             StockId = stockId,
@@ -168,7 +168,7 @@ namespace WebCrawler
 
                             if (k == nodes2.Count - 1 && (postiveCount > 15 || negativeCount > 15 ))
                             {
-                                var sb = new StockBrokers
+                                var sb = new StockBroker
                                 {
                                     Id = Guid.NewGuid(),
                                     StockId = stockId,

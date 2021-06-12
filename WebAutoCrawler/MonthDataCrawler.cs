@@ -59,7 +59,7 @@ namespace WebAutoCrawler
   order by s.StockId
 ";
         }
-        private MonthData ParserLatest(string url, string stockId, string name, List<MonthData> monthData)
+        private MonthDatum ParserLatest(string url, string stockId, string name, List<MonthDatum> monthData)
         {
             GoToUrl(url);
 
@@ -75,7 +75,7 @@ namespace WebAutoCrawler
             {
                 Console.WriteLine($"{stockId} {name} {tds[0].Text} Added");
 
-                return new MonthData
+                return new MonthDatum
                 {
                     StockId = stockId,
                     Name = name,
@@ -93,7 +93,7 @@ namespace WebAutoCrawler
             return null;
         }
 
-        private MonthData[] Parser(string url, string stockId, string name)
+        private MonthDatum[] Parser(string url, string stockId, string name)
         {
             GoToUrl(url);
 
@@ -101,12 +101,12 @@ namespace WebAutoCrawler
 
             var rows = table.FindElements(By.TagName("tr"));
 
-            var monthData = new List<MonthData>();
+            var monthData = new List<MonthDatum>();
             for (int i = 2; i < rows.Count; i++)
             {
                 var tds = rows[i].FindElements(By.TagName("td"));
 
-                monthData.Add(new MonthData
+                monthData.Add(new MonthDatum
                 {
                     StockId = stockId,
                     Name = name,

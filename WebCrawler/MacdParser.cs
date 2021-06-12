@@ -41,7 +41,7 @@ namespace WebCrawler
                     var existed = await context.RealtimeBestStocks.AnyAsync(p => p.StockId == ss[0] && p.Name == ss[1] && p.Type == type && p.Datetime == DateTime.Today);
                     if (!existed)
                     {
-                        context.RealtimeBestStocks.Add(new RealtimeBestStocks
+                        context.RealtimeBestStocks.Add(new RealtimeBestStock
                         {
                             Id = Guid.NewGuid(),
                             StockId = ss[0],
@@ -55,7 +55,7 @@ namespace WebCrawler
             await context.SaveChangesAsync();
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
-            _token = await context.Token.Select(p => p.LineToken).FirstOrDefaultAsync();
+            _token = await context.Tokens.Select(p => p.LineToken).FirstOrDefaultAsync();
             await NotifyBotApiAsync(context, type);
 
         }

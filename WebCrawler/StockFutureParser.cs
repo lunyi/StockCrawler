@@ -36,7 +36,7 @@ namespace WebCrawler
 
             var htmlNodes = rootNode.SelectNodes("//*[@id=\"myTable\"]/tbody/tr");
 
-            var list = new List<BrokerTransactionDetails>();
+            var list = new List<BrokerTransactionDetail>();
             for (int j  = 0; j < htmlNodes.Count; j++)
             {
                 var stockId = htmlNodes[j].ChildNodes[5].InnerText;

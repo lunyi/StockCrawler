@@ -39,7 +39,7 @@ namespace WebCrawler
                     int year = DateTime.Now.Year ;
                     var datetime = $"{year}/{threeNode.ChildNodes[0].ChildNodes[0].InnerHtml}";
 
-                    var dd = context.TwStock.FirstOrDefault(p => p.Datetime == Convert.ToDateTime(datetime));
+                    var dd = context.TwStocks.FirstOrDefault(p => p.Datetime == Convert.ToDateTime(datetime));
                     if (dd == null)
                     //if (datetime == DateTime.Now.ToString("yyyy/MM/dd"))
                     {
@@ -51,7 +51,7 @@ namespace WebCrawler
                         ParserOption(datetime, twStock);
                         ParserUpDownCount(twStock);
 
-                        context.TwStock.Add(twStock);
+                        context.TwStocks.Add(twStock);
                         await context.SaveChangesAsync();
                     }
                     else
@@ -85,7 +85,7 @@ namespace WebCrawler
                 var datetime = $"{DateTime.Now.Year}/{threeNodes[1].ChildNodes[0].ChildNodes[0].InnerHtml}";
                 Console.WriteLine($"{datetime} OK");
 
-                var dd = context.TwStock.FirstOrDefault(p => p.Datetime == Convert.ToDateTime(datetime));
+                var dd = context.TwStocks.FirstOrDefault(p => p.Datetime == Convert.ToDateTime(datetime));
                 if (dd == null)
                 {
                     var twStock = new TwStock();
@@ -96,7 +96,7 @@ namespace WebCrawler
                     ParserOption(datetime, twStock);
                     ParserUpDownCount(twStock);
 
-                    context.TwStock.Add(twStock);
+                    context.TwStocks.Add(twStock);
                     await context.SaveChangesAsync();
                 }
                 else

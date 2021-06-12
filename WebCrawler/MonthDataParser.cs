@@ -35,17 +35,17 @@ namespace WebCrawler
             Console.ReadLine();
         }
 
-        private async Task ParserStockAsync(StockDbContext context, Stocks stock)
+        private async Task ParserStockAsync(StockDbContext context, Stock stock)
         {
             try 
             {
                 var rootNode = GetRootNoteByUrl($"https://histock.tw/stock/financial.aspx?no={stock.StockId}");
                 var ss = rootNode.SelectSingleNode("//*[@id='form1']/div[4]/div[3]/div[2]/div[1]/div[1]/div/div[5]/div/table");
-                var monthData = new List<MonthData>();
+                var monthData = new List<MonthDatum>();
 
                 for (int i = 5; i < ss.ChildNodes.Count - 1; i++)
                 {
-                    var mm = new MonthData
+                    var mm = new MonthDatum
                     {
                         StockId = stock.StockId,
                         Name = stock.Name,

@@ -23,7 +23,7 @@ namespace WebAutoCrawler
         {
             var context = new StockDbContext();
             var stocks = context.Stocks.Where(p => p.Status == 1).OrderBy(p => p.StockId).ToArray();
-            var tdatetimes = context.Thousand.Where(p=>p.Datetime >= Convert.ToDateTime("2019-08-30"))
+            var tdatetimes = context.Thousands.Where(p=>p.Datetime >= Convert.ToDateTime("2019-08-30"))
                 .Select(p => p.Datetime)
                 .Distinct()
                 .OrderByDescending(p=>p)
@@ -35,7 +35,7 @@ namespace WebAutoCrawler
             }).ToArray();
             var alltemp = (from s in stocks
                            from d in datetimes
-                           join th in context.Thousand on new { s.StockId, d.Datetime } equals new { th.StockId, th.Datetime }
+                           join th in context.Thousands on new { s.StockId, d.Datetime } equals new { th.StockId, th.Datetime }
                             into thTmp
                            from t in thTmp.DefaultIfEmpty()
                            where t == null
@@ -169,7 +169,7 @@ where t.[Datetime] = '{datetime}'
             t.Datetime = Convert.ToDateTime(date);
             t.CreatedOn = DateTime.Now;
 
-            var p = context.Thousand.FirstOrDefault(p => p.StockId == stockId && p.Datetime == t.Datetime);
+            var p = context.Thousands.FirstOrDefault(p => p.StockId == stockId && p.Datetime == t.Datetime);
             if (p != null)
             {
                 return;
@@ -204,7 +204,7 @@ where t.[Datetime] = '{datetime}'
             t.CUnder100 = t.C1 + t.C5 + t.C10 + t.C15 + t.C20 + t.C30 + t.C40 + t.C50 + t.C100;
             t.SUnder100 = t.S1 + t.S5 + t.S10 + t.S15 + t.S20 + t.S30 + t.S40 + t.S50 + t.S100;
 
-            context.Thousand.Add(t);
+            context.Thousands.Add(t);
             await context.SaveChangesAsync();
         }
 

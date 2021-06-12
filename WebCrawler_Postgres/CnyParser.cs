@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using PostgresData.Models;
 using EFCore.BulkExtensions;
 using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
+using Npgsql.Bulk;
 
 namespace WebCrawler
 {
@@ -65,15 +67,29 @@ namespace WebCrawler
             Price = Price.Where(p => p != null).ToList();
             try 
             {
-                await context.BulkInsertOrUpdateAsync(Price);
+                var uploader = new NpgsqlBulkUploader(context);
+                // To create a lot of objects
+                await uploader.InsertAsync(Price);
+
+                //await context.BulkInsertOrUpdateAsync(Price);
+                //context.BulkInsert(Price);
             }
             catch (Exception e)
             {
-                Console.WriteLine($"{index}/{partition}");
-                Console.WriteLine($"Error {e}");
+                try
+                {
+                    var uploader = new NpgsqlBulkUploader(context);
+                    // To create a lot of objects
+                    await uploader.UpdateAsync(Price);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"{index}/{partition}");
+                    Console.WriteLine($"Error {ex}");
+                }
             }
             context.Database.SetCommandTimeout(300);
-            context.Database.ExecuteSqlRaw($"exec [usp_Update_MA_And_VMA] {DateTime.Today:yyyy-MM-dd}");
+           context.Database.ExecuteSqlRaw($"exec [usp_Update_MA_And_VMA] {DateTime.Today:yyyy-MM-dd}");
             s.Stop();
             Console.WriteLine($"Spend times {s.Elapsed.TotalMinutes} minutes.");
         }

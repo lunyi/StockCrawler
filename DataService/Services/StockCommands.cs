@@ -9,13 +9,13 @@ namespace DataService.Services
 {
     public interface IStockCommands
     {
-        Task CreatePriceAsync(Prices price);
-        Task UpdateStockAsync(Stocks stock);
+        Task CreatePriceAsync(Price price);
+        Task UpdateStockAsync(Stock stock);
         Task RemoveBestStockAsync(string stockId, string type);
     }
     public class StockCommands : IStockCommands
     {
-        async Task IStockCommands.CreatePriceAsync(Prices price)
+        async Task IStockCommands.CreatePriceAsync(Price price)
         {
             var context = new StockDbContext();
             var p = context.Prices.FirstOrDefault(p => p.Datetime == price.Datetime && p.StockId == price.StockId);
@@ -39,7 +39,7 @@ namespace DataService.Services
             }
         }
 
-        async Task IStockCommands.UpdateStockAsync(Stocks stock)
+        async Task IStockCommands.UpdateStockAsync(Stock stock)
         {
             var context = new StockDbContext();
             var p = await context.Stocks.FirstOrDefaultAsync(p => p.StockId == stock.StockId);
