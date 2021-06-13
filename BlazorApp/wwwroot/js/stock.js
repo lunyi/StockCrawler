@@ -207,7 +207,7 @@ function getBroker() {
 
 function getBrokerBuy() {
     if (currentStockId === "") {
-        alert("請選擇股票!!");
+        alert("請選擇股票!!"); onStockChangeAsync
         return;
     }
 
@@ -367,6 +367,8 @@ function onGetStocksByDate(val) {
     if (val !== 0) {
         currentType = val;
     } else {
+        console.log("currentUrlIndex=" + currentUrlIndex);
+
         if (currentUrlIndex === 4) {
             var selectedDay = moment(date.val()).format('YYYY-M-D');
             var _url = "https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco.djhtm?a=" + currentStockId + "&e=" + selectedDay + "&f=" + selectedDay;

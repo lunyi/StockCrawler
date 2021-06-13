@@ -27,6 +27,17 @@
         $("#YValue").text(data.stock.每股盈餘);
         $("#price").text(data.stock.股價);
         $("#website").attr("href", data.stock.website);
+
+        console.log(JSON.stringify(data.keyBrokers));
+        var text = "";
+        for (var i = 0; i < data.keyBrokers.length; i++) {
+            var rUrl = "https://fubon-ebrokerdj.fbs.com.tw/z/zc/zco/zco0/zco0.djhtm?A=" + data.keyBrokers[i].stockId + "&BHID=" + data.keyBrokers[i].bhid + "&b=" + data.keyBrokers[i].b + "&C=1&D=2020-1-1&E=" + datetime+"&ver=V3";
+            text += "<a href='" + rUrl + "'>" + data.keyBrokers[i].brokerName + "</a>";
+        }
+
+        console.log(text);
+        $("#keyBroker").html(text);
+
         //$("#kChart").attr("src", kUrl);
         //console.log(renewPrices(data.monthData));
         var vue = new Vue({
@@ -100,6 +111,7 @@ function plotChart(data, closeValue) {
 }
 
 function getDataPoints(data, closeValue) {
+    console.log(JSON.stringify(data));
     var s = data.split(" ");
     var pluginArrayArg = new Array();
     var s0 = s[0].split(",");

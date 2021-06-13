@@ -398,15 +398,18 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) /  
 
             var monthData = await context._MonthData.FromSqlRaw("exec [usp_GetMonthData] {0}, {1}", stockId, oldDate).ToArrayAsync();
             var price = context.Prices.FirstOrDefault(p => p.StockId == stockId && p.Datetime == datetime);
+            var keyBrokers = context.KeyBrokers.Where(p => p.StockId == stockId).ToArray();
+
             return new StockeModel
             {
-                Stock = await context.Stocks.FirstOrDefaultAsync(p=>p.StockId == stockId),
+                Stock = await context.Stocks.FirstOrDefaultAsync(p => p.StockId == stockId),
                 Prices = prices,
                 WeeklyChip = weeklyChip,
                 MonthData = monthData,
                 Industries = industries,
                 PriceQuantity = price == null ? string.Empty : price.分價量表,
-                Close = price == null ? 0 : price.Close
+                Close = price == null ? 0 : price.Close,
+                KeyBrokers = keyBrokers
             };
         }
 
