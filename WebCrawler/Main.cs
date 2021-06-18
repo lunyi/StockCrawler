@@ -23,7 +23,7 @@ namespace WebCrawler
            // await new ImportKeyBroker().RunAsync();
 
 
-            await new InsertBrokesParser().RunAsync();
+            await new InsertBrokesParser().RunSingleAsync();
 
             //await new WangooParser().RunAsync(1,1);
             //await DailyNotifyAsync();

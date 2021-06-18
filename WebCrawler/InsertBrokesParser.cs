@@ -65,16 +65,15 @@ namespace WebCrawler
             var s = Stopwatch.StartNew();
             s.Start();
             var context = new StockDbContext();
-            var brokers = context.KeyBrokers.ToList();
+            var brokers = context.KeyBrokers.OrderBy(p=>p.StockId).ToList();
 
-            var startDate = "2018-1-1";
-            var endDate = "2021-6-18";
+            var startDate = DateTime.Now.ToString("yyyy-MM-dd");
 
             var ss = Stopwatch.StartNew();
             ss.Start();
             foreach (var broker in brokers)
             {
-                await RunByUrlAsync(context, broker.StockId, broker.Name, mapper[11], startDate, endDate, broker.BHID, broker.b, broker.BrokerName);
+                await RunSingleByUrlAsync(context, broker.StockId, broker.Name, mapper[11], startDate, broker.BHID, broker.b, broker.BrokerName);
             }
             ss.Stop();
             Console.WriteLine($"Elapsed: {ss.Elapsed.TotalSeconds}");
@@ -95,6 +94,54 @@ namespace WebCrawler
             { 10, "http://jdata.yuanta.com.tw" },
             { 11, "https://fubon-ebrokerdj.fbs.com.tw"}
         };
+
+        private async Task RunSingleByUrlAsync(StockDbContext context, string stockId, string name, string domain, string startDate, string bhid, string b, string brokerName)
+        {
+            var details = new List<BrokerTransactionDetail>();
+
+            try
+            {
+                var url = $@"{domain}/z/zc/zco/zco0/zco0.djhtm?A={stockId}&BHID={bhid}&b={b}";
+
+                var rootNode = GetRootNoteByUrl(url, false);
+                var htmlNode = rootNode.SelectSingleNode("//*[@id=\"oMainTable\"]");
+
+                if (htmlNode == null)
+                    return;
+
+                var today = Convert.ToDateTime(startDate);
+                var date = Convert.ToDateTime(htmlNode.ChildNodes[3].ChildNodes[1].InnerHtml);
+                var brokerTransactionDetails = context.BrokerTransactionDetails.FirstOrDefault(p => p.Datetime == today && p.StockId == stockId && p.BrokerName == brokerName);
+
+                var insert = false;
+                if (date.ToString("yyyy-MM-dd") == startDate && brokerTransactionDetails == null)
+                {
+                    var buy = int.Parse(htmlNode.ChildNodes[3].ChildNodes[3].InnerHtml.Replace(",", ""));
+                    var sell = int.Parse(htmlNode.ChildNodes[3].ChildNodes[5].InnerHtml.Replace(",", ""));
+                    var 買賣超 = int.Parse(htmlNode.ChildNodes[3].ChildNodes[9].InnerHtml.Replace(",", ""));
+                    var dd = new BrokerTransactionDetail
+                    {
+                        BrokerId = bhid,
+                        BrokerName = brokerName,
+                        StockId = stockId,
+                        StockName = name,
+                        Datetime = date,
+                        Buy = buy,
+                        Sell = sell,
+                        買賣超 = 買賣超
+                    };
+
+                    context.BrokerTransactionDetails.Add(dd);
+                    await context.SaveChangesAsync();
+                    insert = true;
+                }
+                Console.WriteLine($"{stockId} {name} {brokerName} {insert}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"Error {e}");
+            }
+        }
 
         private async Task RunByUrlAsync(StockDbContext context, string stockId, string name, string domain, string startDate, string endDate, string bhid, string b, string brokerName)
         {
