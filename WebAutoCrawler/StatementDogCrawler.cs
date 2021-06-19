@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
+﻿using OpenQA.Selenium;
 using System.Threading.Tasks;
-using DataService.Models;
-using OpenQA.Selenium;
 
 namespace WebAutoCrawler
 {

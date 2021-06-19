@@ -20,7 +20,11 @@ namespace WebCrawler
         [Obsolete]
         static async Task Main(string[] args)
         {
-            await new ImportKeyBroker().RunAsync();
+           // await new ImportKeyBroker().RunAsync();
+
+
+            await new InsertBrokesParser().RunAsync();
+
             //await new WangooParser().RunAsync(1,1);
             //await DailyNotifyAsync();
 

@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using DataService.Models;
-using EFCore.BulkExtensions;
-using Microsoft.EntityFrameworkCore;
+﻿using DataService.Models;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace WebAutoCrawler
 {

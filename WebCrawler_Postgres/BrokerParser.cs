@@ -1,15 +1,14 @@
-﻿using System;
+﻿using LineBotLibrary;
+using LineBotLibrary.Models;
+using Microsoft.EntityFrameworkCore;
+using PostgresData.Models;
+using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PostgresData.Models;
-using LineBotLibrary;
-using LineBotLibrary.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace WebCrawler
 {

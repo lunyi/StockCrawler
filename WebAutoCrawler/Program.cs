@@ -34,6 +34,8 @@ namespace WebCrawler
             //await c.ExecuteAsync();
             //Console.ReadLine();
 
+
+
             //if (args.Length != 1)
             //{
             //    Console.WriteLine("沒有設定參數");
