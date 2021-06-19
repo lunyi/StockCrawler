@@ -47,7 +47,7 @@ namespace WebAutoCrawler
                         技術 = Convert.ToInt32(barnums[4].Text),
                         CreatedOn = DateTime.Now,
                     };
-                    context.AnaCMoneys.Add(item);
+                    //context.AnaCMoneys.Add(item);
                     await context.SaveChangesAsync();
                 }
                 catch (Exception)

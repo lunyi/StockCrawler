@@ -145,6 +145,12 @@ namespace DataService.Services
                 case (int)ChooseStockType.當週大戶比例增加:
                     sql = Get當週大戶比例增加(datetime);
                     break;
+                case (int)ChooseStockType.關鍵券商一日買賣超:
+                    sql = 關鍵券商一日買賣超(datetime);
+                    break;
+                case (int)ChooseStockType.關鍵券商一周買賣超:
+                    sql = 關鍵券商一周買賣超(datetime);
+                    break;
                 case (int)ChooseStockType.每周外資主力大買:
                     sql = $"exec [usp_Get主力外資買賣比例增加] '{datetime}'";
                     break;
@@ -2063,6 +2069,79 @@ where a.[董監持股] !=  b.[董監持股]) b on s.StockId = b.StockId
 order by b.買超 desc
 ";
         }
+
+
+        private string 關鍵券商一日買賣超(string datetime)
+        {
+            return $@"
+select 
+	s.[StockId]
+	,s.[Name]
+	,s.[MarketCategory]
+	,s.[Industry]
+	,s.[ListingOn]
+	,s.[CreatedOn]
+	,s.[UpdatedOn]
+	,s.[Status]
+	,s.[Address]
+	,s.[Website]
+	,s.[營收比重]
+	,s.[股本]
+	,s.[股價]
+	,s.[每股淨值]
+	,s.[每股盈餘], s.[ROE], s.[ROA]
+	,CAST(a.買賣超 AS nvarchar(30)) AS [Description]
+	,股票期貨
+from [Stocks] s join 
+(SELECT [StockId]
+      ,[StockName]
+      ,[Datetime]
+      ,[買賣超]
+  FROM [StockDb].[dbo].[BrokerTransactionDetails]
+  where [Datetime] = '{datetime}') a on s.StockId = a.StockId 
+order by a.買賣超 desc
+";
+        }
+
+
+        private string 關鍵券商一周買賣超(string datetime)
+        {
+            return $@"
+
+select 
+	s.[StockId]
+	,s.[Name]
+	,s.[MarketCategory]
+	,s.[Industry]
+	,s.[ListingOn]
+	,s.[CreatedOn]
+	,s.[UpdatedOn]
+	,s.[Status]
+	,s.[Address]
+	,s.[Website]
+	,s.[營收比重]
+	,s.[股本]
+	,s.[股價]
+	,s.[每股淨值]
+	,s.[每股盈餘], s.[ROE], s.[ROA]
+	,CAST(a.買賣超 AS nvarchar(30)) AS [Description]
+	,股票期貨
+from [Stocks] s join 
+(SELECT [BrokerId]
+      ,[BrokerName]
+      ,[StockId]
+      ,[StockName]
+      ,sum([買賣超]) as 買賣超
+  FROM [StockDb].[dbo].[BrokerTransactionDetails]
+  where [Datetime] >= DATEADD(DD,-7,'{datetime}') and  [Datetime] <= '{datetime}'
+  group by [StockId]
+      ,[StockName]
+	  ,[BrokerId]
+	  ,[BrokerName]) a on s.StockId = a.StockId 
+order by a.買賣超 desc
+";
+        }
+
 
         Task<BestStockType[]> IStockQueries.GetBestStockTypeAsync()
         {

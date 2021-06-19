@@ -70,7 +70,7 @@ namespace WebAutoCrawler
 
                     var list = GetAnaFutureEngines(stock.StockId, stock.Name);
                     Thread.Sleep(200);
-                    await context.AnaFutureEngines.AddRangeAsync(list);
+                    //await context.AnaFutureEngines.AddRangeAsync(list);
                     await context.SaveChangesAsync();
                 }
                 catch (Exception)
