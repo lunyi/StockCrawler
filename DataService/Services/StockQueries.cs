@@ -142,6 +142,9 @@ namespace DataService.Services
                 case (int)ChooseStockType.近月營收累積年增率成長:
                     sql = 近月營收累積年增率成長(datetime);
                     break;
+                case (int)ChooseStockType.五日內有漲停且突破:
+                sql = 五日內有漲停且突破(datetime);
+                    break;
                 case (int)ChooseStockType.當週大戶比例增加:
                     sql = Get當週大戶比例增加(datetime);
                     break;
@@ -160,8 +163,14 @@ namespace DataService.Services
                 case (int)ChooseStockType.投信突然進前20名:
                     sql = 突然進前20名(datetime, "投信買賣超");
                     break;
+                case (int)ChooseStockType.主力加投信賣超:
+                    sql = 主力加投信賣超(datetime);
+                    break; 
                 case (int)ChooseStockType.主力加投信:
                     sql = 主力加投信(datetime);
+                    break;
+                case (int)ChooseStockType.主投買且關鍵買:
+                    sql = 主投買且關鍵買(datetime);
                     break;
                 case (int)ChooseStockType.投量比加主力買超:
                     sql = 投量比加主力買超(datetime);
@@ -935,7 +944,33 @@ drop table #t1";
       ,[股票期貨]
 	  ,CAST( (主力買超張數 - 主力賣超張數)  AS varchar(18)) AS [Description]
 	  FROM [dbo].[Prices] p join [dbo].[Stocks] s on s.StockId = p.StockId
-  where [Datetime] = '{datetime}' and [投信買賣超] > 0 and 主力買超張數 - 主力賣超張數 > 0 and p.漲跌百分比 > 0
+  where [Datetime] = '{datetime}' and [投信買賣超] > 0 and 主力買超張數 - 主力賣超張數 > 0
+  order by p.漲跌百分比 desc";
+        }
+
+        private string 主力加投信賣超(string datetime)
+        {
+            return $@"select s.[StockId]
+      ,s.[Name]
+      ,[MarketCategory]
+      ,[Industry]
+      ,[ListingOn]
+      ,s.[CreatedOn]
+      ,[UpdatedOn]
+      ,[Status]
+      ,[Address]
+      ,[Website]
+      ,[營收比重]
+      ,[股本]
+      ,[股價]
+      ,[每股淨值]
+      ,[每股盈餘]
+      ,[ROE]
+      ,[ROA]
+      ,[股票期貨]
+	  ,CAST( (主力買超張數 - 主力賣超張數)  AS varchar(18)) AS [Description]
+	  FROM [dbo].[Prices] p join [dbo].[Stocks] s on s.StockId = p.StockId
+  where [Datetime] = '{datetime}' and [投信買賣超] < 0 and 主力買超張數 - 主力賣超張數 < 0
   order by p.漲跌百分比 desc";
         }
 
@@ -2103,11 +2138,73 @@ order by a.買賣超 desc
 ";
         }
 
+        private string 主投買且關鍵買(string datetime)
+        {
+            return $@"
+select 
+	s.[StockId]
+	,s.[Name]
+	,s.[MarketCategory]
+	,s.[Industry]
+	,s.[ListingOn]
+	,s.[CreatedOn]
+	,s.[UpdatedOn]
+	,s.[Status]
+	,s.[Address]
+	,s.[Website]
+	,s.[營收比重]
+	,s.[股本]
+	,s.[股價]
+	,s.[每股淨值]
+	,s.[每股盈餘], s.[ROE], s.[ROA]
+	,CAST(a.買賣超 AS nvarchar(30)) AS [Description]
+	,股票期貨
+from [Stocks] s join 
+(SELECT [StockId]
+      ,[StockName]
+      ,[Datetime]
+      ,[買賣超]
+  FROM [StockDb].[dbo].[BrokerTransactionDetails]
+  where [Datetime] = '{datetime}' and 買賣超 > 0) a on s.StockId = a.StockId 
+  join 
+(select * from Prices 
+where [Datetime] = '{datetime}' and (主力買超張數 - 主力賣超張數) > 0 and 投信買賣超 > 0) p on p.StockId = s.StockId
+order by a.買賣超 desc
+";
+        }
+
+
+        private string 五日內有漲停且突破(string datetime)
+        {
+            return $@"select 
+	s.[StockId]
+	,s.[Name]
+	,s.[MarketCategory]
+	,s.[Industry]
+	,s.[ListingOn]
+	,s.[CreatedOn]
+	,s.[UpdatedOn]
+	,s.[Status]
+	,s.[Address]
+	,s.[Website]
+	,s.[營收比重]
+	,s.[股本]
+	,s.[股價]
+	,s.[每股淨值]
+	,s.[每股盈餘], s.[ROE], s.[ROA]
+	,CAST(a.五日買賣超 AS nvarchar(30)) AS [Description]
+	,股票期貨
+from [Stocks] s
+join (select StockId, Name, [Close], 五日主力買超張數 - 五日主力賣超張數　as 五日買賣超  from [prices]
+ where [Datetime] >= DATEADD(DD, -7, '{datetime}') and [Datetime] <='{datetime}'
+ and (Signal like '%破月線%' or Signal like '%盤整突破%') and 漲跌百分比 > 9
+ and 五日主力買超張數 - 五日主力賣超張數 >0) a on a.StockId = s.StockId
+ order by a.五日買賣超 desc";
+        }
 
         private string 關鍵券商一周買賣超(string datetime)
         {
             return $@"
-
 select 
 	s.[StockId]
 	,s.[Name]
