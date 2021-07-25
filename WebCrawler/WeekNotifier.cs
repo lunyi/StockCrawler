@@ -30,7 +30,6 @@ namespace WebCrawler
             var 五日漲幅排行榜 = 五日漲幅排行榜1(context);
             var 主力外資融資大買 = 主力外資融資大買1(context);
             var 大戶比例增加 = 大戶比例增加1(context);
-
  
             await NotifyBotApiAsync(五日漲幅排行榜);
             await NotifyBotApiAsync(主力外資融資大買);

@@ -105,6 +105,8 @@ namespace DataService.Models
 
                 entity.Property(e => e.BusinessDay).HasColumnType("datetime");
 
+                entity.Property(e => e.Desc).HasMaxLength(32);
+
                 entity.Property(e => e.MainName).HasMaxLength(64);
 
                 entity.Property(e => e.Tel)
@@ -158,6 +160,8 @@ namespace DataService.Models
                 entity.HasKey(e => new { e.BrokerId, e.StockId, e.Datetime })
                     .HasName("PK_BrokerTransactionDetails_1")
                     .IsClustered(false);
+
+                entity.HasIndex(e => new { e.StockId, e.Datetime }, "Index_BrokerTransactionDetails_Datetime");
 
                 entity.HasIndex(e => e.StockId, "Index_BrokerTransactionDetails_StockId")
                     .IsClustered();

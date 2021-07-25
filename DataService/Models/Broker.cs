@@ -15,5 +15,6 @@ namespace DataService.Models
         public string Tel { get; set; }
         public string BHID { get; set; }
         public string b { get; set; }
+        public string Desc { get; set; }
     }
 }

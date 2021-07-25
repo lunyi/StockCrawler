@@ -1601,9 +1601,9 @@ order by s.[Description] / s.每股淨值
              { ChooseStockType.均線上揚第7天 , ()=>" and [AvgUpdays] >= 7 and [AvgUpdays] <= 12 order by Industry, [AvgUpdays]" },
              { ChooseStockType.均線上揚第12天 , ()=>" and [AvgUpdays] > 12  order by Industry, [AvgUpdays]" },
 
-             { ChooseStockType.多重訊號 , ()=>" and case when [Signal] like '%盤整突破%' then 1 else 0 end + case when [Signal] like '%破月線%' then 1 else 0 end + case when [Signal] like '%漲停板%' then 1 else 0 end  >= 2 order by [StockId] asc" },
-             { ChooseStockType.當天盤整突破 , ()=>" and [Signal] like '%當天盤整突破%'  order by [StockId] asc" },
-             { ChooseStockType.當天破月線 , ()=>" and [Signal] like '%當天破月線%'  order by [StockId] asc" },
+             { ChooseStockType.多重訊號 , ()=>" and case when [Signal] like '%盤整突破%' then 1 else 0 end + case when [Signal] like '%破月線%' then 1 else 0 end + case when [Signal] like '%漲停板%' then 1 else 0 end  >= 2 order by [漲跌百分比] desc" },
+             { ChooseStockType.當天盤整突破 , ()=>" and [Signal] like '%當天盤整突破%'  order by [漲跌百分比] desc" },
+             { ChooseStockType.當天破月線 , ()=>" and [Signal] like '%當天破月線%'  order by [漲跌百分比] desc" },
              
             { ChooseStockType.一日漲幅排行榜 , ()=>一日漲幅排行榜() },
             { ChooseStockType.外資投信同步買超排行榜 , ()=>外資投信同步買超排行榜() },
@@ -1844,7 +1844,7 @@ select s.[StockId]
 from Prices p
 join Stocks s on p.StockId = s.StockID 
 where p.Datetime = '{datetime}' and p.[Signal] like '%當天盤整突破%' 
-order by p.成交量 desc
+order by p.漲跌百分比 desc
 ";
         }
         private static string 當天破月線1(string datetime)
@@ -1870,7 +1870,7 @@ select s.[StockId]
 from Prices p
 join Stocks s on p.StockId = s.StockID 
 where p.Datetime = '{datetime}' and p.[Signal] like '%當天破月線%' 
-order by p.成交量 desc
+order by p.漲跌百分比 desc
 ";
         }
         #endregion
