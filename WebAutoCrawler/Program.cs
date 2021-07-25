@@ -18,9 +18,6 @@ namespace WebCrawler
             //var p = new DirectorSupervisorCrawler();
             //await p.ExecuteAsync();
 
-            //var c = new DirectorSupervisorCrawler();
-            //await c.ExecuteAsync();
-
             //var c = new MonthDataCrawler();
             //await c.ExecuteAsync();
 

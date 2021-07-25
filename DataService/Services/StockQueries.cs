@@ -143,7 +143,7 @@ namespace DataService.Services
                     sql = 近月營收累積年增率成長(datetime);
                     break;
                 case (int)ChooseStockType.五日內有漲停且突破:
-                sql = 五日內有漲停且突破(datetime);
+                    sql = 五日內有漲停且突破(datetime);
                     break;
                 case (int)ChooseStockType.當週大戶比例增加:
                     sql = Get當週大戶比例增加(datetime);
@@ -162,6 +162,9 @@ namespace DataService.Services
                     break;
                 case (int)ChooseStockType.投信突然進前20名:
                     sql = 突然進前20名(datetime, "投信買賣超");
+                    break;
+                case (int)ChooseStockType.均線起飛第一天:
+                    sql = 均線起飛第一天(datetime);
                     break;
                 case (int)ChooseStockType.主力加投信賣超:
                     sql = 主力加投信賣超(datetime);
@@ -278,8 +281,18 @@ namespace DataService.Services
             var res = await context.Stocks.FromSqlRaw(sql).ToArrayAsync();
             return res;
         }
+        private string 均線起飛第一天(string datatime)
+        {
+            return $@"
+  select s.* from [Stocks] s join 
+  (select * FROM [StockDb].[dbo].[Prices]
+  where [Datetime] = '{datatime}' and AvgUpDays = 1 and 漲跌百分比 > 2
+  ) a on a.StockId = s.StockId 
+  order by a.漲跌百分比 desc
+";
+        }
 
-        private string 買方籌碼集中排行榜(string datetime, string orderby)
+            private string 買方籌碼集中排行榜(string datetime, string orderby)
         {
             return $@"SELECT s.[StockId] ,s.[Name]
                       ,s.[MarketCategory]
@@ -332,26 +345,6 @@ namespace DataService.Services
 	and r1.[Type] = '5與20日均線黃金交叉'
 	and r2.[Type] = '突破季線'";
         }   
-
-        private string GetMainForceSql(string mainForce)
-        {
-            return @$"
-  DECLARE @ColumnGroup NVARCHAR(MAX), @PivotSQL NVARCHAR(MAX) 
-
-  SELECT @ColumnGroup = COALESCE(@ColumnGroup + ',' ,'' ) + QUOTENAME([NAme])
-  FROM dbo.[Stocks] where [Status] = 1
-
-  SELECT @PivotSQL = N'
-  select * from 
-  (select  [Datetime], [Name], [外資買賣超]
-  from [Prices]) t 
-  pivot  (
-	MAX([外資買賣超]) 
-	for	[Name] in (' +@ColumnGroup+ ')
-  ) p order by [Datetime] desc'
-
-  EXEC sp_executesql  @PivotSQL;";
-        }
 
         private string Get籌碼集中排行榜Sql(string datetime, int days, string orderby = "desc")
         {
@@ -465,37 +458,73 @@ order by　a._count　desc";
        
         private string 主力外資融資買進(string datetime)
         {
+            //declare @MaxDate as Datetime = '{datetime}'
+
+            //select
+            //	ROW_NUMBER() over (partition by [StockId] order by [Datetime] desc) as RowNo,
+            //	StockId,
+            //	[Name],
+            //	CONVERT(nvarchar,[Datetime], 23) as [Datetime],
+            //	[PUnder100],
+            //	[SUnder100],
+            //	[POver1000],
+            //	[SOver1000],
+            //	[P200] + [P400] as [PUnder400],
+            //	[S200] + [S400] as [SUnder400],
+            //	[P600] + [P800] + [P1000] as [POver400],
+            //	[S600] + [S800] + [S1000] as [SOver400]
+            //into #t3
+            //from [Thousand] t 
+            //where [Datetime] <= @MaxDate and [Datetime] >= DATEADD(DD,-14,@MaxDate)
+
+            //select 
+            // s.* 
+            // from #t3 t 
+            //join #t3  t1 on t.RowNo +1 = t1.RowNo and t.StockId = t1.StockId
+            //join Stocks s on s.StockId = t.StockId
+            //where t.PUnder100 < t1.PUnder100 and t.POver1000 > t1.POver1000 and 
+            //(select sum(投信買賣超) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) > 0 and 
+            //(select sum(外資買賣超) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) > 0 and 
+            //(select sum(五日主力買超張數 - 五日主力賣超張數) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) > 0 and 
+            //(select sum(融資買進 - 融資賣出) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) > 0
+            //drop table #t3
+
+
+            //SELECT s.*
+            //from Stocks s join [Prices] p on p.StockId = s.StockId
+            //  where p.[Datetime] = '{datetime}'
+            //    and p.主力買超張數 - p.主力賣超張數 > 0
+            //    and p.融資買進 - p.融資賣出 > 0
+            //    and p.外資買賣超 > 0
+            //    and p.投信買賣超 = 0 and p.[Close] > MA60
+            //    and p.漲跌百分比 > 0
+            //    and p.VMA5 > 500
+            //  order by 漲跌百分比 desc
+
             return $@"
-declare @MaxDate as Datetime = '{datetime}'
+declare @datetime as Datetime =  '{datetime}';
 
-select
-	ROW_NUMBER() over (partition by [StockId] order by [Datetime] desc) as RowNo,
-	StockId,
-	[Name],
-	CONVERT(nvarchar,[Datetime], 23) as [Datetime],
-	[PUnder100],
-	[SUnder100],
-	[POver1000],
-	[SOver1000],
-	[P200] + [P400] as [PUnder400],
-	[S200] + [S400] as [SUnder400],
-	[P600] + [P800] + [P1000] as [POver400],
-	[S600] + [S800] + [S1000] as [SOver400]
-into #t3
-from [Thousand] t 
-where [Datetime] <= @MaxDate and [Datetime] >= DATEADD(DD,-14,@MaxDate)
+with tmp as (
+select StockId, Name, 
+	avg(abs(融資買進-融資賣出)) as 融資買賣超,
+	avg(abs(主力買超張數-主力賣超張數)) as 主力買賣超,
+	avg(abs(外資買賣超)) as 外資買賣超
+from 
+	[Prices] p 
+  where  p.[Datetime] >= DATEADD(DD, -8, @datetime)  and p.[Datetime] <=DATEADD(DD, -1, @datetime)
+  group by StockId, Name)
 
-select 
- s.* 
- from #t3 t 
-join #t3  t1 on t.RowNo +1 = t1.RowNo and t.StockId = t1.StockId
-join Stocks s on s.StockId = t.StockId
-where t.PUnder100 < t1.PUnder100 and t.POver1000 > t1.POver1000 and 
-(select sum(投信買賣超) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) > 0 and 
-(select sum(外資買賣超) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) > 0 and 
-(select sum(五日主力買超張數 - 五日主力賣超張數) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) > 0 and 
-(select sum(融資買進 - 融資賣出) from Prices where StockId=t.StockId and [Datetime]>t1.[Datetime] and [Datetime] <= t.[Datetime]) > 0
-drop table #t3
+
+select s.* from [Stocks] s join
+(select * from [Prices] where [Datetime] = @datetime) a  on a.StockId = s.StockId
+join tmp b on a.StockId = b.StockId
+where 
+a.漲跌百分比 > 2 and
+(a.融資買進 - a.融資賣出)  > b.融資買賣超 * 2 and 
+(a.主力買超張數 - a.主力賣超張數)  > b.主力買賣超 * 2 and 
+(a.外資買賣超)  > b.外資買賣超 * 2 and 
+a.VMA5 > 500
+order by a.漲跌百分比 desc
 ";
         }
 
@@ -1650,8 +1679,8 @@ order by s.[Description] / s.每股淨值
         private static string 外資投信同步買超排行榜()
         {
             return @$"
-  and [外資買賣超] > 0 and [投信買賣超] > 0 and ([主力買超張數] - [主力賣超張數]) > 0 and [漲跌百分比] > 2
-  order by [投信買賣超] desc
+  and [外資買賣超] > 0 and [投信買賣超] > 0 and ([主力買超張數] - [主力賣超張數]) > 0 and  [融資買進] - [融資賣出] > 0
+  order by [漲跌百分比] desc
 ";
         }
 
@@ -2196,8 +2225,8 @@ order by a.買賣超 desc
 	,股票期貨
 from [Stocks] s
 join (select StockId, Name, [Close], 五日主力買超張數 - 五日主力賣超張數　as 五日買賣超  from [prices]
- where [Datetime] >= DATEADD(DD, -7, '{datetime}') and [Datetime] <='{datetime}'
- and (Signal like '%破月線%' or Signal like '%盤整突破%') and 漲跌百分比 > 9
+ where [Datetime] >= DATEADD(DD, -14, '{datetime}') and [Datetime] <='{datetime}'
+ and (Signal like '%破月線%' or Signal like '%盤整突破%') and  Signal like '%大買%' and 漲跌百分比 > 9
  and 五日主力買超張數 - 五日主力賣超張數 >0) a on a.StockId = s.StockId
  order by a.五日買賣超 desc";
         }

@@ -7,6 +7,7 @@
         <select id="selectBestType" onchange="onGetStocksByDate(1)"></select>
         <select id="selectAvgType" onchange="onGetStocksByDate(3)">
             <option value="0">-選均線上揚-</option>
+            <option value="79">均線上揚第1天</option>
             <option value="62">均線上揚第1~6天</option>
             <option value="63">均線上揚第7~12天</option>
             <option value="64">均線上揚超過12天</option>
@@ -28,8 +29,9 @@
             @*<option value="36">★每周投信買散戶賣★</option>*@
             @*<option value="67">★每周外資主力大買★</option>*@
             @*<option value="65">★十日籌碼轉買方★</option>*@
-            <option value="14">★當日買方籌碼集中度排行榜★</option>
+            @*<option value="14">★當日買方籌碼集中度排行榜★</option>*@
             <option value="3">★外資投信同步買超排行★</option>
+            <option value="53">主力外資融資突然大買</option>
             <option value="47">★上漲破五日均★</option>
             <option value="69">★多重訊號★</option>
             <option value="38">★投信突然進前20名★</option>
@@ -43,7 +45,7 @@
             <option value="66">主力買超排行</option>
             <option value="5">外資買超排行</option>
             <option value="16">**董監買賣超排行榜**</option>
-            
+
             <option value="15">**連續兩週大戶增散戶減**</option>
             <option value="19">**連續大戶增加**</option>
 
@@ -54,11 +56,11 @@
 
             <option value="30">四十日漲幅排行</option>
             <option value="31">六十日漲幅排行</option>
-            <option value="24">五日買方籌碼集中度排行榜</option>
-            <option value="25">十日買方籌碼集中度排行榜</option>
-            <option value="26">二十日買方籌碼集中度排行榜</option>
-            <option value="27">六十日買方籌碼集中度排行榜</option>
-            <option value="53">主力外資融資買進</option>
+            @*<option value="24">五日買方籌碼集中度排行榜</option>
+        <option value="25">十日買方籌碼集中度排行榜</option>
+        <option value="26">二十日買方籌碼集中度排行榜</option>
+        <option value="27">六十日買方籌碼集中度排行榜</option>*@
+
             <option value="54">MA5和MA10上彎</option>
             <option value="55">融資突然買進</option>
             <option value="56">連續三個月董資持股增加</option>
@@ -88,7 +90,7 @@
             <option value="7">自營商買超排行</option>
             <option value="8">融資買超排行</option>
             <option value="9">融券賣超排行</option>
-            <option value="-1">一日跌幅排行</option>
+            @*<option value="-1">一日跌幅排行</option>
             <option value="-2">五日跌幅排行</option>
             <option value="-3">外資投信同步賣超排行</option>
             <option value="-13">外資連續賣超排行榜</option>
@@ -103,7 +105,7 @@
             <option value="-6">投信賣超排行</option>
             <option value="-7">自營商賣超排行</option>
             <option value="-8">融資賣超排行</option>
-            <option value="-9">融券買超排行</option>
+            <option value="-9">融券買超排行</option>*@
         </select>
         <select id="stockList" size="20" onchange="onStockChangeAsync(this)"></select>
         <input id="txtChosenStockType" list="chosenStockType" type="text" placeholder="選股類型" />

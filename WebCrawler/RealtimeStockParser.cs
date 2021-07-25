@@ -32,12 +32,12 @@ namespace WebCrawler
 
             var 上漲破月線股票 = 上漲破月線(context);
             var 盤整突破股票 = 盤整突破(context);
-
+            var 均線起飛第一天 = _均線起飛第一天(context);
             var 上漲類股1 = 上漲類股(context);
             await NotifyBotApiAsync(上漲類股1);
-
             await NotifyBotApiAsync(上漲破月線股票);
             await NotifyBotApiAsync(盤整突破股票);
+            await NotifyBotApiAsync(均線起飛第一天);     
         }
 
 
@@ -123,6 +123,9 @@ order by　a._count　desc, CAST(a._count AS DECIMAL(18,2))  / b.totalCount desc
                 }
             }
 
+            context.Database.SetCommandTimeout(300);
+            context.Database.ExecuteSqlRaw($"exec [usp_Update_MA_And_VMA] '{DateTime.Today:yyyy-MM-dd}'");
+
             s.Stop();
             Console.WriteLine($"TotalMinutes: {s.Elapsed.TotalMinutes}");
         }
@@ -144,6 +147,30 @@ order by　a._count　desc, CAST(a._count AS DECIMAL(18,2))  / b.totalCount desc
             }
             context.SaveChanges();
 
+            return msg.ToString();
+        }
+
+        private string _均線起飛第一天(StockDbContext context)
+        {
+            var sql = $@"
+  select s.* from [Stocks] s join 
+  (select * FROM [StockDb].[dbo].[Prices]
+  where [Datetime] = '{DateTime.Today:yyyy-MM-dd}' and AvgUpDays = 1 and 漲跌百分比 > 2
+  ) a on a.StockId = s.StockId 
+  order by a.漲跌百分比 desc
+";
+
+            var stocks = context.Stocks.FromSqlRaw(sql).ToArray();
+
+            var msg = new StringBuilder();
+            msg.AppendLine($"當天均線起飛第一天 : {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+
+            var index = 1;
+            foreach (var stock in stocks)
+            {
+                msg.AppendLine($"{index}. {stock.StockId} {stock.Name} {stock.股價} [{stock.Industry}]({stock.Description}) ");
+                index++;
+            }
             return msg.ToString();
         }
 

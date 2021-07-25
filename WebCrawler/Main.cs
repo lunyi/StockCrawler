@@ -20,10 +20,10 @@ namespace WebCrawler
         [Obsolete]
         static async Task Main(string[] args)
         {
-           // await new ImportKeyBroker().RunAsync();
+            // await new ImportKeyBroker().RunAsync();
 
 
-            await new InsertBrokesParser().RunSingleAsync();
+            //await new InsertBrokesParser().RunSingleAsync();
 
             //await new WangooParser().RunAsync(1,1);
             //await DailyNotifyAsync();
@@ -74,11 +74,11 @@ namespace WebCrawler
 
             //await RunAsync<TwStockParser>();
 
-            //await RunAsync<RealtimeStockParser>();
+            await RunAsync<SuddenlyInvestment>();
             //Console.ReadLine();
             //await DailyNotifyAsync();
 
-            //await new MusicList().RunAsync();
+            //await new UpdateStockListParser().RunAsync();
         }
 
         static async Task RunExe()
