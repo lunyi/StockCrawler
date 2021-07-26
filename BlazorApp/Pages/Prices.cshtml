@@ -35,7 +35,7 @@
 
     @*REF: https://canvasjs.com/jquery-charts/*@
 
-    <table>
+    <table style="width:1800px">
         <tr>
             <td width="350px" style="vertical-align:top">
                 <div>股票名稱:<span id="stockName"></span></div>
@@ -55,7 +55,6 @@
                     ROE:&nbsp;<span id="roe"></span>&nbsp;&nbsp;
                     ROA:&nbsp;<span id="roa"></span>
                 </div>
-                <div id="chartContainer" class="plotChart"></div>
             </td>
             <td>
                 <div id="industry" class="container">
@@ -143,109 +142,100 @@
                     </table>
                 </div>
             </td>
+            <td>
+                <div id="chartContainer" class="plotChart"></div>
+            </td>
         </tr>
     </table>
-    <div>
-        @*<table>
+    <table id="textExample" class="table table-bordered responsive-table" style="font-size: 10px; position: relative; width: 1500px">
+        <thead>
             <tr>
-                <td>*@
-        <table id="textExample" class="table table-bordered responsive-table" style="font-size:10px;position:relative;">
-            <thead>
-                <tr>
-                    <th>日期</th>
-                    <th>收盤</th>
-                    <th>量</th>
-                    <th>漲跌</th>
-                    <th>百分比</th>
-                    @*<th>董監增減</th>*@
-                    <th>融資</th>
-                    @*<th>融券</th>*@
-                    <th>外資</th>
-                    <th>投信</th>
-                    @*<th>自營</th>*@
-                    <th>主力</th>
-                    <th>當天籌碼</th>
-                    <th>5日籌碼</th>
-                    <th>10日籌碼</th>
-                    <th>20日籌碼</th>
-                    @*<th>當天主力</th>
-                        <th>10日主力</th>*@
-                    <th>MA5</th>
-                    <th>MA10</th>
-                    <th>MA20</th>
-                    <th>K9</th>
-                    @*<th>D9</th>*@
-                    @*<th>MACD</th>
-                        <th>DIF</th>*@
-                    <th>OSC</th>
-                    @*<th>當沖張數</th>*@
-                    <th>當沖比例</th>
-                    <th>Day</th>
-                    <th>訊號</th>
-                    @*
-                        <th>當沖總損益</th>
-                        <th>當沖均損益</th>*@
-                    @*<th>本益比</th>*@
-                    @*<th>淨值比</th>
-                        <th>周轉率</th>*@
-                    @*<th>五日籌碼</th>
-                        <th>十日籌碼</th>
-                        <th>二十日籌碼</th>
-                        <th>六十日籌碼</th>*@
-                </tr>
-            </thead>
-            <tr v-for="price in Prices">
-                <td>{{price.datetime}}</td>
-                <td v-bind:style="{ color: price.updownColor}">{{price.close}}</td>
-                <td v-bind:style="{ fontWeight: price.zfontWeight}">{{price.成交量}}</td>
-                <td v-bind:style="{ color: price.updownColor, fontWeight: price.fontWeight}">{{price.漲跌}}</td>
-                <td v-bind:style="{ color: price.pColor, fontWeight: price.fontWeight}">{{price.漲跌百分比}}%</td>
-                @*<td v-bind:style="{ color: price.dColor}">{{price.董監持股}} ({{price.董監持股比例}}%)</td>*@
-                <td v-bind:style="{ color: price.lColor}">{{price.融資買賣超}}</td>
-                @*<td v-bind:style="{ color: price.chColor}">{{price.融券買賣超}}</td>*@
-                <td v-bind:style="{ color: price.fColor, backgroundColor: '#FFFF99'}">{{price.外資買賣超}}</td>
-                <td v-bind:style="{ color: price.tColor}">{{price.投信買賣超}} ({{price.投信持股比例}}%)</td>
-                @*<td v-bind:style="{ color: price.zColor}">{{price.自營商買賣超}}</td>*@
-                <td v-bind:style="{ color: price.mColor,backgroundColor: '#FFFF99'}">{{price.主力買賣超}}</td>
-                @*<td>{{price.本益比}}</td>*@
-                @*<td>{{price.股價淨值比}}</td>*@
-                @*<td>{{price.周轉率}}%</td>*@
-                <td v-bind:style="{ color: price.chipColor, fontWeight: price.cfontWeight}">{{price.籌碼集中度}}%</td>
-                <td v-bind:style="{ color: price.chip5Color, fontWeight: price.c5fontWeight}">{{price.五日籌碼集中度}}%</td>
-                <td v-bind:style="{ color: price.chip10Color, fontWeight: price.c10fontWeight}">{{price.十日籌碼集中度}}%</td>
-                <td v-bind:style="{ color: price.chip20Color, fontWeight: price.c20fontWeight}">{{price.二十日籌碼集中度}}%</td>
-
-                @*<td v-bind:style="{ color: price.chipPColor, fontWeight: price.cfontPWeight}">{{price.主力買賣比例}}</td>
-                    <td v-bind:style="{ color: price.chipP10Color, fontWeight: price.c10fontPWeight}">{{price.十日主力買賣比例}}</td>*@
-
-                <td v-bind:style="{ color: price.ma5Color}">{{price.mA5}}</td>
-                <td v-bind:style="{ color: price.ma10Color, backgroundColor: '#FFFF99'}">{{price.mA10}}</td>
-                <td v-bind:style="{ color: price.ma20Color}">{{price.mA20}}</td>
-                <td v-bind:style="{ color: price.k9Color}">{{price.k9}}</td>
-                @*<td v-bind:style="{ color: price.d9Color}">{{price.d9}}</td>
-                            <td v-bind:style="{ color: price.macdColor}">{{price.macd}}</td>
-                    <td v-bind:style="{ color: price.difColor}">{{price.dif}}</td>*@
-                <td v-bind:style="{ color: price.oscColor}">{{price.osc}}</td>
-                @*<td>{{price.當沖張數}}</td>*@
-                <td>{{price.當沖比例}}%</td>
-                <td>{{price.avgDays}}</td>
-                <td>{{price.signal}}</td>
+                <th>日期</th>
+                <th>收盤</th>
+                <th>量</th>
+                <th>漲跌</th>
+                <th>百分比</th>
+                @*<th>董監增減</th>*@
+                <th>融資</th>
+                @*<th>融券</th>*@
+                <th>外資</th>
+                <th>投信</th>
+                @*<th>自營</th>*@
+                <th>主力</th>
+                <th>當天籌碼</th>
+                <th>5日籌碼</th>
+                <th>10日籌碼</th>
+                <th>20日籌碼</th>
+                @*<th>當天主力</th>
+                    <th>10日主力</th>*@
+                <th>MA5</th>
+                <th>MA10</th>
+                @*<th>MA20</th>
+                <th>K9</th>*@
+                @*<th>D9</th>*@
+                @*<th>MACD</th>
+                    <th>DIF</th>*@
+                @*<th>OSC</th>*@
+                @*<th>當沖張數</th>*@
+                <th>當沖比例</th>
+                <th>Day</th>
+                <th>訊號</th>
                 @*
-                    <td>{{price.當沖總損益}}</td>
-                    <td>{{price.當沖均損益}}</td>*@
-                @*<td>{{price.五日籌碼集中度}}%</td>
-                    <td>{{price.十日籌碼集中度}}%</td>
-                    <td>{{price.二十日籌碼集中度}}%</td>
-                    <td>{{price.六十日籌碼集中度}}%</td>*@
+                    <th>當沖總損益</th>
+                    <th>當沖均損益</th>*@
+                @*<th>本益比</th>*@
+                @*<th>淨值比</th>
+                    <th>周轉率</th>*@
+                @*<th>五日籌碼</th>
+                    <th>十日籌碼</th>
+                    <th>二十日籌碼</th>
+                    <th>六十日籌碼</th>*@
             </tr>
-        </table>
-        @*</td>
-            <td valign="top" align="right">
-                 <iframe id="kChart" style="z-index:1;" width="600" height="900" scrolling="no" frameborder="0" />
-             </td>
-            </tr>
-            </table>
-        *@
-    </div>
+        </thead>
+        <tr v-for="price in Prices">
+            <td>{{price.datetime}}</td>
+            <td v-bind:style="{ color: price.updownColor}">{{price.close}}</td>
+            <td v-bind:style="{ fontWeight: price.zfontWeight}">{{price.成交量}}</td>
+            <td v-bind:style="{ color: price.updownColor, fontWeight: price.fontWeight}">{{price.漲跌}}</td>
+            <td v-bind:style="{ color: price.pColor, fontWeight: price.fontWeight}">{{price.漲跌百分比}}%</td>
+            @*<td v-bind:style="{ color: price.dColor}">{{price.董監持股}} ({{price.董監持股比例}}%)</td>*@
+            <td v-bind:style="{ color: price.lColor}">{{price.融資買賣超}}</td>
+            @*<td v-bind:style="{ color: price.chColor}">{{price.融券買賣超}}</td>*@
+            <td v-bind:style="{ color: price.fColor, backgroundColor: '#FFFF99'}">{{price.外資買賣超}}</td>
+            <td v-bind:style="{ color: price.tColor}">{{price.投信買賣超}} ({{price.投信持股比例}}%)</td>
+            @*<td v-bind:style="{ color: price.zColor}">{{price.自營商買賣超}}</td>*@
+            <td v-bind:style="{ color: price.mColor,backgroundColor: '#FFFF99'}">{{price.主力買賣超}}</td>
+            @*<td>{{price.本益比}}</td>*@
+            @*<td>{{price.股價淨值比}}</td>*@
+            @*<td>{{price.周轉率}}%</td>*@
+            <td v-bind:style="{ color: price.chipColor, fontWeight: price.cfontWeight}">{{price.籌碼集中度}}%</td>
+            <td v-bind:style="{ color: price.chip5Color, fontWeight: price.c5fontWeight}">{{price.五日籌碼集中度}}%</td>
+            <td v-bind:style="{ color: price.chip10Color, fontWeight: price.c10fontWeight}">{{price.十日籌碼集中度}}%</td>
+            <td v-bind:style="{ color: price.chip20Color, fontWeight: price.c20fontWeight}">{{price.二十日籌碼集中度}}%</td>
+
+            @*<td v-bind:style="{ color: price.chipPColor, fontWeight: price.cfontPWeight}">{{price.主力買賣比例}}</td>
+                <td v-bind:style="{ color: price.chipP10Color, fontWeight: price.c10fontPWeight}">{{price.十日主力買賣比例}}</td>*@
+
+            <td v-bind:style="{ color: price.ma5Color}">{{price.mA5}}</td>
+            <td v-bind:style="{ color: price.ma10Color, backgroundColor: '#FFFF99'}">{{price.mA10}}</td>
+            @*<td v-bind:style="{ color: price.ma20Color}">{{price.mA20}}</td>*@
+            @*<td v-bind:style="{ color: price.k9Color}">{{price.k9}}</td>*@
+            @*<td v-bind:style="{ color: price.d9Color}">{{price.d9}}</td>
+                        <td v-bind:style="{ color: price.macdColor}">{{price.macd}}</td>
+                <td v-bind:style="{ color: price.difColor}">{{price.dif}}</td>*@
+            @*<td v-bind:style="{ color: price.oscColor}">{{price.osc}}</td>*@
+            @*<td>{{price.當沖張數}}</td>*@
+            <td>{{price.當沖比例}}%</td>
+            <td>{{price.avgDays}}</td>
+            <td>{{price.signal}}</td>
+            @*
+                <td>{{price.當沖總損益}}</td>
+                <td>{{price.當沖均損益}}</td>*@
+            @*<td>{{price.五日籌碼集中度}}%</td>
+                <td>{{price.十日籌碼集中度}}%</td>
+                <td>{{price.二十日籌碼集中度}}%</td>
+                <td>{{price.六十日籌碼集中度}}%</td>*@
+        </tr>
+    </table>
 </body>
 </html>

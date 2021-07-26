@@ -401,8 +401,7 @@ order by (p.[{strDays}主力買超張數] - p.[{strDays}主力賣超張數]) /  
             var oldDate = chkDate ? datetimeString : DateTime.Now.ToString("yyyy-MM-dd");
             var prices = await context._Prices.FromSqlRaw("exec [usp_GetPrices] {0}, {1}", stockId, oldDate).ToArrayAsync();
             var weeklyChip = await context._WeekyChips.FromSqlRaw("exec [usp_GetWeekData] {0},{1},{2}", datetimeString, chkDate, stockId).ToArrayAsync();
-            var sqlIndustry = GetIndustries(datetimeString);
-            var industries = await context._Industries.FromSqlRaw(sqlIndustry).ToArrayAsync();
+            var industries = await context._Industries.FromSqlRaw("exec [usp_GetDailyIndustries] {0}", datetimeString).ToArrayAsync();
 
             var monthData = await context._MonthData.FromSqlRaw("exec [usp_GetMonthData] {0}, {1}", stockId, oldDate).ToArrayAsync();
             var price = context.Prices.FirstOrDefault(p => p.StockId == stockId && p.Datetime == datetime);
@@ -445,17 +444,6 @@ SELECT s.*
 ";
         }
 
-        private string GetIndustries(string datetime)
-        {
-            return $@"select top 17 a.*, b.totalCount, 0.0 as [percent] from (
-select  s.Industry, count(1) as _count from [Prices] p 
-join [Stocks] s on p.StockId = s.StockId 
-where p.[Datetime] = '{datetime}'　and  p.漲跌百分比 >=4
-group by  s.Industry) a
-join (select z.Industry, count(1) as totalCount from Stocks z　group by  ｚ.Industry) b on b.Industry = a.Industry
-order by　a._count　desc";
-        }
-       
         private string 主力外資融資買進(string datetime)
         {
             //declare @MaxDate as Datetime = '{datetime}'

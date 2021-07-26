@@ -54,11 +54,11 @@ namespace WebCrawler
             }
         }
 
-        //private async Task ParseBrokersAsync(StockDbContext context)
-        //{
-        //    var sql = $"https://fubon-ebrokerdj.fbs.com.tw/z/zg/zgb/zgb0.djhtm?a=9200&b=9268&c=E&e={date}&f={date}";
+        private async Task ParseBrokersAsync(StockDbContext context, string bhid, string b, string date)
+        {
+            var sql = $"https://fubon-ebrokerdj.fbs.com.tw/z/zg/zgb/zgb0.djhtm?a={bhid}&b={b}&c=E&e={date}&f={date}";
 
-        //}
+        }
 
         private async Task ParseStocksAsync(StockDbContext context, string datetime, string filter, BuyType buyType)
         {
