@@ -249,7 +249,9 @@ namespace DataService.Services
                 case (int)ChooseStockType.當天破月線:
                     sql = 當天破月線1(datetime);
                     break;
-                    
+                case (int)ChooseStockType.跳空上漲:
+                    sql = 跳空上漲(datetime);
+                    break;
                 default:
                     var whereCondition = DateFunc[(ChooseStockType)type]();
                     var desc = type >= (int)ChooseStockType.均線上揚第6天 && type <= (int)ChooseStockType.均線上揚第12天 ? "AvgUpDays" : "投信買賣超";
@@ -331,6 +333,29 @@ namespace DataService.Services
   FROM [dbo].[Prices]
   where [Datetime] = '{datetime2}' and  K1 like '%↘' and OSC1 like '%↘') a2  on a1.StockId = a2.StockId
   order by s.StockId";
+        }
+
+        private string 跳空上漲(string datetime)
+        {
+            var dd = Convert.ToDateTime(datetime);
+            var datetime2 = _context.Prices.Where(p => p.StockId == "2330" && p.Datetime < dd)
+                .OrderByDescending(p => p.Datetime)
+                .Select(p => p.Datetime.ToString("yyyy-MM-dd"))
+                .FirstOrDefault();
+
+            return @$"
+  select s.* from (
+  SELECT *
+  FROM [StockDb].[dbo].[Prices]
+  where [Datetime] = '{datetime}') a join 
+  (
+  SELECT *
+  FROM [StockDb].[dbo].[Prices]
+  where [Datetime] = '{datetime2}') b on a.StockId = b.StockId
+  join Stocks s on s.StockId = a.StockId
+  where (a.[Open] - b.[Close]) /  b.[Close] > 0.02 and (a.[Close] - a.[Open]) / a.[Open] > 0.01
+ 　order by a.漲跌百分比 desc
+";
         }
 
         private string 當天破季線且黃金交叉(string datetime)
@@ -637,58 +662,11 @@ order by [股價]
 
         private string Get投信突然加入買方Sql(string datetime)
         {
-            var dd = Convert.ToDateTime(datetime);
-            var datetime2 = _context.Prices.Where(p => p.StockId == "2330" && p.Datetime < dd)
-                .OrderByDescending(p => p.Datetime)
-                .Take(5)
-                .OrderBy(p => p.Datetime)
-                .Select(p => p.Datetime.ToString("yyyy-MM-dd"))
-                .FirstOrDefault();
-
             return $@"
-
-  WITH TOPTEN as (
-   SELECT *, ROW_NUMBER() 
-    over (
-        PARTITION BY [Name] 
-       order by [Datetime] desc
-    ) AS RowNo 
-    FROM [Prices] where [Datetime] <= '{datetime}' and [Datetime] >= '{datetime2}'
-)
-
-select 
-    s.[StockId]
-    ,s.[Name]
-    ,s.[MarketCategory]
-      ,s.[Industry]
-      ,s.[ListingOn]
-      ,s.[CreatedOn]
-      ,s.[UpdatedOn]
-      ,s.[Status]
-      ,s.[Address]
-      ,s.[Website]
-      ,s.[營收比重]
-      ,s.[股本]
-      ,s.[股價]
-      ,s.[每股淨值]
-      ,s.[每股盈餘], s.[ROE], s.[ROA]
-	  ,CAST(t1.[投信買賣超] AS nvarchar(30)) AS [Description]
-      ,s.股票期貨
-from [Stocks]s 
-join TOPTEN t1 on s.StockId = t1.StockId
-join TOPTEN t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
-join TOPTEN t3 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
-join TOPTEN t4 on t1.StockId = t4.StockId and t1.RowNo + 3 = t4.RowNo
-join TOPTEN t5 on t1.StockId = t5.StockId and t1.RowNo + 4 = t5.RowNo
-join TOPTEN t6 on t1.StockId = t6.StockId and t1.RowNo + 5 = t6.RowNo
-WHERE t1.RowNo=1 and 
-t1.[投信買賣超] > 0 and 
-t2.[投信買賣超] <= 0 and
-t3.[投信買賣超] <= 0 and
-t4.[投信買賣超] <= 0 and
-t5.[投信買賣超] <= 0 and
-t6.[投信買賣超] <= 0
-order by t1.[投信買賣超] desc
+SELECT s.*
+  FROM [StockDb].[dbo].[Prices] p join Stocks s on s.StockId = p.StockId
+  where [Datetime] = '{datetime}' and Signal like '%投信大買%'
+  order by 漲跌百分比 desc
 ";
         }
 
@@ -718,44 +696,11 @@ order by t1.[投信買賣超] desc
 
         private string Get融資突然加入買方Sql(string datetime)
         {
-            var dd = Convert.ToDateTime(datetime);
-            var datetime2 = _context.Prices.Where(p => p.StockId == "2330" && p.Datetime < dd)
-                .OrderByDescending(p => p.Datetime)
-                .Take(8)
-                .OrderBy(p => p.Datetime)
-                .Select(p => p.Datetime.ToString("yyyy-MM-dd"))
-                .FirstOrDefault();
-
             return $@"
-
-  WITH TOPTEN as (
-   SELECT *, ROW_NUMBER() 
-    over (
-        PARTITION BY [Name] 
-       order by [Datetime] desc
-    ) AS RowNo 
-    FROM [Prices] where [Datetime] <= '{datetime}' and [Datetime] >= '{datetime2}'
-)
-
-select s.*
-from [Stocks]s 
-join TOPTEN t1 on s.StockId = t1.StockId
-join TOPTEN t2 on t1.StockId = t2.StockId and t1.RowNo + 1 = t2.RowNo
-join TOPTEN t3 on t1.StockId = t3.StockId and t1.RowNo + 2 = t3.RowNo
-join TOPTEN t4 on t1.StockId = t4.StockId and t1.RowNo + 3 = t4.RowNo
-join TOPTEN t5 on t1.StockId = t5.StockId and t1.RowNo + 4 = t5.RowNo
-join TOPTEN t6 on t1.StockId = t6.StockId and t1.RowNo + 5 = t6.RowNo
-join TOPTEN t7 on t1.StockId = t7.StockId and t1.RowNo + 6 = t7.RowNo
-join TOPTEN t8 on t1.StockId = t8.StockId and t1.RowNo + 7 = t8.RowNo
-WHERE t1.RowNo=1 and 
-t1.[融資買進] - t1.[融資賣出] > 10 and 
-t2.[融資買進] - t2.[融資賣出] <= 0 and
-t3.[融資買進] - t3.[融資賣出] <= 0 and
-t4.[融資買進] - t4.[融資賣出] <= 0 and
-t5.[融資買進] - t5.[融資賣出] <= 0 and
-t6.[融資買進] - t6.[融資賣出] <= 0 and
-t7.[融資買進] - t7.[融資賣出] <= 0 and 
-t8.[融資買進] - t8.[融資賣出] <= 0 
+SELECT s.*
+  FROM [StockDb].[dbo].[Prices] p join Stocks s on s.StockId = p.StockId
+  where [Datetime] = '{datetime}' and Signal like '%融資大買%'
+  order by 漲跌百分比 desc
 ";
         }
 
@@ -1800,12 +1745,12 @@ select s.[StockId]
       ,s.[股價]
       ,s.[每股淨值]
       ,s.[每股盈餘], s.[ROE], s.[ROA] 
-	  ,convert(varchar,convert(decimal(18,0),p.主力買超張數 - p.主力賣超張數))as [Description]
+	  ,convert(varchar,convert(decimal(18,0),p.漲跌百分比))as [Description]
       ,股票期貨
 from Prices p
 join Stocks s on p.StockId = s.StockID 
-where p.漲跌百分比 >= 9.65 and p.Datetime = '{datetime}' and  p.主力買超張數 - p.主力賣超張數 > 0
-order by p.主力買超張數 - p.主力賣超張數 desc
+where p.漲跌百分比 >= 9.64 and p.Datetime = '{datetime}'
+order by p.漲跌百分比 desc
 ";
         }
 
@@ -2389,7 +2334,7 @@ order by a.買賣超 desc
 //select
 //a.StockId,
 //a.Name,
-//count(1)
+//count(1)長
 //from Prices a join(
 //SELECT
 //*

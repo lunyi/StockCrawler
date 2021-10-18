@@ -34,10 +34,12 @@ namespace WebCrawler
             var 盤整突破股票 = 盤整突破(context);
             var 均線起飛第一天 = _均線起飛第一天(context);
             var 上漲類股1 = 上漲類股(context);
+            var 跳空上漲1 = 跳空上漲(context);
             await NotifyBotApiAsync(上漲類股1);
             await NotifyBotApiAsync(上漲破月線股票);
             await NotifyBotApiAsync(盤整突破股票);
-            await NotifyBotApiAsync(均線起飛第一天);     
+            await NotifyBotApiAsync(均線起飛第一天);
+            await NotifyBotApiAsync(跳空上漲1);
         }
 
 
@@ -225,6 +227,48 @@ order by a1.成交量 desc
 
                 var p = context.Prices.FirstOrDefault(p => p.Datetime == DateTime.Today && p.StockId == stock.StockId);
                 p.Signal = (p.Signal == null || p.Signal.Contains("當天破月線")) ? "當天破月線" : p.Signal += "::當天破月線";
+
+                index++;
+            }
+
+            context.SaveChanges();
+            return msg.ToString();
+        }
+
+
+        private string 跳空上漲(StockDbContext context)
+        {
+            var datetime2 = context.Prices.Where(p => p.StockId == "2330" && p.Datetime < DateTime.Today)
+               .OrderByDescending(p => p.Datetime)
+               .Take(1)
+               .Select(p => p.Datetime)
+               .FirstOrDefault().ToString("yyyy-MM-dd");
+
+            var sql = @$"
+  select s.* from (
+  SELECT *
+  FROM [StockDb].[dbo].[Prices]
+  where [Datetime] = '{DateTime.Today:yyyy-MM-dd}') a join 
+  (
+  SELECT *
+  FROM [StockDb].[dbo].[Prices]
+  where [Datetime] = '{datetime2}') b on a.StockId = b.StockId
+  join Stocks s on s.StockId = a.StockId
+  where (a.[Open] - b.[Close]) /  b.[Close] > 0.02 and (a.[Close] - a.[Open]) / a.[Open] > 0.01
+ 　order by a.漲跌百分比 desc
+";
+            var stocks = context.Stocks.FromSqlRaw(sql).ToArray();
+
+            var msg = new StringBuilder();
+            msg.AppendLine($"當天跳空上漲股票 : {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+
+            var index = 1;
+            foreach (var stock in stocks)
+            {
+                msg.AppendLine($"{index}. {stock.StockId} {stock.Name} {stock.股價} [{stock.Industry}]({stock.Description}) ");
+
+                var p = context.Prices.FirstOrDefault(p => p.Datetime == DateTime.Today && p.StockId == stock.StockId);
+                p.Signal = (p.Signal == null || p.Signal.Contains("跳空上漲")) ? "跳空上漲" : p.Signal += "::跳空上漲";
 
                 index++;
             }

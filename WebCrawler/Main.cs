@@ -40,7 +40,9 @@ namespace WebCrawler
 
             //Console.ReadLine();
 
-            //await RunAsync<BrokerParser>();
+            var s = new _fixParser();
+            await s.RunAsync(DateTime.Today.AddDays(-1));
+            //await RunAsync<RealtimeStockParser>();
 
             //var context = new StockDbContext();
 
@@ -74,7 +76,9 @@ namespace WebCrawler
 
             //await RunAsync<TwStockParser>();
 
-            await RunAsync<SuddenlyInvestment>();
+            //await RunAsync<SuddenlyInvestment>();
+            //var s = new LongAvgUpDaysParser();
+            //await s.RunAsync();
             //Console.ReadLine();
             //await DailyNotifyAsync();
 

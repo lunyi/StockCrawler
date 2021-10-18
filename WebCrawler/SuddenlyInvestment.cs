@@ -15,7 +15,8 @@ namespace WebCrawler
     {
         融資,
         外資,
-        主力
+        主力,
+        投信
     }
 
 
@@ -37,6 +38,7 @@ namespace WebCrawler
                 { BuyType.主力,  "(a.主力買超張數 - a.主力賣超張數) > b.主力買賣超 * 2 and"},
                 { BuyType.融資, "(a.融資買進 - a.融資賣出) > b.融資買賣超 * 2 and"},
                 { BuyType.外資, "(a.外資買賣超) > b.外資買賣超 * 2 and"},
+                { BuyType.投信, "(a.投信買賣超) > b.投信買賣超 * 2 and"},
             };
 
             var context = new StockDbContext();
@@ -51,6 +53,7 @@ namespace WebCrawler
                 await ParseStocksAsync(context, date, map[BuyType.主力], BuyType.主力);
                 await ParseStocksAsync(context, date, map[BuyType.融資], BuyType.融資);
                 await ParseStocksAsync(context, date, map[BuyType.外資], BuyType.外資);
+                await ParseStocksAsync(context, date, map[BuyType.投信], BuyType.投信);
             }
         }
 
@@ -68,7 +71,8 @@ namespace WebCrawler
                 select StockId, Name, 
 	                avg(abs(融資買進-融資賣出)) as 融資買賣超,
 	                avg(abs(主力買超張數-主力賣超張數)) as 主力買賣超,
-	                avg(abs(外資買賣超)) as 外資買賣超
+	                avg(abs(外資買賣超)) as 外資買賣超,
+                    avg(abs(投信買賣超)) as 投信買賣超
                 from 
 	                [Prices] p 
                   where  p.[Datetime] >= DATEADD(DD, -8, @datetime)  and p.[Datetime] <=DATEADD(DD, -1, @datetime)
@@ -98,6 +102,10 @@ namespace WebCrawler
                 }
                 else
                 {
+                    if (p.Signal.Contains($"::{buyType}大買"))
+                    {
+                        continue;
+                    }
                     p.Signal += $"::{buyType}大買";
                 }
 
