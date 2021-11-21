@@ -30,12 +30,52 @@ namespace WebCrawler
             var 上漲破月線股票 = 上漲破月線(context);
             var 盤整突破股票 = 盤整突破(context);
             var 漲停板股票 = 漲停板(context);
-
+            var _漲停且主力融資大買 = 漲停且主力融資大買(context);
+            var _主力外資融資突然大買 = 主力外資融資突然大買(context);
             
             //await NotifyBotApiAsync(外資投信主力買超股票);
-            await NotifyBotApiAsync(上漲破月線股票);
-            await NotifyBotApiAsync(盤整突破股票);
-            await NotifyBotApiAsync(漲停板股票);
+            await NotifyBotApiAsync(_漲停且主力融資大買);
+            await NotifyBotApiAsync(_主力外資融資突然大買);
+        }
+
+        private string 漲停且主力融資大買(StockDbContext context)
+        {
+            var prices = context.Prices.Where(p =>
+               p.Datetime == DateTime.Today && ( p.漲跌百分比 > 9 || p.Signal.Contains("盤整突破")) 
+               && p.Signal.Contains("主力大買") && (p.Signal.Contains("融資大買") || p.Signal.Contains("外資大買") || p.Signal.Contains("投信大買"))
+           ).OrderByDescending(p => p.漲跌百分比)
+           .ToList();
+
+            var msg = new StringBuilder();
+            msg.AppendLine($"漲停且主力融資大買 : {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+
+            var index = 1;
+            foreach (var price in prices)
+            {
+                msg.AppendLine($"{index}. {price.StockId} {price.Name} {price.Close}");
+                index++;
+            }
+            return msg.ToString();
+        }
+
+        private string 主力外資融資突然大買(StockDbContext context)
+        {
+            var prices = context.Prices.Where(p =>
+               p.Datetime == DateTime.Today && (p.Signal.Contains("外資大買"))
+               && p.Signal.Contains("主力大買") && p.Signal.Contains("融資大買")
+           ).OrderByDescending(p => p.漲跌百分比)
+           .ToList();
+
+            var msg = new StringBuilder();
+            msg.AppendLine($"主力外資融資突然大買 : {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+
+            var index = 1;
+            foreach (var price in prices)
+            {
+                msg.AppendLine($"{index}. {price.StockId} {price.Name} {price.Close}");
+                index++;
+            }
+            return msg.ToString();
         }
 
         private string 漲停板(StockDbContext context)

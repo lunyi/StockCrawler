@@ -91,6 +91,12 @@ namespace DataService.Services
                 case (int)ChooseStockType.連續三個月董資持股增加:
                     sql = 連續三個月董資持股增加(datetime);
                     break;
+                case (int)ChooseStockType.每周融資比例增加:
+                    sql = 每周融資比例增加(datetime);
+                    break;
+                case (int)ChooseStockType.漲停且主力融資大買:
+                    sql = 漲停且主力融資大買(datetime);
+                    break;
                 case (int)ChooseStockType.融資突然買進:
                     sql = Get融資突然加入買方Sql(datetime);
                     break;
@@ -294,7 +300,32 @@ namespace DataService.Services
 ";
         }
 
-            private string 買方籌碼集中排行榜(string datetime, string orderby)
+        
+        private string 漲停且主力融資大買(string datetime) 
+        {
+            return $@"SELECT s.[StockId] ,s.[Name]
+                      ,s.[MarketCategory]
+                      ,s.[Industry]
+                      ,s.[ListingOn]
+                      ,s.[CreatedOn]
+                      ,s.[UpdatedOn]
+                      ,s.[Status]
+                      ,s.[Address]
+                      ,s.[Website]
+                      ,s.[營收比重]
+                      ,s.[股本]
+                      ,s.[股價]
+                      ,s.[每股淨值]
+                      ,s.[每股盈餘], s.[ROE], s.[ROA]
+                      ,CAST(round((主力買超張數 - 主力賣超張數) / (成交量 - 當沖張數), 2) AS nvarchar(30)) AS [Description]
+                      ,s.[股票期貨]
+                  FROM [StockDb].[dbo].[Prices] p join [Stocks] s on s.StockId = p.StockId
+  where  (Signal like '%漲停板%' or Signal like '%盤整突破%') and  Signal like '%主力大買%' and  (Signal like '%融資大買%' or Signal like '%外資大買%' or Signal like '%投信大買%')
+  and [Datetime] = '{datetime}' order by 漲跌百分比 desc
+";
+        }
+
+        private string 買方籌碼集中排行榜(string datetime, string orderby)
         {
             return $@"SELECT s.[StockId] ,s.[Name]
                       ,s.[MarketCategory]
@@ -1330,6 +1361,44 @@ join #tmp t on s.StockId = t.StockId
 order by t.[Count] desc
 
 drop table #tmp";
+        }
+
+        private string 每周融資比例增加(string datetime)
+        {
+            return $@"
+declare @date as [Datetime] = '{datetime}'
+  
+select top 50 a1.StockId, a1.NAme, a1.融資使用率 - a2.融資使用率 as [增加比例] into tmp  from  
+(SELECT [StockId], NAme, 融資使用率
+FROM [StockDb].[dbo].[Prices]
+where  [Datetime] =@date) a1 join  
+(SELECT [StockId], NAme, 融資使用率
+FROM [StockDb].[dbo].[Prices]
+where  [Datetime] = DATEADD(DD,-7, @date) ) a2 on a1.StockId = a2.StockId
+order by (a1.融資使用率 - a2.融資使用率) desc;
+
+select
+	s.[StockId]
+      ,s.[Name]
+      ,s.[MarketCategory]
+      ,s.[Industry]
+      ,s.[ListingOn]
+      ,s.[CreatedOn]
+      ,s.[UpdatedOn]
+      ,s.[Status]
+      ,s.[Address]
+      ,s.[Website]
+      ,s.[營收比重]
+      ,s.[股本]
+      ,s.[股價]
+      ,s.[每股淨值]
+      ,s.[每股盈餘], s.[ROE], s.[ROA]
+      ,CAST((t.[增加比例]) AS nvarchar(30)) AS [Description]
+      ,s.[股票期貨]
+from Stocks s join tmp t on t.StockId = s.StockId
+order by t.[增加比例] desc;
+drop table tmp;
+";
         }
 
         private string 主力連續買超排行榜(string datetime, string 買賣超 = "投信買賣超")

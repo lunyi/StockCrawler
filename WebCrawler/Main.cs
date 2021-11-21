@@ -33,16 +33,18 @@ namespace WebCrawler
             //await ss.RunSingleAsync();
             //await ss.ParserMarginAsync();
 
-            //await new InsertBrokesParser()
-            //    .RunAsync(args[0], args[1]);
+            //await new InsertBrokesParser().RunAsync(args[0], args[1]);
 
             //await new DailySupportParser().RunAsync();
 
             //Console.ReadLine();
 
-            var s = new _fixParser();
-            await s.RunAsync(DateTime.Today.AddDays(-1));
-            //await RunAsync<RealtimeStockParser>();
+
+            //var s = new _fixParser();
+            //await s.RunAsync(DateTime.Today.AddDays(-1));
+
+
+            //await RunAsync<WeekNotifier>();
 
             //var context = new StockDbContext();
 
@@ -56,7 +58,7 @@ namespace WebCrawler
             //await n.RunAsync();
 
 
-            //await RunAsync<DailyNotifier>();
+            await RunAsync<DailyNotifier>();
 
             //InitailLineNotifyBot();
             //var s1 = new StockBrokerParser();
@@ -76,7 +78,9 @@ namespace WebCrawler
 
             //await RunAsync<TwStockParser>();
 
-            //await RunAsync<SuddenlyInvestment>();
+            //await RunAsync<MacdParser>();
+
+
             //var s = new LongAvgUpDaysParser();
             //await s.RunAsync();
             //Console.ReadLine();
