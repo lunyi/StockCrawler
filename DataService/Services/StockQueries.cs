@@ -320,7 +320,7 @@ namespace DataService.Services
                       ,CAST(round((主力買超張數 - 主力賣超張數) / (成交量 - 當沖張數), 2) AS nvarchar(30)) AS [Description]
                       ,s.[股票期貨]
                   FROM [StockDb].[dbo].[Prices] p join [Stocks] s on s.StockId = p.StockId
-  where  (Signal like '%漲停板%' or Signal like '%盤整突破%') and  Signal like '%主力大買%' and  (Signal like '%融資大買%' or Signal like '%外資大買%' or Signal like '%投信大買%')
+  where  (Signal like '%漲停板%' or Signal like '%盤整突破%' or (漲跌百分比>=3)) and  Signal like '%主力大買%' and  (Signal like '%融資大買%' or Signal like '%外資大買%' or Signal like '%投信大買%')
   and [Datetime] = '{datetime}' order by 漲跌百分比 desc
 ";
         }

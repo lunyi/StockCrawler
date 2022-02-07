@@ -27,8 +27,8 @@ namespace WebCrawler
             //var c = new UpdateBrokeListParser();
             //await c.ExecuteAsync(args[0]);
 
-            var c = new SeasonDataCrawler();
-            await c.ExecuteAsync();
+            //var c = new SeasonDataCrawler();
+            //await c.ExecuteAsync();
             //Console.ReadLine();
 
             //if (args.Length != 1)
@@ -37,7 +37,7 @@ namespace WebCrawler
             //    return;
             //}
 
-            //await new DailyTraderCrawler().ExecuteAsync(args[0]);
+            await new DailyTraderCrawler().ExecuteAsync(args[0]);
         }
 
         private static ServiceCollection _serviceCollection;

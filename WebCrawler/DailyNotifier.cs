@@ -41,7 +41,7 @@ namespace WebCrawler
         private string 漲停且主力融資大買(StockDbContext context)
         {
             var prices = context.Prices.Where(p =>
-               p.Datetime == DateTime.Today && ( p.漲跌百分比 > 9 || p.Signal.Contains("盤整突破")) 
+               p.Datetime == DateTime.Today && ( p.漲跌百分比 > 3 || p.Signal.Contains("盤整突破")) 
                && p.Signal.Contains("主力大買") && (p.Signal.Contains("融資大買") || p.Signal.Contains("外資大買") || p.Signal.Contains("投信大買"))
            ).OrderByDescending(p => p.漲跌百分比)
            .ToList();
